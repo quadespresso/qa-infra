@@ -138,7 +138,6 @@ locals {
         keyPath = local.key_path
       }
       role             = host.tags["Role"]
-      # privateInterface = local.ami_obj.interface
       hooks = {
         apply = {
           before = var.hooks_apply_before
@@ -166,7 +165,6 @@ locals {
         keyPath = local.key_path
       }
       role             = host.tags["Role"]
-      # privateInterface = local.ami_obj.interface
       hooks = {
         apply = {
           before = var.hooks_apply_before
@@ -194,7 +192,6 @@ locals {
         keyPath = local.key_path
       }
       role             = host.tags["Role"]
-      # privateInterface = local.ami_obj.interface
       hooks = {
         apply = {
           before = var.hooks_apply_before
@@ -224,7 +221,6 @@ locals {
         insecure = true
       }
       role = host.tags["Role"]
-      # privateInterface = local.ami_obj_win.interface
     }
   ]
   _windows_workers = [
@@ -246,25 +242,6 @@ output "mke_cluster" {
   value = {
     apiVersion = "launchpad.mirantis.com/mke/v1.1"
     kind       = "mke"
-    # spec = {
-    #   mke = {
-    #     version : var.mke_version
-    #     imageRepo : var.mke_image_repo
-    #     installFlags : local.mke_install_flags
-    #   }
-    #   msr = {
-    #     version : var.msr_version
-    #     imageRepo : var.msr_image_repo
-    #     installFlags : var.msr_install_flags
-    #     replicaIDs : var.msr_replica_config
-    #   }
-    #   engine = {
-    #     version : var.engine_version
-    #     channel : var.engine_channel
-    #   }
-    #   hosts = concat(local.managers, local.workers, local.windows_workers, local.msrs)
-    # }
-    # spec = local.spec
     spec = {
       hosts = local.hosts,
       engine = local.engine,
