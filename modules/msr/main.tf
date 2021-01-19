@@ -20,12 +20,12 @@ resource "aws_instance" "msr" {
   count = var.msr_count
 
   tags = {
-    "Name"                    = "${var.cluster_name}-msr-${count.index + 1}"
-    "Role"                    = "msr"
-    "${var.kube_cluster_tag}" = "shared"
-    "project"                 = var.project
-    "platform"                = var.platform
-    "expire"                  = var.expire
+    "Name"                 = "${var.cluster_name}-msr-${count.index + 1}"
+    "Role"                 = "msr"
+    (var.kube_cluster_tag) = "shared"
+    "project"              = var.project
+    "platform"             = var.platform
+    "expire"               = var.expire
   }
 
   instance_type          = var.msr_type

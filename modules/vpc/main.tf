@@ -9,7 +9,7 @@ resource "aws_vpc" "network" {
   enable_dns_hostnames             = true
 
   tags = map(
-    "Name", "${var.cluster_name}",
+    "Name", var.cluster_name,
     "project", var.project
   )
 }
@@ -18,7 +18,7 @@ resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.network.id
 
   tags = map(
-    "Name", "${var.cluster_name}",
+    "Name", var.cluster_name,
     "project", var.project
   )
 }
@@ -32,7 +32,7 @@ resource "aws_route_table" "default" {
   }
 
   tags = map(
-    "Name", "${var.cluster_name}",
+    "Name", var.cluster_name,
     "project", var.project
   )
 }
@@ -52,10 +52,10 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = {
-    "Name"                      = "${var.cluster_name}"
-    "${local.kube_cluster_tag}" = "true"
-    "project"                   = var.project
-    "expire"                    = var.expire
+    "Name"                   = var.cluster_name
+    (local.kube_cluster_tag) = "true"
+    "project"                = var.project
+    "expire"                 = var.expire
   }
 }
 

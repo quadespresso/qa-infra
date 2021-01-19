@@ -21,7 +21,7 @@ variable "platform" {}
 variable "expire" {}
 
 variable "controller_port" {
-  type = string
+  type    = string
   default = "443"
 }
 
@@ -34,7 +34,7 @@ variable "manager_count" {
 }
 
 variable "manager_type" {
-  default = "m5.xlarge"
+  default = "m5.large"
 }
 
 variable "manager_volume_size" {

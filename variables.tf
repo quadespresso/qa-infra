@@ -118,16 +118,16 @@ variable "platform" {
   description = "The Linux platform to use for manager/worker/DTR replica nodes"
 }
 
-variable "engine_version" {
+variable "mcr_version" {
   type        = string
   default     = "19.03.12"
-  description = "The engine version to deploy across all nodes in the cluster."
+  description = "The mcr version to deploy across all nodes in the cluster."
 }
 
-variable "engine_channel" {
+variable "mcr_channel" {
   type        = string
   default     = "stable"
-  description = "The channel to pull the engine installer from."
+  description = "The channel to pull the mcr installer from."
 }
 
 variable "mke_version" {
@@ -199,19 +199,19 @@ variable "platform_repo" {
 }
 
 variable "hooks_apply_before" {
-  type = list(string)
-  default = [""]
+  type        = list(string)
+  default     = [""]
   description = "A list of strings (shell commands) to be run before stages."
 }
 
 variable "hooks_apply_after" {
-  type = list(string)
-  default = [""]
+  type        = list(string)
+  default     = [""]
   description = "A list of strings (shell commands) to be run after stages."
 }
 
 variable "ssh_key_file_path" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "If non-empty, use this path/filename as the ssh key file instead of generating automatically."
 }

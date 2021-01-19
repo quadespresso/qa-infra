@@ -54,8 +54,8 @@ workers
 msrs
 EOF
 
-timestamp "Launchpad begin run"
-launchpad -d apply
-timestamp "Launchpad end run"
+# timestamp "Launchpad begin run"
+# launchpad -d apply
+# timestamp "Launchpad end run"
 
 timestamp "Test run complete"
