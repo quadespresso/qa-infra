@@ -11,10 +11,5 @@ output "private_ips" {
 }
 
 output "machines" {
-<<<<<<< HEAD:system_test_toolbox/launchpad/modules/manager/outputs.tf
-  value = aws_instance.ucp_manager
-}
-=======
   value = aws_instance.mke_manager
 }
->>>>>>> f7fcff6... Cumulative updates to Terraform config:launchpad/modules/manager/outputs.tf

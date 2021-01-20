@@ -34,7 +34,7 @@ variable "manager_count" {
 }
 
 variable "manager_type" {
-  default = "m5.large"
+  default = "t3.2xlarge"
 }
 
 variable "manager_volume_size" {

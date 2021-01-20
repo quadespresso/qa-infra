@@ -78,7 +78,7 @@ variable "manager_type" {
 
 variable "worker_type" {
   type        = string
-  default     = "m5.large"
+  default     = "t3.2xlarge"
   description = "The AWS instance type to use for Linux/Windows worker nodes."
 }
 
