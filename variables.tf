@@ -78,7 +78,7 @@ variable "manager_type" {
 
 variable "worker_type" {
   type        = string
-  default     = "m5.xlarge"
+  default     = "m5.large"
   description = "The AWS instance type to use for Linux/Windows worker nodes."
 }
 
@@ -214,4 +214,10 @@ variable "ssh_key_file_path" {
   type        = string
   default     = ""
   description = "If non-empty, use this path/filename as the ssh key file instead of generating automatically."
+}
+
+variable "open_sg_for_myip" {
+  type        = bool
+  default     = false
+  description = "If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly."
 }

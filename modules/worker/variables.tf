@@ -29,7 +29,7 @@ variable "worker_count" {
 }
 
 variable "worker_type" {
-  default = "m5.xlarge"
+  default = "m5.large"
 }
 
 variable "worker_volume_size" {

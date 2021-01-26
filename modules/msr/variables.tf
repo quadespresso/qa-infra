@@ -29,7 +29,7 @@ variable "msr_count" {
 }
 
 variable "msr_type" {
-  default = "m5.large"
+  default = "m5.xlarge"
 }
 
 variable "msr_volume_size" {

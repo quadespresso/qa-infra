@@ -19,12 +19,13 @@ module "vpc" {
 }
 
 module "common" {
-  source       = "./modules/common"
-  cluster_name = local.cluster_name
-  vpc_id       = module.vpc.id
-  ami_obj      = local.ami_obj
-  ami_obj_win  = local.ami_obj_win
-  key_path     = local.key_path
+  source           = "./modules/common"
+  cluster_name     = local.cluster_name
+  vpc_id           = module.vpc.id
+  ami_obj          = local.ami_obj
+  ami_obj_win      = local.ami_obj_win
+  key_path         = local.key_path
+  open_sg_for_myip = var.open_sg_for_myip
 }
 
 module "managers" {
