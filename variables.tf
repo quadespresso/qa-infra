@@ -16,6 +16,12 @@ variable "project" {
   description = "One of the official cost-tracking project names. Without this, your cluster may get terminated without warning."
 }
 
+variable "cluster_name" {
+  type        = string
+  default     = ""
+  description = "Global cluster name. Use this to override a dynamically created name."
+}
+
 variable "expire_duration" {
   type        = string
   default     = "72h"
@@ -132,7 +138,7 @@ variable "mcr_channel" {
 
 variable "mcr_repo_url" {
   type        = string
-  default     = "https://repos.mirantis.com"
+  default     = "https://repos-stage.mirantis.com/"
   description = "The repository to source the mcr installer."
 }
 

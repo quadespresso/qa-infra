@@ -97,7 +97,7 @@ module "windows_workers" {
 }
 
 locals {
-  cluster_name       = "${var.username}-${var.task_name}-${random_string.random.result}"
+  cluster_name       = var.cluster_name == "" ? "${var.username}-${var.task_name}-${random_string.random.result}" : var.cluster_name
   expire             = timeadd(timestamp(), var.expire_duration)
   kube_orchestration = var.kube_orchestration ? "--default-node-orchestrator=kubernetes" : ""
   ami_obj            = var.platforms[var.platform_repo][var.platform]
