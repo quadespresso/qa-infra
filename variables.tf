@@ -130,6 +130,24 @@ variable "mcr_channel" {
   description = "The channel to pull the mcr installer from."
 }
 
+variable "mcr_repo_url" {
+  type        = string
+  default     = "https://repos.mirantis.com"
+  description = "The repository to source the mcr installer."
+}
+
+variable "mcr_install_url_linux" {
+  type        = string
+  default     = "https://get.mirantis.com/"
+  description = "Location of Linux installer script."
+}
+
+variable "mcr_install_url_windows" {
+  type        = string
+  default     = "https://get.mirantis.com/install.ps1"
+  description = "Location of Windows installer script."
+}
+
 variable "mke_version" {
   type        = string
   default     = "3.3.3"

@@ -123,6 +123,9 @@ locals {
   mcr = {
     version : var.mcr_version
     channel : var.mcr_channel
+    repoURL : var.mcr_repo_url
+    installURLLinux : var.mcr_install_url_linux
+    installURLWindows : var.mcr_install_url_windows
   }
   mke = {
     version : var.mke_version
