@@ -37,15 +37,17 @@ terraform output -json | \
     awk '{print $1, "ansible_host="$2"@"$3, "ansible_ssh_private_key_file="$4}' > ${hosts_tmp}
 
 # expropriate first worker node for use as loadtester
-gsed -i "0,/^worker /s//loadtester /" ${hosts_tmp}
+# gsed -i "0,/^worker /s//loadtester /" ${hosts_tmp}
 
-roles="manager worker msr loadtester"
+# roles="manager worker msr loadtester"
+roles="manager worker msr"
 
 for role in ${roles}; do
     echo "[${role}s]"
     awk 'BEGIN {c=0} ; /^'"${role}"'/ {c++ ; $1=$1c; print}' ${hosts_tmp}
     echo
 done > ${hosts_ini}
+rm ${hosts_tmp}
 
 cat << EOF >> ${hosts_ini}
 [cluster:children]
@@ -54,8 +56,8 @@ workers
 msrs
 EOF
 
-timestamp "Launchpad begin run"
-launchpad -d apply
-timestamp "Launchpad end run"
+# timestamp "Launchpad begin run"
+# launchpad -d apply
+# timestamp "Launchpad end run"
 
 timestamp "Test run complete"

@@ -1,7 +1,18 @@
-resource "aws_security_group" "worker" {
-  name        = "${var.cluster_name}-workers"
-  description = "mke cluster workers"
-  vpc_id      = var.vpc_id
+locals {
+  tags = merge(
+    var.globals.tags,
+    {
+      "Name" = "${var.globals.cluster_name}-${var.node_role}"
+      "Role" = var.node_role
+    }
+  )
+  os_type = "linux"
+}
+
+resource "aws_security_group" "node" {
+  name        = "${var.globals.cluster_name}-${var.node_role}s"
+  description = "MKE cluster ${var.node_role}s"
+  vpc_id      = var.globals.vpc_id
 
   ingress {
     from_port   = 443
@@ -11,45 +22,14 @@ resource "aws_security_group" "worker" {
   }
 }
 
-locals {
-  subnet_count = length(var.subnet_ids)
-}
-
-
-resource "aws_instance" "mke_worker" {
-  count = var.worker_count
-
-  tags = {
-    "Name"                 = "${var.cluster_name}-worker-${count.index + 1}"
-    "Role"                 = "worker"
-    (var.kube_cluster_tag) = "shared"
-    "project"              = var.project
-    "platform"             = var.platform
-    "expire"               = var.expire
-  }
-
-  instance_type          = var.worker_type
-  iam_instance_profile   = var.instance_profile_name
-  ami                    = var.image_id
-  key_name               = var.ssh_key
-  vpc_security_group_ids = [var.security_group_id, aws_security_group.worker.id]
-  subnet_id              = var.subnet_ids[count.index % local.subnet_count]
-  ebs_optimized          = true
-  user_data              = <<EOF
-#!/bin/bash
-# Use full qualified private DNS name for the host name.  Kube wants it this way.
-HOSTNAME=$(curl http://169.254.169.254/latest/meta-data/hostname)
-echo $HOSTNAME > /etc/hostname
-grep -q $HOSTNAME /etc/hosts || sed -ie "s|\(^127\.0\..\.. .*$\)|\1 $HOSTNAME|" /etc/hosts
-hostname $HOSTNAME
-EOF
-
-  lifecycle {
-    ignore_changes = [ami]
-  }
-
-  root_block_device {
-    volume_type = "gp2"
-    volume_size = var.worker_volume_size
-  }
+module "spot" {
+  source        = "../spot"
+  globals       = var.globals
+  node_count    = var.node_count
+  instance_type = var.node_instance_type
+  node_role     = var.node_role
+  volume_size   = var.node_volume_size
+  asg_node_id   = aws_security_group.node.id
+  os_type       = local.os_type
+  tags          = local.tags
 }

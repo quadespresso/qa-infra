@@ -1,42 +1,31 @@
-variable "cluster_name" {}
-
-variable "vpc_id" {}
-
-variable "instance_profile_name" {}
-
-variable "security_group_id" {}
-
-variable "subnet_ids" {
-  type = list(string)
+variable "node_count" {
+  type        = number
+  default     = 3
+  description = "Number of nodes/machines."
 }
 
-variable "image_id" {}
+variable "node_instance_type" {
+  type        = string
+  default     = "m5.large"
+  description = "AWS instance type of the nodes/machines."
+}
 
-variable "kube_cluster_tag" {}
+variable "node_volume_size" {
+  type        = number
+  default     = 100
+  description = "Size in GB of the root volume of the nodes/machines."
+}
 
-variable "project" {}
-
-variable "platform" {}
-
-variable "expire" {}
+variable "node_role" {
+  type        = string
+  description = "The node's role in the cluster, ie, manager/worker/msr/windows."
+}
 
 variable "controller_port" {
   type    = string
   default = "443"
 }
 
-variable "ssh_key" {
-  description = "SSH key name"
-}
-
-variable "manager_count" {
-  default = 3
-}
-
-variable "manager_type" {
-  default = "m5.xlarge"
-}
-
-variable "manager_volume_size" {
-  default = 100
+variable "globals" {
+  description = "Map of global variables."
 }

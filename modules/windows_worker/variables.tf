@@ -1,36 +1,34 @@
-variable "cluster_name" {}
-
-variable "vpc_id" {}
-
-variable "instance_profile_name" {}
-
-variable "security_group_id" {}
-
-variable "subnet_ids" {
-  type = list(string)
+variable "globals" {
+  description = "Map of global variables."
 }
 
-variable "image_id" {}
-
-variable "kube_cluster_tag" {}
-
-variable "project" {}
-
-variable "platform" {}
-
-variable "expire" {}
-
-variable "worker_count" {
-  default = 0
+variable "image_id" {
+  type        = string
+  description = "Amazon Machine Image ID for Windows."
 }
 
-variable "worker_type" {
-  default = "m5.large"
+variable "node_count" {
+  type        = number
+  default     = 0
+  description = "Number of Windows nodes."
 }
 
-variable "worker_volume_size" {
+variable "node_role" {
+  type        = string
+  description = "The node's role in the cluster, ie, manager/worker/msr."
+}
+
+variable "node_instance_type" {
+  type        = string
+  default     = "m5.large"
+  description = "AWS instance type of the nodes/machines."
+}
+
+variable "node_volume_size" {
   default = 100
 }
 
-variable "windows_administrator_password" {
+variable "win_admin_password" {
+  type        = string
+  description = "Windows administrator password."
 }

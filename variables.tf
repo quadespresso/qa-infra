@@ -138,7 +138,7 @@ variable "mcr_channel" {
 
 variable "mcr_repo_url" {
   type        = string
-  default     = "https://repos-stage.mirantis.com/"
+  default     = "https://repos-stage.mirantis.com"
   description = "The repository to source the mcr installer."
 }
 
@@ -244,4 +244,10 @@ variable "open_sg_for_myip" {
   type        = bool
   default     = false
   description = "If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly."
+}
+
+variable "pct_over_spot_price" {
+  type        = number
+  default     = 2
+  description = "Percentage above the current spot instance price, where '2' == '2%'. Set to '0' to default to on-demand price."
 }

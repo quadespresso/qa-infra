@@ -91,6 +91,9 @@ resource "aws_security_group_rule" "open_myip" {
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_iam_role" "role" {

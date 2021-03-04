@@ -28,72 +28,50 @@ module "common" {
   open_sg_for_myip = var.open_sg_for_myip
 }
 
+module "elb" {
+  source          = "./modules/elb"
+  controller_port = local.controller_port
+  machine_ids     = module.managers.machine_ids
+  manager_count   = var.manager_count
+  globals         = local.globals
+}
+
 module "managers" {
-  source                = "./modules/manager"
-  manager_count         = var.manager_count
-  vpc_id                = module.vpc.id
-  cluster_name          = local.cluster_name
-  subnet_ids            = module.vpc.public_subnet_ids
-  security_group_id     = module.common.security_group_id
-  image_id              = module.common.image_id
-  kube_cluster_tag      = module.common.kube_cluster_tag
-  ssh_key               = local.cluster_name
-  instance_profile_name = module.common.instance_profile_name
-  project               = var.project
-  platform              = var.platform
-  expire                = local.expire
-  controller_port       = local.controller_port
+  source             = "./modules/manager"
+  node_role          = "manager"
+  node_count         = var.manager_count
+  node_instance_type = var.manager_type
+  node_volume_size   = var.manager_volume_size
+  controller_port    = local.controller_port
+  globals            = local.globals
 }
 
 module "workers" {
-  source                = "./modules/worker"
-  worker_count          = var.worker_count
-  vpc_id                = module.vpc.id
-  cluster_name          = local.cluster_name
-  subnet_ids            = module.vpc.public_subnet_ids
-  security_group_id     = module.common.security_group_id
-  image_id              = module.common.image_id
-  kube_cluster_tag      = module.common.kube_cluster_tag
-  ssh_key               = local.cluster_name
-  instance_profile_name = module.common.instance_profile_name
-  worker_type           = var.worker_type
-  project               = var.project
-  platform              = var.platform
-  expire                = local.expire
+  source             = "./modules/worker"
+  node_role          = "worker"
+  node_count         = var.worker_count
+  node_instance_type = var.worker_type
+  node_volume_size   = var.worker_volume_size
+  globals            = local.globals
 }
 
 module "msrs" {
-  source                = "./modules/msr"
-  msr_count             = var.msr_count
-  vpc_id                = module.vpc.id
-  cluster_name          = local.cluster_name
-  subnet_ids            = module.vpc.public_subnet_ids
-  security_group_id     = module.common.security_group_id
-  image_id              = module.common.image_id
-  kube_cluster_tag      = module.common.kube_cluster_tag
-  ssh_key               = local.cluster_name
-  instance_profile_name = module.common.instance_profile_name
-  msr_type              = var.msr_type
-  project               = var.project
-  platform              = var.platform
-  expire                = local.expire
+  source             = "./modules/msr"
+  node_role          = "msr"
+  node_count         = var.msr_count
+  node_instance_type = var.msr_type
+  node_volume_size   = var.msr_volume_size
+  globals            = local.globals
 }
 
 module "windows_workers" {
-  source                         = "./modules/windows_worker"
-  worker_count                   = var.windows_worker_count
-  vpc_id                         = module.vpc.id
-  cluster_name                   = local.cluster_name
-  subnet_ids                     = module.vpc.public_subnet_ids
-  security_group_id              = module.common.security_group_id
-  image_id                       = module.common.windows_2019_image_id
-  kube_cluster_tag               = module.common.kube_cluster_tag
-  instance_profile_name          = module.common.instance_profile_name
-  worker_type                    = var.worker_type
-  project                        = var.project
-  platform                       = "Windows"
-  expire                         = local.expire
-  windows_administrator_password = var.windows_administrator_password
+  source             = "./modules/windows_worker"
+  node_role          = "worker"
+  node_count         = var.windows_worker_count
+  node_instance_type = var.worker_type
+  image_id           = module.common.windows_2019_image_id
+  win_admin_password = var.windows_administrator_password
+  globals            = local.globals
 }
 
 locals {
@@ -102,11 +80,51 @@ locals {
   kube_orchestration = var.kube_orchestration ? "--default-node-orchestrator=kubernetes" : ""
   ami_obj            = var.platforms[var.platform_repo][var.platform]
   ami_obj_win        = var.platforms[var.platform_repo]["windows_2019"]
+
+  platform_details_map = {
+    "centos" : "Linux/UNIX",
+    "oracle" : "Linux/UNIX",
+    "rhel" : "Red Hat Enterprise Linux",
+    "sles" : "SUSE Linux",
+    "ubuntu" : "Linux/UNIX",
+    "windows" : "Windows"
+  }
+  distro = split("_", var.platform)[0]
+
+  globals = {
+    tags = {
+      "Name"                                        = local.cluster_name
+      "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+      "project"                                     = var.project
+      "platform"                                    = var.platform
+      "expire"                                      = local.expire
+    }
+    distro                = local.distro
+    platform_details      = local.platform_details_map[local.distro]
+    subnet_count          = length(module.vpc.public_subnet_ids)
+    az_names_count        = length(module.vpc.az_names)
+    spot_price_multiplier = 1 + (var.pct_over_spot_price / 100)
+    pct_over_spot_price   = var.pct_over_spot_price
+    vpc_id                = module.vpc.id
+    cluster_name          = local.cluster_name
+    subnet_ids            = module.vpc.public_subnet_ids
+    az_names              = module.vpc.az_names
+    security_group_id     = module.common.security_group_id
+    image_id              = module.common.image_id
+    root_device_name      = module.common.root_device_name
+    ssh_key               = local.cluster_name
+    instance_profile_name = module.common.instance_profile_name
+    project               = var.project
+    platform              = var.platform
+    expire                = local.expire
+    iam_fleet_role        = "arn:aws:iam::546848686991:role/aws-ec2-spot-fleet-role"
+  }
+
   mke_install_flags = concat([
     "--admin-username=${var.admin_username}",
     "--admin-password=${var.admin_password}",
     local.kube_orchestration,
-    "--san=${module.managers.lb_dns_name}",
+    "--san=${module.elb.lb_dns_name}",
     ],
     var.mke_install_flags
   )
@@ -140,14 +158,14 @@ locals {
     replicaIDs : var.msr_replica_config
   }
 
-  managers = [
+  managers = var.manager_count == 0 ? [] : [
     for host in module.managers.machines : {
-      address = host.public_ip
+      address = host[0] # public_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
       }
-      role = host.tags["Role"]
+      role = "manager"
       hooks = {
         apply = {
           before = var.hooks_apply_before
@@ -156,25 +174,25 @@ locals {
       }
     }
   ]
-  _managers = [
+  _managers = var.manager_count == 0 ? [] : [
     for host in module.managers.machines : {
-      address   = host.public_ip
-      privateIp = host.private_ip
+      address   = host[0] # public_ip
+      privateIp = host[1] # private_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
       }
-      role = host.tags["Role"]
+      role = "manager"
     }
   ]
-  workers = [
+  workers = var.worker_count == 0 ? [] : [
     for host in module.workers.machines : {
-      address = host.public_ip
+      address = host[0] # public_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
       }
-      role = host.tags["Role"]
+      role = "worker"
       hooks = {
         apply = {
           before = var.hooks_apply_before
@@ -183,25 +201,25 @@ locals {
       }
     }
   ]
-  _workers = [
+  _workers = var.worker_count == 0 ? [] : [
     for host in module.workers.machines : {
-      address   = host.public_ip
-      privateIp = host.private_ip
+      address   = host[0] # public_ip
+      privateIp = host[1] # private_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
       }
-      role = host.tags["Role"]
+      role = "worker"
     }
   ]
-  msrs = [
+  msrs = var.msr_count == 0 ? [] : [
     for host in module.msrs.machines : {
-      address = host.public_ip
+      address = host[0] # public_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
       }
-      role = host.tags["Role"]
+      role = "msr"
       hooks = {
         apply = {
           before = var.hooks_apply_before
@@ -210,40 +228,40 @@ locals {
       }
     }
   ]
-  _msrs = [
+  _msrs = var.msr_count == 0 ? [] : [
     for host in module.msrs.machines : {
-      address   = host.public_ip
-      privateIp = host.private_ip
+      address   = host[0] # public_ip
+      privateIp = host[1] # private_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
       }
-      role = host.tags["Role"]
+      role = "msr"
     }
   ]
-  windows_workers = [
+  windows_workers = var.windows_worker_count == 0 ? [] : [
     for host in module.windows_workers.machines : {
-      address = host.public_ip
+      address = host[0] # public_ip
       winRM = {
         user     = local.ami_obj_win.user
         password = var.windows_administrator_password
         useHTTPS = true
         insecure = true
       }
-      role = host.tags["Role"]
+      role = "worker"
     }
   ]
-  _windows_workers = [
+  _windows_workers = var.windows_worker_count == 0 ? [] : [
     for host in module.windows_workers.machines : {
-      address   = host.public_ip
-      privateIp = host.private_ip
+      address   = host[0] # public_ip
+      privateIp = host[1] # private_ip
       winRM = {
         user     = local.ami_obj_win.user
         password = var.windows_administrator_password
         useHTTPS = true
         insecure = true
       }
-      role = host.tags["Role"]
+      role = "worker"
     }
   ]
 }
