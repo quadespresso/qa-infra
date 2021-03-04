@@ -6,6 +6,10 @@ output "image_id" {
   value = data.aws_ami.linux.id
 }
 
+output "root_device_name" {
+  value = data.aws_ami.linux.block_device_mappings.*.device_name[0]
+}
+
 output "windows_2019_image_id" {
   value = data.aws_ami.windows_2019.id
 }

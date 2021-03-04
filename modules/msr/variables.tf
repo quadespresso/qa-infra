@@ -12,6 +12,8 @@ variable "subnet_ids" {
 
 variable "image_id" {}
 
+variable "root_device_name" {}
+
 variable "kube_cluster_tag" {}
 
 variable "project" {}
@@ -34,4 +36,15 @@ variable "msr_type" {
 
 variable "msr_volume_size" {
   default = 100
+}
+
+variable "az_names" {}
+
+variable "pct_over_spot_price" {
+  type    = number
+  default = 2
+}
+
+variable "platform_details" {
+  type = string
 }
