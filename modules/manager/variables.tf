@@ -29,3 +29,14 @@ variable "controller_port" {
 variable "globals" {
   description = "Map of global variables."
 }
+
+variable "az_names" {}
+
+variable "pct_over_spot_price" {
+  type    = number
+  default = 2
+}
+
+variable "platform_details" {
+  type = string
+}
