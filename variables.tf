@@ -138,7 +138,7 @@ variable "mcr_channel" {
 
 variable "mcr_repo_url" {
   type        = string
-  default     = "https://repos-stage.mirantis.com"
+  default     = "https://s3.amazonaws.com/repos-internal.mirantis.com"
   description = "The repository to source the mcr installer."
 }
 

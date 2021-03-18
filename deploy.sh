@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ulimit -n 512
+
 timestamp() {
     echo "[INFO] $(date -u "+%Y-%m-%dT%H:%M:%SZ") \"$1\""
 }
@@ -36,10 +38,6 @@ terraform output -json | \
     paste - - - - | \
     awk '{print $1, "ansible_host="$2"@"$3, "ansible_ssh_private_key_file="$4}' > ${hosts_tmp}
 
-# expropriate first worker node for use as loadtester
-# gsed -i "0,/^worker /s//loadtester /" ${hosts_tmp}
-
-# roles="manager worker msr loadtester"
 roles="manager worker msr"
 
 for role in ${roles}; do
@@ -55,9 +53,5 @@ managers
 workers
 msrs
 EOF
-
-# timestamp "Launchpad begin run"
-# launchpad -d apply
-# timestamp "Launchpad end run"
 
 timestamp "Test run complete"
