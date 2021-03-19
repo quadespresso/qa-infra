@@ -70,7 +70,7 @@ How we use these files:
 
 * variables of particular interest:
   * `windows_administrator_password` tends to be finicky; if you're experiencing Windows deployment issues, start here (and ask the team)
-  * `platform_name` popular choices include `rhel_8.2`, `rhel_7.8`, `ubuntu_18.04` - to see the full list, review `platforms.auto.tfvars.json`
+  * `platform_name` popular choices include `rhel_8.2`, `rhel_7.8`, `ubuntu_18.04` - to see the full list, review `platforms.auto.tfvars.json` (eg, `jq '.platforms.public | keys' < platforms.auto.tfvars.json` for the public AMIs or `jq '.platforms.mirantis | keys' < platforms.auto.tfvars.json` for the private Mirantis AMIs)
   * `open_sg_for_myip` will add a SG rule which opens up your cluster to all ports/protocols from your IP (and only from your IP), in addition to the other minimalist SG rules; don't use this unless you have a need to access other ports (eg, troubleshooting, accessing a swarm or kube service you've created, etc)
 
 * `variables.tf`
