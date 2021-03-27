@@ -31,13 +31,14 @@ module "common" {
 module "elb" {
   source          = "./modules/elb"
   controller_port = local.controller_port
-  machine_ids     = module.managers.machine_ids
+  machine_ids     = module.managers[0].machine_ids
   manager_count   = var.manager_count
   globals         = local.globals
 }
 
 module "managers" {
   source             = "./modules/manager"
+  count              = var.manager_count == 0 ? 0 : 1
   node_role          = "manager"
   node_count         = var.manager_count
   node_instance_type = var.manager_type
@@ -48,6 +49,7 @@ module "managers" {
 
 module "workers" {
   source             = "./modules/worker"
+  count              = var.worker_count == 0 ? 0 : 1
   node_role          = "worker"
   node_count         = var.worker_count
   node_instance_type = var.worker_type
@@ -57,6 +59,7 @@ module "workers" {
 
 module "msrs" {
   source             = "./modules/msr"
+  count              = var.msr_count == 0 ? 0 : 1
   node_role          = "msr"
   node_count         = var.msr_count
   node_instance_type = var.msr_type
@@ -66,6 +69,7 @@ module "msrs" {
 
 module "windows_workers" {
   source             = "./modules/windows_worker"
+  count              = var.windows_worker_count == 0 ? 0 : 1
   node_role          = "worker"
   node_count         = var.windows_worker_count
   node_instance_type = var.worker_type
@@ -159,8 +163,8 @@ locals {
   }
 
   managers = var.manager_count == 0 ? [] : [
-    for host in module.managers.machines : {
-      address = host[0] # public_ip
+    for host in module.managers[0].instances : {
+      address = host.instance.public_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
@@ -175,9 +179,9 @@ locals {
     }
   ]
   _managers = var.manager_count == 0 ? [] : [
-    for host in module.managers.machines : {
-      address   = host[0] # public_ip
-      privateIp = host[1] # private_ip
+    for host in module.managers[0].instances : {
+      address   = host.instance.public_ip
+      privateIp = host.instance.private_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
@@ -185,9 +189,10 @@ locals {
       role = "manager"
     }
   ]
+
   workers = var.worker_count == 0 ? [] : [
-    for host in module.workers.machines : {
-      address = host[0] # public_ip
+    for host in module.workers[0].instances : {
+      address = host.instance.public_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
@@ -202,9 +207,9 @@ locals {
     }
   ]
   _workers = var.worker_count == 0 ? [] : [
-    for host in module.workers.machines : {
-      address   = host[0] # public_ip
-      privateIp = host[1] # private_ip
+    for host in module.workers[0].instances : {
+      address   = host.instance.public_ip
+      privateIp = host.instance.private_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
@@ -213,8 +218,8 @@ locals {
     }
   ]
   msrs = var.msr_count == 0 ? [] : [
-    for host in module.msrs.machines : {
-      address = host[0] # public_ip
+    for host in module.msrs[0].instances : {
+      address = host.instance.public_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
@@ -229,9 +234,9 @@ locals {
     }
   ]
   _msrs = var.msr_count == 0 ? [] : [
-    for host in module.msrs.machines : {
-      address   = host[0] # public_ip
-      privateIp = host[1] # private_ip
+    for host in module.msrs[0].instances : {
+      address   = host.instance.public_ip
+      privateIp = host.instance.private_ip
       ssh = {
         user    = local.ami_obj.user
         keyPath = local.key_path
@@ -240,8 +245,8 @@ locals {
     }
   ]
   windows_workers = var.windows_worker_count == 0 ? [] : [
-    for host in module.windows_workers.machines : {
-      address = host[0] # public_ip
+    for host in module.windows_workers[0].instances : {
+      address = host.instance.public_ip
       winRM = {
         user     = local.ami_obj_win.user
         password = var.windows_administrator_password
@@ -252,9 +257,9 @@ locals {
     }
   ]
   _windows_workers = var.windows_worker_count == 0 ? [] : [
-    for host in module.windows_workers.machines : {
-      address   = host[0] # public_ip
-      privateIp = host[1] # private_ip
+    for host in module.windows_workers[0].instances : {
+      address   = host.instance.public_ip
+      privateIp = host.instance.private_ip
       winRM = {
         user     = local.ami_obj_win.user
         password = var.windows_administrator_password
@@ -264,10 +269,8 @@ locals {
       role = "worker"
     }
   ]
-}
 
-output "mke_cluster" {
-  value = {
+  mke_cluster = {
     apiVersion = "launchpad.mirantis.com/mke/v1.2"
     kind       = "mke"
     spec = {
@@ -277,14 +280,50 @@ output "mke_cluster" {
       msr   = local.msr
     }
   }
+  _mke_cluster = concat(local._managers, local._workers, local._windows_workers, local._msrs)
+}
+
+# Write configs to YAML files
+
+resource "local_file" "launchpad_yaml" {
+  content  = yamlencode(local.mke_cluster)
+  filename = "launchpad.yaml"
+}
+
+resource "local_file" "nodes_yaml" {
+  content  = yamlencode(local._mke_cluster)
+  filename = "nodes.yaml"
+}
+
+# Create Ansible inventory file
+resource "local_file" "ansible_inventory" {
+  content = templatefile("modules/templates/inventory.tmpl",
+    {
+      user      = local.ami_obj.user,
+      key_file  = local.key_path,
+      mgr_hosts = var.manager_count == 0 ? [] : module.managers[0].instances,
+      mgr_idxs  = range(var.manager_count),
+      wkr_hosts = var.worker_count == 0 ? [] : module.workers[0].instances,
+      wkr_idxs  = range(var.worker_count),
+      msr_hosts = var.msr_count == 0 ? [] : module.msrs[0].instances,
+      msr_idxs  = range(var.msr_count)
+    }
+  )
+  filename = "hosts.ini"
+}
+
+output "mke_cluster" {
+  value = local.mke_cluster
 }
 
 output "_mke_cluster" {
-  value = {
-    hosts = concat(local._managers, local._workers, local._windows_workers, local._msrs)
-  }
+  value = local._mke_cluster
 }
 
 output "cluster_name" {
   value = local.cluster_name
+}
+
+output "mke_lb" {
+  value = "https://${module.elb.lb_dns_name}"
 }

@@ -1,3 +1,3 @@
-output "machines" {
-  value = module.spot.nodes
+output "instances" {
+  value = module.spot.instances
 }

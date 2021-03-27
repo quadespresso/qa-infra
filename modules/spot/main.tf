@@ -1,10 +1,5 @@
 locals {
-  nodes = var.node_count == 0 ? [] : [
-    for k, v in zipmap(
-      data.aws_instances.machines[0].public_ips,
-      data.aws_instances.machines[0].private_ips
-  ) : [k, v]]
-  node_ids = var.node_count == 0 ? [] : data.aws_instances.machines[0].ids
+  node_ids = var.node_count == 0 ? [] : data.aws_instances.machines.ids
 }
 
 data "aws_ec2_spot_price" "current" {
@@ -80,7 +75,6 @@ resource "aws_spot_fleet_request" "node" {
 }
 
 data "aws_instances" "machines" {
-  count = var.node_count == 0 ? 0 : 1
   # we use this to collect the instance IDs/IPs from the spot fleet request
   filter {
     name   = "tag:aws:ec2spot:fleet-request-id"
@@ -88,4 +82,10 @@ data "aws_instances" "machines" {
   }
   instance_state_names = ["running", "pending"]
   depends_on           = [aws_spot_fleet_request.node]
+}
+
+module "instances" {
+  source      = "../instances"
+  count       = var.node_count
+  instance_id = data.aws_instances.machines.ids[count.index]
 }
