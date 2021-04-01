@@ -52,7 +52,7 @@ data "aws_ami" "windows_2019" {
 }
 
 data "http" "myip" {
-  url = "http://ifconfig.me"
+  url = "http://ipinfo.io/ip"
 }
 
 resource "aws_security_group" "common" {
