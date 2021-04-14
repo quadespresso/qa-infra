@@ -132,7 +132,7 @@ variable "platform" {
 
 variable "mcr_version" {
   type        = string
-  default     = "19.03.12"
+  default     = "19.03.15"
   description = "The mcr version to deploy across all nodes in the cluster."
 }
 
@@ -162,7 +162,7 @@ variable "mcr_install_url_windows" {
 
 variable "mke_version" {
   type        = string
-  default     = "3.3.3"
+  default     = "3.3.8"
   description = "The UCP version to deploy."
 }
 
@@ -186,7 +186,7 @@ variable "kube_orchestration" {
 
 variable "msr_version" {
   type        = string
-  default     = "2.8.3"
+  default     = "2.8.6"
   description = "The DTR version to deploy."
 }
 
