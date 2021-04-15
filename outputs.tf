@@ -173,6 +173,12 @@ output "mke_lb" {
   value = "https://${module.elb.lb_dns_name}"
 }
 
+# Use this output is you are trying to build your own launchpad yaml and need
+# the value for "--san={}
+output "mke_san" {
+  value = module.elb.lb_dns_name
+}
+
 output "ansible_inventory" {
   value = local.ansible_inventory
 }
