@@ -87,7 +87,7 @@ resource "aws_spot_fleet_request" "windows" {
   iam_fleet_role      = var.globals.iam_fleet_role
   allocation_strategy = "lowestPrice"
   target_capacity     = var.node_count
-  # valid_until     = "2019-11-04T20:44:20Z"
+  valid_until                         = var.globals.expire
   wait_for_fulfillment                = true
   tags                                = local.tags
   terminate_instances_with_expiration = true
