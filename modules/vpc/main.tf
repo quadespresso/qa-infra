@@ -7,56 +7,32 @@ resource "aws_vpc" "network" {
   assign_generated_ipv6_cidr_block = true
   enable_dns_support               = true
   enable_dns_hostnames             = true
-
-  tags = map(
-    "Name", var.cluster_name,
-    "project", var.project
-  )
+  tags                             = var.global_tags
 }
 
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.network.id
-
-  tags = map(
-    "Name", var.cluster_name,
-    "project", var.project
-  )
+  tags   = var.global_tags
 }
 
 resource "aws_route_table" "default" {
   vpc_id = aws_vpc.network.id
+  tags   = var.global_tags
 
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gateway.id
   }
-
-  tags = map(
-    "Name", var.cluster_name,
-    "project", var.project
-  )
-}
-
-locals {
-  kube_cluster_tag = "kubernetes.io/cluster/${var.cluster_name}"
 }
 
 # Subnets (one per availability zone)
 resource "aws_subnet" "public" {
-  count = 3
-
-  vpc_id            = aws_vpc.network.id
-  availability_zone = data.aws_availability_zones.all.names[count.index]
-
+  count                   = 3
+  vpc_id                  = aws_vpc.network.id
+  availability_zone       = data.aws_availability_zones.all.names[count.index]
   cidr_block              = cidrsubnet(var.host_cidr, 8, count.index)
   map_public_ip_on_launch = true
-
-  tags = {
-    "Name"                   = var.cluster_name
-    (local.kube_cluster_tag) = "true"
-    "project"                = var.project
-    "expire"                 = var.expire
-  }
+  tags                    = var.global_tags
 }
 
 resource "aws_route_table_association" "public" {

@@ -13,6 +13,7 @@ resource "aws_security_group" "node" {
   name        = "${var.globals.cluster_name}-${var.node_role}s"
   description = "MKE cluster ${var.node_role}s"
   vpc_id      = var.globals.vpc_id
+  tags        = local.tags
 
   ingress {
     from_port = 2379

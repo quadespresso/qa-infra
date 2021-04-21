@@ -21,6 +21,7 @@ resource "aws_lb_target_group" "mke_manager_api" {
   port     = var.controller_port
   protocol = "TCP"
   vpc_id   = var.globals.vpc_id
+  tags     = local.tags
   health_check {
     path     = "/_ping"
     protocol = "HTTPS"
@@ -49,6 +50,7 @@ resource "aws_lb_target_group" "mke_kube_api" {
   port     = 6443
   protocol = "TCP"
   vpc_id   = var.globals.vpc_id
+  tags     = local.tags
 }
 
 resource "aws_lb_listener" "mke_kube_api" {

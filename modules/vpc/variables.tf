@@ -1,8 +1,6 @@
-variable "cluster_name" {}
-
-variable "project" {}
-
-variable "expire" {}
+variable "global_tags" {
+  description = "Map of global tags."
+}
 
 variable "host_cidr" {
   description = "CIDR IPv4 range to assign to EC2 nodes"

@@ -49,9 +49,9 @@ resource "aws_launch_template" "linux" {
 ###
 
 resource "aws_spot_fleet_request" "node" {
-  iam_fleet_role      = var.globals.iam_fleet_role
-  allocation_strategy = "lowestPrice"
-  target_capacity     = var.node_count
+  iam_fleet_role                      = var.globals.iam_fleet_role
+  allocation_strategy                 = "lowestPrice"
+  target_capacity                     = var.node_count
   valid_until                         = var.globals.expire
   wait_for_fulfillment                = true
   terminate_instances_with_expiration = true

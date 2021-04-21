@@ -1,5 +1,9 @@
 variable "cluster_name" {}
 
+variable "global_tags" {
+  description = "Map of global tags."
+}
+
 variable "vpc_id" {}
 
 variable "platform" {

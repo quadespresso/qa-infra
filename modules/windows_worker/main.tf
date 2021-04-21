@@ -2,20 +2,22 @@ locals {
   tags = merge(
     var.globals.tags,
     {
-      "Name" = "${var.globals.cluster_name}-win-${var.node_role}"
-      "Role" = "win-${var.node_role}"
+      "Name"     = "${var.globals.cluster_name}-win-${var.node_role}"
+      "Role"     = "win-${var.node_role}"
+      "platform" = local.platform
     }
   )
-  os_type          = "windows"
-  platform_details = "Windows"
-  az_names_count   = length(var.globals.az_names)
-  node_ids         = var.node_count == 0 ? [] : data.aws_instances.machines.ids
+  platform            = "windows_2019"
+  product_description = "Windows"
+  az_names_count      = length(var.globals.az_names)
+  node_ids            = var.node_count == 0 ? [] : data.aws_instances.machines.ids
 }
 
 resource "aws_security_group" "worker" {
   name        = "${var.globals.cluster_name}-win-workers"
   description = "mke cluster windows workers"
   vpc_id      = var.globals.vpc_id
+  tags        = local.tags
 
   ingress {
     from_port   = 5985
@@ -33,7 +35,7 @@ data "aws_ec2_spot_price" "current" {
 
   filter {
     name   = "product-description"
-    values = [local.platform_details]
+    values = [local.product_description]
   }
 }
 
@@ -84,9 +86,9 @@ resource "aws_launch_template" "windows" {
 }
 
 resource "aws_spot_fleet_request" "windows" {
-  iam_fleet_role      = var.globals.iam_fleet_role
-  allocation_strategy = "lowestPrice"
-  target_capacity     = var.node_count
+  iam_fleet_role                      = var.globals.iam_fleet_role
+  allocation_strategy                 = "lowestPrice"
+  target_capacity                     = var.node_count
   valid_until                         = var.globals.expire
   wait_for_fulfillment                = true
   tags                                = local.tags

@@ -10,7 +10,7 @@ locals {
     var.manager_count == 0 ? [] : [
       for host in module.managers[0].instances : {
         instance = host.instance
-        ami: local.ami_obj
+        ami : local.ami_obj
         role = "manager"
         # @TODO put this into the template, not here
         ssh = {
@@ -29,7 +29,7 @@ locals {
     var.worker_count == 0 ? [] : [
       for host in module.workers[0].instances : {
         instance = host.instance
-        ami: local.ami_obj
+        ami : local.ami_obj
         role = "worker"
         # @TODO put this into the template, not here
         ssh = {
@@ -48,7 +48,7 @@ locals {
     var.msr_count == 0 ? [] : [
       for host in module.msrs[0].instances : {
         instance = host.instance
-        ami: local.ami_obj
+        ami : local.ami_obj
         role = "msr"
         # @TODO put this into the template, not here
         ssh = {
@@ -67,7 +67,7 @@ locals {
     var.windows_worker_count == 0 ? [] : [
       for host in module.windows_workers[0].instances : {
         instance = host.instance
-        ami: local.ami_obj_win
+        ami : local.ami_obj_win
         role = "worker"
         # @TODO put this into the template, not here
         winrm = {
@@ -87,29 +87,29 @@ locals {
   launchpad_1_3 = yamldecode(templatefile("${path.module}/templates/mke_cluster.1_3.tpl",
     {
       cluster_name = local.cluster_name
-      key_path = local.key_path
+      key_path     = local.key_path
 
       hosts = local.hosts
 
-      mcr_version = var.mcr_version
-      mcr_channel = var.mcr_channel
-      mcr_repoURL = var.mcr_repo_url
-      mcr_installURLLinux = var.mcr_install_url_linux
+      mcr_version           = var.mcr_version
+      mcr_channel           = var.mcr_channel
+      mcr_repoURL           = var.mcr_repo_url
+      mcr_installURLLinux   = var.mcr_install_url_linux
       mcr_installURLWindows = var.mcr_install_url_windows
 
-      mke_version = var.mke_version
-      mke_image_repo = var.mke_image_repo
-      mke_admin_username = var.admin_username
-      mke_admin_password = var.admin_password
-      mke_san = module.elb.lb_dns_name
+      mke_version            = var.mke_version
+      mke_image_repo         = var.mke_image_repo
+      mke_admin_username     = var.admin_username
+      mke_admin_password     = var.admin_password
+      mke_san                = module.elb.lb_dns_name
       mke_kube_orchestration = var.kube_orchestration
-      mke_installFlags = var.mke_install_flags
-      mke_upgradeFlags = []
+      mke_installFlags       = var.mke_install_flags
+      mke_upgradeFlags       = []
 
-      msr_version = var.msr_version
-      msr_image_repo = var.msr_image_repo
-      msr_count = var.msr_count
-      msr_installFlags = var.msr_install_flags
+      msr_version        = var.msr_version
+      msr_image_repo     = var.msr_image_repo
+      msr_count          = var.msr_count
+      msr_installFlags   = var.msr_install_flags
       msr_replica_config = var.msr_replica_config
 
       cluster_prune = false
@@ -122,7 +122,7 @@ locals {
   nodes = yamldecode(templatefile("${path.module}/templates/nodes_yaml.tpl",
     {
       key_path = local.key_path
-      hosts = local.hosts
+      hosts    = local.hosts
     }
   ))
 
@@ -197,6 +197,6 @@ resource "local_file" "nodes_yaml" {
 
 # Create Ansible inventory file
 resource "local_file" "ansible_inventory" {
-  content = local.ansible_inventory
+  content  = local.ansible_inventory
   filename = "hosts.ini"
 }

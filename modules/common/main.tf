@@ -17,6 +17,7 @@ resource "local_file" "ssh_public_key" {
 resource "aws_key_pair" "key" {
   key_name   = var.cluster_name
   public_key = tls_private_key.ssh_key.public_key_openssh
+  tags       = var.global_tags
 }
 
 data "aws_ami" "linux" {
@@ -59,6 +60,7 @@ resource "aws_security_group" "common" {
   name        = "${var.cluster_name}-common"
   description = "mke cluster common rules"
   vpc_id      = var.vpc_id
+  tags        = var.global_tags
 
   ingress {
     from_port = 0
@@ -97,8 +99,8 @@ resource "aws_security_group_rule" "open_myip" {
 }
 
 resource "aws_iam_role" "role" {
-  name = "${var.cluster_name}_host"
-
+  name               = "${var.cluster_name}_host"
+  tags               = var.global_tags
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",

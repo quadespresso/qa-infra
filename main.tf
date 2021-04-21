@@ -11,11 +11,9 @@ provider "aws" {
 }
 
 module "vpc" {
-  source       = "./modules/vpc"
-  cluster_name = local.cluster_name
-  host_cidr    = var.vpc_cidr
-  project      = var.project
-  expire       = local.expire
+  source      = "./modules/vpc"
+  host_cidr   = var.vpc_cidr
+  global_tags = local.global_tags
 }
 
 module "common" {
@@ -26,6 +24,7 @@ module "common" {
   ami_obj_win      = local.ami_obj_win
   key_path         = local.key_path
   open_sg_for_myip = var.open_sg_for_myip
+  global_tags      = local.global_tags
 }
 
 module "elb" {
@@ -95,19 +94,21 @@ locals {
   }
   distro = split("_", var.platform)[0]
 
+  global_tags = merge(
+    {
+      "Name"                                        = local.cluster_name
+      "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+      "project"                                     = var.project
+      "platform"                                    = var.platform
+      "expire"                                      = local.expire
+      "username"                                    = var.username
+      "task_name"                                   = var.task_name
+    },
+    var.extra_tags
+  )
+
   globals = {
-    tags = merge(
-      {
-        "Name"                                        = local.cluster_name
-        "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-        "project"                                     = var.project
-        "platform"                                    = var.platform
-        "expire"                                      = local.expire
-        "username"                                    = var.username
-        "task_name"                                   = var.task_name
-      },
-      var.extra_tags
-    )
+    tags                  = local.global_tags
     distro                = local.distro
     platform_details      = local.platform_details_map[local.distro]
     subnet_count          = length(module.vpc.public_subnet_ids)
@@ -130,13 +131,13 @@ locals {
   }
 
   # convert MKE install flags into a map
-  mke_opts        = {for f in var.mke_install_flags : trimprefix(element(split("=", f), 0), "--") => element(split("=", f), 1) }
+  mke_opts = { for f in var.mke_install_flags : trimprefix(element(split("=", f), 0), "--") => element(split("=", f), 1) }
   # discover if there is a controller port override.
   controller_port = try(
     local.mke_opts.controller_port,
     "443"
   )
   # Pick a path for saving the RSA private key
-  key_path        = var.ssh_key_file_path == "" ? "./ssh_keys/${local.cluster_name}.pem" : var.ssh_key_file_path
+  key_path = var.ssh_key_file_path == "" ? "./ssh_keys/${local.cluster_name}.pem" : var.ssh_key_file_path
 
 }
