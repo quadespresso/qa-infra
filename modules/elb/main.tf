@@ -3,69 +3,27 @@ locals {
     var.globals.tags,
     {
       "Name" = "${var.globals.cluster_name}-elb"
-      "Role" = "MKE ELB"
+      "Role" = "${upper(var.component)} ELB"
     }
   )
 }
 
-resource "aws_lb" "mke_manager" {
-  name               = "${var.globals.cluster_name}-manager-lb"
+resource "aws_lb" "lb" {
+  name               = "${var.globals.cluster_name}-${var.component}-lb"
   internal           = false
   load_balancer_type = "network"
   subnets            = var.globals.subnet_ids
   tags               = local.tags
 }
 
-resource "aws_lb_target_group" "mke_manager_api" {
-  name     = "${var.globals.cluster_name}-api"
-  port     = var.controller_port
-  protocol = "TCP"
-  vpc_id   = var.globals.vpc_id
-  tags     = local.tags
-  health_check {
-    path     = "/_ping"
-    protocol = "HTTPS"
-  }
-}
-
-resource "aws_lb_listener" "mke_manager_api" {
-  load_balancer_arn = aws_lb.mke_manager.arn
-  port              = var.controller_port
-  protocol          = "TCP"
-  default_action {
-    target_group_arn = aws_lb_target_group.mke_manager_api.arn
-    type             = "forward"
-  }
-}
-
-resource "aws_lb_target_group_attachment" "mke_manager_api" {
-  count            = var.manager_count
-  target_group_arn = aws_lb_target_group.mke_manager_api.arn
-  target_id        = var.machine_ids[count.index]
-  port             = var.controller_port
-}
-
-resource "aws_lb_target_group" "mke_kube_api" {
-  name     = "${var.globals.cluster_name}-kube-api"
-  port     = 6443
-  protocol = "TCP"
-  vpc_id   = var.globals.vpc_id
-  tags     = local.tags
-}
-
-resource "aws_lb_listener" "mke_kube_api" {
-  load_balancer_arn = aws_lb.mke_manager.arn
-  port              = 6443
-  protocol          = "TCP"
-  default_action {
-    target_group_arn = aws_lb_target_group.mke_kube_api.arn
-    type             = "forward"
-  }
-}
-
-resource "aws_lb_target_group_attachment" "mke_kube_api" {
-  count            = var.manager_count
-  target_group_arn = aws_lb_target_group.mke_kube_api.arn
-  target_id        = var.machine_ids[count.index]
-  port             = 6443
+module "lb_targets" {
+  source          = "./lb_targets"
+  for_each        = toset(var.ports)
+  port            = each.key
+  arn             = aws_lb.lb.arn
+  component       = var.component
+  globals         = var.globals
+  machine_ids     = var.machine_ids
+  node_count      = var.node_count
+  tags            = local.tags
 }

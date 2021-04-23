@@ -1,7 +1,7 @@
-variable "ports" {
-  type        = list(string)
-  default     = ["443"]
-  description = "Ports for the target groups."
+variable "port" {
+  type        = string
+  default     = "443"
+  description = "Port for the target group."
 }
 
 variable "node_count" {
@@ -20,4 +20,12 @@ variable "component" {
 
 variable "globals" {
   description = "Map of global variables."
+}
+
+variable "arn" {
+    description = "LB-specific ARN"
+}
+
+variable "tags" {
+    description = "LB-specific map of tags"
 }

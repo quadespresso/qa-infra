@@ -101,7 +101,7 @@ locals {
       mke_image_repo         = var.mke_image_repo
       mke_admin_username     = var.admin_username
       mke_admin_password     = var.admin_password
-      mke_san                = module.elb.lb_dns_name
+      mke_san                = module.elb_mke.lb_dns_name
       mke_kube_orchestration = var.kube_orchestration
       mke_installFlags       = var.mke_install_flags
       mke_upgradeFlags       = []
@@ -170,13 +170,18 @@ output "cluster_name" {
 }
 
 output "mke_lb" {
-  value = "https://${module.elb.lb_dns_name}"
+  value = "https://${module.elb_mke.lb_dns_name}"
 }
 
 # Use this output is you are trying to build your own launchpad yaml and need
 # the value for "--san={}
 output "mke_san" {
-  value = module.elb.lb_dns_name
+  value = module.elb_mke.lb_dns_name
+}
+
+output "msr_lb" {
+  # If no MSR replicas, then no LB should exist
+  value = try("https://${module.elb_msr[0].lb_dns_name}", null)
 }
 
 output "ansible_inventory" {

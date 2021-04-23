@@ -27,11 +27,22 @@ module "common" {
   global_tags      = local.global_tags
 }
 
-module "elb" {
+module "elb_mke" {
   source          = "./modules/elb"
-  controller_port = local.controller_port
+  component       = "mke"
+  ports           = [local.controller_port,"6443"]
   machine_ids     = module.managers[0].machine_ids
-  manager_count   = var.manager_count
+  node_count      = var.manager_count
+  globals         = local.globals
+}
+
+module "elb_msr" {
+  source          = "./modules/elb"
+  count           = var.msr_count == 0 ? 0 : 1
+  component       = "msr"
+  ports           = ["443"]
+  machine_ids     = module.msrs[0].machine_ids
+  node_count      = var.msr_count
   globals         = local.globals
 }
 
