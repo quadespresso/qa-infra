@@ -88,12 +88,16 @@ module "windows_workers" {
   globals            = local.globals
 }
 
+# get our (client) id
+data "aws_caller_identity" "current" {}
+
 locals {
   cluster_name       = var.cluster_name == "" ? random_string.random.result : var.cluster_name
   expire             = timeadd(timestamp(), var.expire_duration)
   kube_orchestration = var.kube_orchestration ? "--default-node-orchestrator=kubernetes" : ""
   ami_obj            = var.platforms[var.platform_repo][var.platform]
   ami_obj_win        = var.platforms[var.platform_repo]["windows_2019"]
+  user_id            = data.aws_caller_identity.current.user_id
 
   platform_details_map = {
     "centos" : "Linux/UNIX",
@@ -112,6 +116,7 @@ locals {
       "project"                                     = var.project
       "platform"                                    = var.platform
       "expire"                                      = local.expire
+      "user_id"                                     = local.user_id
       "username"                                    = var.username
       "task_name"                                   = var.task_name
     },
