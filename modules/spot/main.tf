@@ -3,7 +3,7 @@ locals {
 }
 
 data "aws_ec2_spot_price" "current" {
-  count             = length(var.globals.az_names)
+  count             = 3
   instance_type     = var.instance_type
   availability_zone = var.globals.az_names[count.index]
   filter {
@@ -51,6 +51,7 @@ resource "aws_launch_template" "linux" {
 resource "aws_spot_fleet_request" "node" {
   iam_fleet_role                      = var.globals.iam_fleet_role
   allocation_strategy                 = "lowestPrice"
+  fleet_type                          = "request"
   target_capacity                     = var.node_count
   valid_until                         = var.globals.expire
   wait_for_fulfillment                = true
