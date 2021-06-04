@@ -6,6 +6,8 @@ resource "random_string" "random" {
   min_numeric = 2
 }
 
+resource "time_static" "now" {}
+
 provider "aws" {
   region = var.aws_region
 }
@@ -28,22 +30,22 @@ module "common" {
 }
 
 module "elb_mke" {
-  source          = "./modules/elb"
-  component       = "mke"
-  ports           = [local.controller_port,"6443"]
-  machine_ids     = module.managers[0].machine_ids
-  node_count      = var.manager_count
-  globals         = local.globals
+  source      = "./modules/elb"
+  component   = "mke"
+  ports       = [local.controller_port, "6443"]
+  machine_ids = module.managers[0].machine_ids
+  node_count  = var.manager_count
+  globals     = local.globals
 }
 
 module "elb_msr" {
-  source          = "./modules/elb"
-  count           = var.msr_count == 0 ? 0 : 1
-  component       = "msr"
-  ports           = ["443"]
-  machine_ids     = module.msrs[0].machine_ids
-  node_count      = var.msr_count
-  globals         = local.globals
+  source      = "./modules/elb"
+  count       = var.msr_count == 0 ? 0 : 1
+  component   = "msr"
+  ports       = ["443"]
+  machine_ids = module.msrs[0].machine_ids
+  node_count  = var.msr_count
+  globals     = local.globals
 }
 
 module "managers" {
@@ -93,7 +95,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   cluster_name       = var.cluster_name == "" ? random_string.random.result : var.cluster_name
-  expire             = timeadd(timestamp(), var.expire_duration)
+  expire             = timeadd(time_static.now.rfc3339, var.expire_duration)
   kube_orchestration = var.kube_orchestration ? "--default-node-orchestrator=kubernetes" : ""
   ami_obj            = var.platforms[var.platform_repo][var.platform]
   ami_obj_win        = var.platforms[var.platform_repo]["windows_2019"]
