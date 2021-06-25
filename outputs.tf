@@ -109,7 +109,7 @@ locals {
       msr_version        = var.msr_version
       msr_image_repo     = var.msr_image_repo
       msr_count          = var.msr_count
-      msr_installFlags   = var.msr_install_flags
+      msr_installFlags   = local.msr_install_flags
       msr_replica_config = var.msr_replica_config
 
       cluster_prune = false

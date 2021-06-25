@@ -100,6 +100,10 @@ locals {
   ami_obj            = var.platforms[var.platform_repo][var.platform]
   ami_obj_win        = var.platforms[var.platform_repo]["windows_2019"]
   user_id            = data.aws_caller_identity.current.user_id
+  msr_install_flags  = concat(
+                        var.msr_install_flags,
+                        [try("--dtr-external-url=${module.elb_msr[0].lb_dns_name}", null)]
+                       )
 
   platform_details_map = {
     "centos" : "Linux/UNIX",
