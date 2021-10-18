@@ -12,8 +12,25 @@ data "aws_ec2_spot_price" "current" {
   }
 }
 
+locals {
+  templates_dir = "${path.module}/../templates"
+  # use custom per-platform template (eg, "rhel_8.4") if it exists,
+  # otherwise use default
+  user_data_linux_tmpl = fileexists(
+      "${local.templates_dir}/user_data_${var.globals.platform}.tpl"
+    ) ? (
+      file(
+        "${local.templates_dir}/user_data_${var.globals.platform}.tpl"
+      )
+    ) : (
+        file(
+          "${local.templates_dir}/user_data_linux.tpl"
+        )
+    )
+}
+
 data "template_file" "linux" {
-  template = file("${path.module}/../templates/user_data_linux.tpl")
+  template = local.user_data_linux_tmpl
 }
 
 resource "aws_launch_template" "linux" {
