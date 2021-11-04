@@ -13,24 +13,35 @@ data "aws_ec2_spot_price" "current" {
 }
 
 locals {
-  templates_dir = "${path.module}/../templates"
-  # use custom per-platform template (eg, "rhel_8.4") if it exists,
-  # otherwise use default
-  user_data_linux_tmpl = fileexists(
-      "${local.templates_dir}/user_data_${var.globals.platform}.tpl"
+  scripts_dir = "${path.module}/../scripts"
+  base_linux_script = file("${local.scripts_dir}/user_data_linux.sh")
+  platform_script = fileexists(
+      "${local.scripts_dir}/user_data_${var.globals.platform}.sh"
     ) ? (
-      file(
-        "${local.templates_dir}/user_data_${var.globals.platform}.tpl"
-      )
+        file(
+          "${local.scripts_dir}/user_data_${var.globals.platform}.sh"
+        )
     ) : (
         file(
-          "${local.templates_dir}/user_data_linux.tpl"
+          "${local.scripts_dir}/user_data_default.sh"
         )
     )
 }
 
-data "template_file" "linux" {
-  template = local.user_data_linux_tmpl
+data "cloudinit_config" "linux" {
+  gzip = false
+  base64_encode = false
+
+  part {
+    content_type = "text/x-shellscript"
+    content = local.base_linux_script
+    filename = "baselinux.sh"
+  }
+  part {
+    content_type = "text/x-shellscript"
+    content = local.platform_script
+    filename = "platform.sh"
+  }
 }
 
 resource "aws_launch_template" "linux" {
@@ -47,7 +58,8 @@ resource "aws_launch_template" "linux" {
       volume_size = var.volume_size
     }
   }
-  user_data = base64encode(data.template_file.linux.rendered)
+  # user_data = base64encode(data.template_file.linux.rendered)
+  user_data = base64encode(data.cloudinit_config.linux.rendered)
   tags      = var.tags
   tag_specifications {
     resource_type = "instance"

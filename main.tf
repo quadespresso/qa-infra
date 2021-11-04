@@ -160,6 +160,111 @@ locals {
     "443"
   )
   # Pick a path for saving the RSA private key
-  key_path = var.ssh_key_file_path == "" ? "./ssh_keys/${local.cluster_name}.pem" : var.ssh_key_file_path
+  key_path = var.ssh_key_file_path == "" ? "${path.root}/ssh_keys/${local.cluster_name}.pem" : var.ssh_key_file_path
 
+  # Build a list of all machine hosts used in the cluster.
+  # @NOTE This list is a meta structure that contains all of the host info used
+  #    to build constructs such as the ansible hosts file, the launchpad yaml
+  #    or the PRODENG toolbox config
+  #
+  hosts = concat(
+    var.manager_count == 0 ? [] : [
+      for host in module.managers[0].instances : {
+        instance = host.instance
+        ami : local.ami_obj
+        role = "manager"
+        # @TODO put this into the template, not here
+        ssh = {
+          address = host.instance.public_ip
+          user    = local.ami_obj.user
+          keyPath = local.key_path
+        }
+        hooks = {
+          apply = {
+            before = var.hooks_apply_before
+            after  = var.hooks_apply_after
+          }
+        }
+      }
+    ],
+    var.worker_count == 0 ? [] : [
+      for host in module.workers[0].instances : {
+        instance = host.instance
+        ami : local.ami_obj
+        role = "worker"
+        # @TODO put this into the template, not here
+        ssh = {
+          address = host.instance.public_ip
+          user    = local.ami_obj.user
+          keyPath = local.key_path
+        }
+        hooks = {
+          apply = {
+            before = var.hooks_apply_before
+            after  = var.hooks_apply_after
+          }
+        }
+      }
+    ],
+    var.msr_count == 0 ? [] : [
+      for host in module.msrs[0].instances : {
+        instance = host.instance
+        ami : local.ami_obj
+        role = "msr"
+        # @TODO put this into the template, not here
+        ssh = {
+          address = host.instance.public_ip
+          user    = local.ami_obj.user
+          keyPath = local.key_path
+        }
+        hooks = {
+          apply = {
+            before = var.hooks_apply_before
+            after  = var.hooks_apply_after
+          }
+        }
+      }
+    ],
+    var.windows_worker_count == 0 ? [] : [
+      for host in module.windows_workers[0].instances : {
+        instance = host.instance
+        ami : local.ami_obj_win
+        role = "worker"
+        # @TODO put this into the template, not here
+        winrm = {
+          address  = host.instance.public_ip
+          user     = local.ami_obj_win.user
+          password = var.windows_administrator_password
+          useHTTPS = true
+          insecure = true
+        }
+      }
+    ]
+  )
+
+}
+
+# Verify node Ready state post-cloud-init
+# @NOTE Remote ssh into each node and verify that cloud-init
+#    has completed, prior to concluding terraform run.
+#    Safeguards against launchpad starting prior to user-init
+#    completing.
+resource "null_resource" "cluster" {
+  triggers = {
+    cluster_instance_ids = join(",", local.hosts.*.instance.id)
+  }
+  count = length(local.hosts)
+
+  connection {
+    type        = "ssh"
+    host        = local.hosts[count.index].instance.public_ip
+    user        = local.ami_obj.user
+    private_key = file(local.key_path)
+    agent       = false
+  }
+  provisioner "remote-exec" {
+    inline = [
+    "sudo cloud-init status --wait"
+    ]
+  }
 }
