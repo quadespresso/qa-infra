@@ -157,6 +157,16 @@ resource "aws_iam_role_policy" "policy" {
           "autoscaling:TerminateInstanceInAutoScalingGroup"
       ],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [ "route53:*" ],
+      "Resource": [ "*" ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [ "arn:aws:s3:::kubernetes-*" ]
     }
   ]
 }

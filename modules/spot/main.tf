@@ -51,6 +51,9 @@ resource "aws_launch_template" "linux" {
   key_name               = var.globals.ssh_key
   vpc_security_group_ids = [var.globals.security_group_id, var.asg_node_id]
   ebs_optimized          = true
+  iam_instance_profile {
+    name = var.globals.instance_profile_name
+  }
   block_device_mappings {
     device_name = var.globals.root_device_name
     ebs {
@@ -58,7 +61,6 @@ resource "aws_launch_template" "linux" {
       volume_size = var.volume_size
     }
   }
-  # user_data = base64encode(data.template_file.linux.rendered)
   user_data = base64encode(data.cloudinit_config.linux.rendered)
   tags      = var.tags
   tag_specifications {
