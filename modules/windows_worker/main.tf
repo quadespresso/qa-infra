@@ -1,11 +1,16 @@
 locals {
-  tags = merge(
-    var.globals.tags,
-    {
-      "Name"     = "${var.globals.cluster_name}-win-${var.node_role}"
-      "Role"     = "win-${var.node_role}"
+  node_role = {
+      "Name" = "${var.globals.cluster_name}-win-${var.node_role}"
+      "Role" = var.node_role
       "platform" = local.platform
     }
+  tags = merge(
+    var.globals.tags,
+    local.node_role
+  )
+  tags_nokube = merge(
+    var.globals.tags_nokube,
+    local.node_role
   )
   platform            = "windows_2019"
   product_description = "Windows"
@@ -17,7 +22,7 @@ resource "aws_security_group" "worker" {
   name        = "${var.globals.cluster_name}-win-workers"
   description = "mke cluster windows workers"
   vpc_id      = var.globals.vpc_id
-  tags        = local.tags
+  tags        = local.tags_nokube
 
   ingress {
     from_port   = 5985

@@ -115,21 +115,28 @@ locals {
   }
   distro = split("_", var.platform)[0]
 
-  global_tags = merge(
-    {
-      "Name"                                        = local.cluster_name
-      "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-      "project"                                     = var.project
-      "platform"                                    = var.platform
-      "expire"                                      = local.expire
-      "user_id"                                     = local.user_id
-      "username"                                    = var.username
-      "task_name"                                   = var.task_name
+  global_tags_nokube = merge(
+    { # excludes kube-specific tags
+      "Name"      = local.cluster_name
+      "project"   = var.project
+      "platform"  = var.platform
+      "expire"    = local.expire
+      "user_id"   = local.user_id
+      "username"  = var.username
+      "task_name" = var.task_name
     },
     var.extra_tags
   )
 
+  global_tags = merge(
+    { # kube-specific tags
+      "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+    },
+    local.global_tags_nokube
+  )
+
   globals = {
+    tags_nokube           = local.global_tags_nokube
     tags                  = local.global_tags
     distro                = local.distro
     platform_details      = local.platform_details_map[local.distro]
