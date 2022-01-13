@@ -85,6 +85,7 @@ module "windows_workers" {
   node_role          = "worker"
   node_count         = var.windows_worker_count
   node_instance_type = var.worker_type
+  node_volume_size   = var.win_worker_volume_size
   image_id           = module.common.windows_2019_image_id
   win_admin_password = var.windows_administrator_password
   globals            = local.globals
@@ -98,7 +99,7 @@ locals {
   expire             = timeadd(time_static.now.rfc3339, var.expire_duration)
   kube_orchestration = var.kube_orchestration ? "--default-node-orchestrator=kubernetes" : ""
   ami_obj            = var.platforms[var.platform_repo][var.platform]
-  ami_obj_win        = var.platforms[var.platform_repo]["windows_2019"]
+  ami_obj_win        = var.platforms[var.platform_repo][var.win_platform]
   user_id            = data.aws_caller_identity.current.user_id
   msr_install_flags  = concat(
                         var.msr_install_flags,
@@ -117,13 +118,14 @@ locals {
 
   global_tags_nokube = merge(
     { # excludes kube-specific tags
-      "Name"      = local.cluster_name
-      "project"   = var.project
-      "platform"  = var.platform
-      "expire"    = local.expire
-      "user_id"   = local.user_id
-      "username"  = var.username
-      "task_name" = var.task_name
+      "Name"         = local.cluster_name
+      "project"      = var.project
+      "platform"     = var.platform
+      "win_platform" = var.win_platform
+      "expire"       = local.expire
+      "user_id"      = local.user_id
+      "username"     = var.username
+      "task_name"    = var.task_name
     },
     var.extra_tags
   )
@@ -155,6 +157,7 @@ locals {
     instance_profile_name = module.common.instance_profile_name
     project               = var.project
     platform              = var.platform
+    win_platform          = var.win_platform
     expire                = local.expire
     iam_fleet_role        = "arn:aws:iam::546848686991:role/aws-ec2-spot-fleet-role"
   }
@@ -174,7 +177,7 @@ locals {
   #    to build constructs such as the ansible hosts file, the launchpad yaml
   #    or the PRODENG toolbox config
   #
-  hosts = concat(
+  hosts_linux = concat(
     var.manager_count == 0 ? [] : [
       for host in module.managers[0].instances : {
         instance = host.instance
@@ -231,22 +234,26 @@ locals {
           }
         }
       }
-    ],
-    var.windows_worker_count == 0 ? [] : [
-      for host in module.windows_workers[0].instances : {
-        instance = host.instance
-        ami : local.ami_obj_win
-        role = "worker"
-        # @TODO put this into the template, not here
-        winrm = {
-          address  = host.instance.public_ip
-          user     = local.ami_obj_win.user
-          password = var.windows_administrator_password
-          useHTTPS = true
-          insecure = true
-        }
-      }
     ]
+  )
+  hosts_win = var.windows_worker_count == 0 ? [] : [
+    for host in module.windows_workers[0].instances : {
+      instance = host.instance
+      ami : local.ami_obj_win
+      role = "worker"
+      # @TODO put this into the template, not here
+      winrm = {
+        address  = host.instance.public_ip
+        user     = local.ami_obj_win.user
+        password = var.windows_administrator_password
+        useHTTPS = true
+        insecure = true
+      }
+    }
+  ]
+  hosts = concat(
+    local.hosts_linux,
+    local.hosts_win
   )
 
 }
@@ -258,13 +265,13 @@ locals {
 #    completing.
 resource "null_resource" "cluster" {
   triggers = {
-    cluster_instance_ids = join(",", local.hosts.*.instance.id)
+    cluster_instance_ids = join(",", local.hosts_linux.*.instance.id)
   }
-  count = length(local.hosts)
+  count = length(local.hosts_linux)
 
   connection {
     type        = "ssh"
-    host        = local.hosts[count.index].instance.public_ip
+    host        = local.hosts_linux[count.index].instance.public_ip
     user        = local.ami_obj.user
     private_key = file(local.key_path)
     agent       = false

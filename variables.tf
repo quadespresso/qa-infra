@@ -112,6 +112,12 @@ variable "worker_volume_size" {
   description = "The volume size (in GB) to use for worker nodes."
 }
 
+variable "win_worker_volume_size" {
+  type        = number
+  default     = 100
+  description = "The volume size (in GB) to use for Windows worker nodes."
+}
+
 variable "msr_volume_size" {
   type        = number
   default     = 100
@@ -128,6 +134,12 @@ variable "platform" {
   type        = string
   default     = "ubuntu_18.04"
   description = "The Linux platform to use for manager/worker/DTR replica nodes"
+}
+
+variable "win_platform" {
+  type        = string
+  default     = "windows_2019"
+  description = "The Windows platform to use for worker nodes"
 }
 
 variable "mcr_version" {

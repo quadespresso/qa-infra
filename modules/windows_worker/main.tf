@@ -2,7 +2,7 @@ locals {
   node_role = {
       "Name" = "${var.globals.cluster_name}-win-${var.node_role}"
       "Role" = var.node_role
-      "platform" = local.platform
+      win_platform = local.win_platform
     }
   tags = merge(
     var.globals.tags,
@@ -12,7 +12,8 @@ locals {
     var.globals.tags_nokube,
     local.node_role
   )
-  platform            = "windows_2019"
+  # platform            = "windows_2019"
+  win_platform        = var.globals.win_platform
   product_description = "Windows"
   az_names_count      = length(var.globals.az_names)
   node_ids            = var.node_count == 0 ? [] : data.aws_instances.machines.ids
@@ -98,6 +99,9 @@ resource "aws_spot_fleet_request" "windows" {
   wait_for_fulfillment                = true
   tags                                = local.tags
   terminate_instances_with_expiration = true
+  timeouts {
+    create = "15m"
+  }
 
   launch_template_config {
     launch_template_specification {

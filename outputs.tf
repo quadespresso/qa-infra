@@ -53,12 +53,15 @@ locals {
     {
       user      = local.ami_obj.user,
       key_file  = local.key_path,
+      win_passwd = var.windows_administrator_password,
       mgr_hosts = var.manager_count == 0 ? [] : module.managers[0].instances,
       mgr_idxs  = range(var.manager_count),
       wkr_hosts = var.worker_count == 0 ? [] : module.workers[0].instances,
       wkr_idxs  = range(var.worker_count),
       msr_hosts = var.msr_count == 0 ? [] : module.msrs[0].instances,
-      msr_idxs  = range(var.msr_count)
+      msr_idxs  = range(var.msr_count),
+      win_wkr_hosts = var.windows_worker_count == 0 ? [] : module.windows_workers[0].instances,
+      win_wkr_idxs  = range(var.windows_worker_count)
     }
   )
 }

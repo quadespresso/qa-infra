@@ -13,7 +13,18 @@ worker${idx} ansible_host=${user}@${wkr_hosts[idx].instance.public_ip} ansible_s
 msr${idx} ansible_host=${user}@${msr_hosts[idx].instance.public_ip} ansible_ssh_private_key_file=${key_file}
 %{ endfor ~}
 
-[cluster:children]
+[windows]
+%{ for idx in win_wkr_idxs ~}
+win${idx} ansible_host=${win_wkr_hosts[idx].instance.public_ip}
+%{ endfor ~}
+
+[windows:vars]
+ansible_user=administrator
+ansible_password=${win_passwd}
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore
+
+[linux:children]
 managers
 workers
 msrs

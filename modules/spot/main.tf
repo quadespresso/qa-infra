@@ -88,6 +88,9 @@ resource "aws_spot_fleet_request" "node" {
   wait_for_fulfillment                = true
   terminate_instances_with_expiration = true
   tags                                = var.tags
+  timeouts {
+    create = "15m"
+  }
 
   launch_template_config {
     launch_template_specification {

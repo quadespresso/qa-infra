@@ -6,12 +6,12 @@
 
 This is based off the MCC (upstream Launchpad repo) of Launchpad, in particular the Terraform configuration files [located here](https://github.com/Mirantis/mcc/tree/master/examples/tf-aws).
 
-The updates in this directory afford the user the ability to select between various OS platforms, namely:
+The updates in this directory afford the user the ability to select between various OS platforms, such as:
 
-* RHEL: 7.5, 7.6, 7.7, 7.8,8.0, 8.1, 8.2
-* CentOS: 7.7, 8.1
+* RHEL: various 7.x and 8.x
+* CentOS: 7, 8
 * Ubuntu: 16.04, 18.04, 20.04
-* SLES: 12 SP4, 15
+* SLES: various 12 and 15
 
 as well as being able to select from a group of AMIs (currently `public` vs `mirantis`).
 
@@ -68,9 +68,10 @@ In our case, most of the options you'll want or need to customize will belong in
 
 How we use these files:
 
-* `terraform.tfvars`
+* `terraform.tfvars` (root dir of terraform config)
   * put most/all of your local config options in this file; use `terraform.tfvars.example` for inspiration
-  * you might find it preferable to create a separate file named `passwords.auto.tfvars` to hold the password data, eg:
+* any other files ending in `.auto.tfvars` or `.auto.tfvars.json` (avoid overwriting `platforms.auto.tfvars.json`)
+  * **Recommended:** create a separate file named `passwords.auto.tfvars` to hold your local password data, eg:
 
     ```text
     admin_password                 = "abcd1234changeme"
@@ -81,8 +82,19 @@ How we use these files:
 
 * variables of particular interest:
   * `windows_administrator_password` tends to be finicky; if you're experiencing Windows deployment issues, start here (and ask the team)
-  * `platform_name` popular choices include `rhel_8.2`, `rhel_7.8`, `ubuntu_18.04` - to see the full list, review `platforms.auto.tfvars.json` (eg, `jq '.platforms.public | keys' < platforms.auto.tfvars.json` for the public AMIs or `jq '.platforms.mirantis | keys' < platforms.auto.tfvars.json` for the private Mirantis AMIs)
+  * `platform_name` popular choices include `rhel_8.4`, `rhel_7.9`, `ubuntu_18.04` - to see the full list, review `platforms.auto.tfvars.json` (eg, `jq '.platforms.public | keys' < platforms.auto.tfvars.json` for the public AMIs or `jq '.platforms.mirantis | keys' < platforms.auto.tfvars.json` for the private Mirantis AMIs)
   * `open_sg_for_myip` will add a SG rule which opens up your cluster to all ports/protocols from your IP (and only from your IP), in addition to the other minimalist SG rules; don't use this unless you have a need to access other ports (eg, troubleshooting, accessing a swarm or kube service you've created, etc)
+  * `pct_over_spot_price` will set a percentage over the minimum spot price; if the default results in your instances getting shut down, set this to a value between 1 and 100 (`20` is a good place to start)
+  * `extra_tags` is a map of completely arbitrary and optional tags of your choosing that Terraform will attach to as many of your created resources as possible, eg:
+
+    ```text
+    extra_tags = {
+      "ticket" = "TESTING-9999"
+      "mood"   = "chill"
+      "coffee" = "espresso"
+      "music"  = "downtempo"
+      "email"  = "hercule@example.com"
+    }
 
 * `variables.tf`
   * Config file with all of the requisite inputs for the root module
@@ -130,3 +142,10 @@ terraform fmt -recursive -diff
 If you don't even want to see the diff output (ie, quiet mode), drop the `-diff` as well.
 
 You can run the `fmt` as often as you like. You can save it for the last step before doing your commit, if you prefer. This is purely for human readability.
+
+### How would I use Ansible here?
+
+Relevant files in the root dir of this repo:
+
+* `ansible.cfg` - a baseline config file which Ansible will reference; among other things, it describes the default inventory file, which is as follows:
+* `hosts.ini` - this is one of the files created by running terraform; do not check your `hosts.ini` into the repo
