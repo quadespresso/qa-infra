@@ -12,6 +12,7 @@ The updates in this directory afford the user the ability to select between vari
 * CentOS: 7, 8
 * Ubuntu: 16.04, 18.04, 20.04
 * SLES: various 12 and 15
+* Rocky Linux: 8
 
 as well as being able to select from a group of AMIs (currently `public` vs `mirantis`).
 

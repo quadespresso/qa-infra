@@ -110,6 +110,7 @@ locals {
     "centos" : "Linux/UNIX",
     "oracle" : "Linux/UNIX",
     "rhel" : "Red Hat Enterprise Linux",
+    "rocky" : "Linux/UNIX",
     "sles" : "SUSE Linux",
     "ubuntu" : "Linux/UNIX",
     "windows" : "Windows"
