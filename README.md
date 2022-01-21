@@ -28,9 +28,8 @@ While it would be helpful to be familiar with [the steps provided in the MCC rep
   * Mac users can just use Homebrew: `brew install terraform`
   * everyone can [download from here](https://www.terraform.io/downloads.html)
 
-* `yq` executable
-  * Mac users: `brew install yq`
-  * instructions for all platforms [are listed here](https://github.com/mikefarah/yq/blob/master/README.md)
+* `launchpad` executable
+  * [grab the latest version from the MCC repo](https://github.com/Mirantis/mcc/releases) (v1.3.1 as of this writing)
 
 * Ansible (optional, but recommended)
   * [Setup instructions from elsewhere in this repo](../system_test_toolbox/ansible)
