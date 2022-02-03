@@ -15,6 +15,7 @@ data "aws_ec2_spot_price" "current" {
 locals {
   scripts_dir = "${path.module}/../scripts"
   base_linux_script = file("${local.scripts_dir}/user_data_linux.sh")
+
   platform_script = fileexists(
       "${local.scripts_dir}/user_data_${var.globals.platform}.sh"
     ) ? (
@@ -28,14 +29,27 @@ locals {
     )
 }
 
-data "cloudinit_config" "linux" {
-  gzip = false
-  base64_encode = false
+data "template_file" "distro_script" {
+  template = (
+    file(
+      "${local.scripts_dir}/user_data_${var.globals.distro}.sh"
+    )
+  )
+  vars = {
+    efs_dns = var.efs_dns
+  }
+}
 
+data "cloudinit_config" "linux" {
   part {
     content_type = "text/x-shellscript"
     content = local.base_linux_script
     filename = "baselinux.sh"
+  }
+  part {
+    content_type = "text/x-shellscript"
+    content = "${data.template_file.distro_script.rendered}"
+    filename = "distro.sh"
   }
   part {
     content_type = "text/x-shellscript"
@@ -61,7 +75,7 @@ resource "aws_launch_template" "linux" {
       volume_size = var.volume_size
     }
   }
-  user_data = base64encode(data.cloudinit_config.linux.rendered)
+  user_data = data.cloudinit_config.linux.rendered
   tags      = var.tags
   tag_specifications {
     resource_type = "instance"

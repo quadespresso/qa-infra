@@ -26,6 +26,11 @@ variable "controller_port" {
   default = "443"
 }
 
+variable "efs_dns" {
+  type = string
+  description = "FQDN of EFS share."
+}
+
 variable "globals" {
   description = "Map of global variables."
 }

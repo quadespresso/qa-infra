@@ -107,6 +107,10 @@ output "msr_lb" {
   value = try("https://${module.elb_msr[0].lb_dns_name}", null)
 }
 
+output "efs_dns" {
+  value = module.efs.dns_name
+}
+
 output "ansible_inventory" {
   value = local.ansible_inventory
 }

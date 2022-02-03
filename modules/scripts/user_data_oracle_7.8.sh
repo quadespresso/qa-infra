@@ -2,7 +2,7 @@
 # This script will be appended to user_data_linux.sh during deployment
 # NOTE: Terraform templates use '$$' to escape '$'
 
-# Oracle 7.9 customization
+# Oracle 7.8 customization
 
 # Prevent early logins until after new kernel is installed and reboot is executed
 systemctl stop sshd
@@ -41,4 +41,6 @@ done
 firewall-cmd --reload
 
 # ensure correct state after changes
-reboot
+# reboot doesn't play nicely with Oracle/terraform
+# so run shutdown-reboot after 1m
+shutdown -r +1

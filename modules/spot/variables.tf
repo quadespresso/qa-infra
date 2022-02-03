@@ -35,3 +35,8 @@ variable "volume_size" {
   type        = string
   description = "Size of root volume."
 }
+
+variable "efs_dns" {
+  type = string
+  description = "FQDN of EFS share."
+}

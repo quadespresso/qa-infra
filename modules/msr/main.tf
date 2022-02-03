@@ -37,5 +37,6 @@ module "spot" {
   volume_size   = var.node_volume_size
   asg_node_id   = aws_security_group.node.id
   os_type       = local.os_type
+  efs_dns       = var.efs_dns
   tags          = local.tags
 }

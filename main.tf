@@ -18,6 +18,11 @@ module "vpc" {
   global_tags = local.global_tags
 }
 
+module "efs" {
+  source  = "./modules/efs"
+  globals = local.globals
+}
+
 module "common" {
   source           = "./modules/common"
   cluster_name     = local.cluster_name
@@ -56,6 +61,7 @@ module "managers" {
   node_instance_type = var.manager_type
   node_volume_size   = var.manager_volume_size
   controller_port    = local.controller_port
+  efs_dns            = module.efs.dns_name
   globals            = local.globals
 }
 
@@ -66,6 +72,7 @@ module "workers" {
   node_count         = var.worker_count
   node_instance_type = var.worker_type
   node_volume_size   = var.worker_volume_size
+  efs_dns            = module.efs.dns_name
   globals            = local.globals
 }
 
@@ -76,6 +83,7 @@ module "msrs" {
   node_count         = var.msr_count
   node_instance_type = var.msr_type
   node_volume_size   = var.msr_volume_size
+  efs_dns            = module.efs.dns_name
   globals            = local.globals
 }
 
@@ -101,10 +109,15 @@ locals {
   ami_obj            = var.platforms[var.platform_repo][var.platform]
   ami_obj_win        = var.platforms[var.platform_repo][var.win_platform]
   user_id            = data.aws_caller_identity.current.user_id
-  msr_install_flags  = concat(
-                        var.msr_install_flags,
-                        [try("--dtr-external-url=${module.elb_msr[0].lb_dns_name}", null)]
-                       )
+  msr_install_flags  = distinct(
+                        compact(
+                          concat(
+                            var.msr_install_flags,
+                            [try("--dtr-external-url=${module.elb_msr[0].lb_dns_name}", null)],
+                            [var.msr_count > 1 ? "--dtr-storage-volume /mnt/efs" : null]
+                          )
+                        )
+                      )
 
   platform_details_map = {
     "centos" : "Linux/UNIX",

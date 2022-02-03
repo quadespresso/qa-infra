@@ -21,6 +21,11 @@ variable "node_role" {
   description = "The node's role in the cluster, ie, manager/worker/msr."
 }
 
+variable "efs_dns" {
+  type = string
+  description = "FQDN of EFS share."
+}
+
 variable "globals" {
   description = "Map of global variables."
 }

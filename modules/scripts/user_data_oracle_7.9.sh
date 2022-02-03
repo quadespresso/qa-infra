@@ -40,5 +40,6 @@ done
 # reload firewall rules
 firewall-cmd --reload
 
-# ensure correct state after changes
-reboot
+# reboot doesn't play nicely with Oracle/terraform
+# so run shutdown-reboot after 1m
+shutdown -r +1
