@@ -220,6 +220,12 @@ variable "msr_replica_config" {
   description = "Set to 'sequential' to generate sequential replica id's for cluster members, for example 000000000001, 000000000002, etc. ('random' otherwise)"
 }
 
+variable "msr_enable_nfs" {
+  type        = bool
+  default     = false
+  description = "Option to configure EFS/NFS for use with MSR 2.x"
+}
+
 variable "platforms" {
   type = map(
     map(

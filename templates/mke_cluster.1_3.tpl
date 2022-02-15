@@ -68,6 +68,12 @@ spec:
     installFlags:
     %{ for installFlag in msr_installFlags }
     - "${installFlag}"%{ endfor ~}
+    %{ if msr_nfs_storage_url != "" }
+    -  "--nfs-options nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport"
+    - "--nfs-storage-url nfs://${msr_nfs_storage_url}/"
+    %{ else }
+    # No EFS/NFS configured
+    %{ endif }
 
     replicaIDs: ${msr_replica_config}
 %{ else }
@@ -76,3 +82,11 @@ spec:
 
   cluster:
     prune: %{ if cluster_prune }true%{ else }false%{ endif }
+
+%{ if msr_nfs_storage_url != "" }
+# To troubleshoot EFS via NFS:  Login to a node, then as root:
+# mkdir /mnt/efs
+# mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${msr_nfs_storage_url}:/ /mnt/efs
+%{ else }
+# No EFS/NFS configured
+%{ endif }

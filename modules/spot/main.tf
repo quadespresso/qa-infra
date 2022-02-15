@@ -36,7 +36,7 @@ data "template_file" "distro_script" {
     )
   )
   vars = {
-    efs_dns = var.efs_dns
+  # future use
   }
 }
 

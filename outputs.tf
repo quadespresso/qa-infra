@@ -33,6 +33,8 @@ locals {
       msr_replica_config = var.msr_replica_config
 
       cluster_prune = false
+
+      msr_nfs_storage_url = try(module.efs[0].dns_name, "")
     }
   ))
 
@@ -108,7 +110,7 @@ output "msr_lb" {
 }
 
 output "efs_dns" {
-  value = module.efs.dns_name
+  value = try(module.efs[0].dns_name, null)
 }
 
 output "ansible_inventory" {
