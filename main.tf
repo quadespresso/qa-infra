@@ -21,9 +21,9 @@ module "vpc" {
 module "efs" {
   source  = "./modules/efs"
   count   = (
-      var.msr_enable_nfs && var.msr_count > 0
+      local.msr_count > 0
     ) || (
-      var.msr_count >= 3
+      local.msr_version_major >= 3
     ) ? 1 : 0
   globals = local.globals
 }
@@ -50,11 +50,11 @@ module "elb_mke" {
 
 module "elb_msr" {
   source      = "./modules/elb"
-  count       = var.msr_count == 0 ? 0 : 1
+  count       = local.msr_count == 0 ? 0 : 1
   component   = "msr"
   ports       = ["443"]
   machine_ids = module.msrs[0].machine_ids
-  node_count  = var.msr_count
+  node_count  = local.msr_count
   globals     = local.globals
 }
 
@@ -71,9 +71,9 @@ module "managers" {
 
 module "workers" {
   source             = "./modules/worker"
-  count              = var.worker_count == 0 ? 0 : 1
+  count              = local.worker_count == 0 ? 0 : 1
   node_role          = "worker"
-  node_count         = var.worker_count
+  node_count         = local.worker_count
   node_instance_type = var.worker_type
   node_volume_size   = var.worker_volume_size
   globals            = local.globals
@@ -81,9 +81,9 @@ module "workers" {
 
 module "msrs" {
   source             = "./modules/msr"
-  count              = var.msr_count == 0 ? 0 : 1
+  count              = local.msr_count == 0 ? 0 : 1
   node_role          = "msr"
-  node_count         = var.msr_count
+  node_count         = local.msr_count
   node_instance_type = var.msr_type
   node_volume_size   = var.msr_volume_size
   globals            = local.globals
@@ -111,10 +111,18 @@ locals {
   ami_obj            = var.platforms[var.platform_repo][var.platform]
   ami_obj_win        = var.platforms[var.platform_repo][var.win_platform]
   user_id            = data.aws_caller_identity.current.user_id
+  account_id         = data.aws_caller_identity.current.account_id
   msr_install_flags  = concat(
                         var.msr_install_flags,
                         [try("--dtr-external-url=${module.elb_msr[0].lb_dns_name}", null)]
                        )
+
+  msr_version_major = tonumber(split(".", var.msr_version)[0])
+  # if msr_version_major >= 3 then:
+  # add the msr_count onto worker_count, and set msr_count to 0
+  # These changes keep MSR 3+ deployment configs out of launchpad.yaml
+  worker_count      = local.msr_version_major == 2 ? var.worker_count : var.worker_count + var.msr_count
+  msr_count         = local.msr_version_major == 2 ? var.msr_count : 0
 
   platform_details_map = {
     "centos" : "Linux/UNIX",
@@ -170,7 +178,7 @@ locals {
     platform              = var.platform
     win_platform          = var.win_platform
     expire                = local.expire
-    iam_fleet_role        = "arn:aws:iam::546848686991:role/aws-ec2-spot-fleet-role"
+    iam_fleet_role        = "arn:aws:iam::${local.account_id}:role/aws-ec2-spot-fleet-role"
   }
 
   # convert MKE install flags into a map
@@ -208,7 +216,7 @@ locals {
         }
       }
     ],
-    var.worker_count == 0 ? [] : [
+    local.worker_count == 0 ? [] : [
       for host in module.workers[0].instances : {
         instance = host.instance
         ami : local.ami_obj
@@ -227,7 +235,7 @@ locals {
         }
       }
     ],
-    var.msr_count == 0 ? [] : [
+    local.msr_count == 0 ? [] : [
       for host in module.msrs[0].instances : {
         instance = host.instance
         ami : local.ami_obj
