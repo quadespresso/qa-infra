@@ -178,7 +178,7 @@ locals {
     platform              = var.platform
     win_platform          = var.win_platform
     expire                = local.expire
-    iam_fleet_role        = "arn:aws:iam::${local.account_id}:role/aws-ec2-spot-fleet-role"
+    iam_fleet_role        = "arn:aws:iam::${local.account_id}:role/AmazonEC2SpotFleetTaggingRole"
   }
 
   # convert MKE install flags into a map
