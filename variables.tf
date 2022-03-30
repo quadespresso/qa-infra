@@ -30,7 +30,7 @@ variable "extra_tags" {
 
 variable "expire_duration" {
   type        = string
-  default     = "12h"
+  default     = "120h"
   description = "The max time to allow this cluster to avoid early termination. Can use 'h', 'm', 's' in sane combinations, eg, '15h37m18s'."
 }
 
