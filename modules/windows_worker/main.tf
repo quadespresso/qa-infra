@@ -15,7 +15,6 @@ locals {
   # platform            = "windows_2019"
   win_platform        = var.globals.win_platform
   product_description = "Windows"
-  az_names_count      = length(var.globals.az_names)
   node_ids            = var.node_count == 0 ? [] : data.aws_instances.machines.ids
 }
 
@@ -41,7 +40,7 @@ resource "aws_security_group" "worker" {
 }
 
 data "aws_ec2_spot_price" "current" {
-  count = local.az_names_count
+  count = var.globals.az_names_count
 
   instance_type     = var.node_instance_type
   availability_zone = var.globals.az_names[count.index]
@@ -127,13 +126,6 @@ resource "aws_spot_fleet_request" "windows" {
       spot_price = var.globals.pct_over_spot_price == 0 ? null : format(
         "%f",
         data.aws_ec2_spot_price.current[1].spot_price * var.globals.spot_price_multiplier
-      )
-    }
-    overrides {
-      subnet_id = var.globals.subnet_ids[2]
-      spot_price = var.globals.pct_over_spot_price == 0 ? null : format(
-        "%f",
-        data.aws_ec2_spot_price.current[2].spot_price * var.globals.spot_price_multiplier
       )
     }
   }

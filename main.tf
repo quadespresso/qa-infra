@@ -162,7 +162,7 @@ locals {
     distro                = local.distro
     platform_details      = local.platform_details_map[local.distro]
     subnet_count          = length(module.vpc.public_subnet_ids)
-    az_names_count        = length(module.vpc.az_names)
+    az_names_count        = 2
     spot_price_multiplier = 1 + (var.pct_over_spot_price / 100)
     pct_over_spot_price   = var.pct_over_spot_price
     vpc_id                = module.vpc.id

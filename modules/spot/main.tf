@@ -3,7 +3,7 @@ locals {
 }
 
 data "aws_ec2_spot_price" "current" {
-  count             = 3
+  count             = var.globals.az_names_count
   instance_type     = var.instance_type
   availability_zone = var.globals.az_names[count.index]
   filter {
@@ -123,13 +123,6 @@ resource "aws_spot_fleet_request" "node" {
       spot_price = var.globals.pct_over_spot_price == 0 ? null : format(
         "%f",
         data.aws_ec2_spot_price.current[1].spot_price * var.globals.spot_price_multiplier
-      )
-    }
-    overrides {
-      subnet_id = var.globals.subnet_ids[2]
-      spot_price = var.globals.pct_over_spot_price == 0 ? null : format(
-        "%f",
-        data.aws_ec2_spot_price.current[2].spot_price * var.globals.spot_price_multiplier
       )
     }
   }
