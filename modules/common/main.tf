@@ -2,8 +2,7 @@
 data "aws_availability_zones" "available" {}
 
 resource "tls_private_key" "ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = "4096"
+  algorithm = "ED25519"
 }
 
 resource "local_file" "ssh_public_key" {
@@ -16,7 +15,7 @@ resource "local_file" "ssh_public_key" {
 
 resource "aws_key_pair" "key" {
   key_name   = var.cluster_name
-  public_key = tls_private_key.ssh_key.public_key_openssh
+  public_key = trimspace(tls_private_key.ssh_key.public_key_openssh)
   tags       = var.global_tags
 }
 
