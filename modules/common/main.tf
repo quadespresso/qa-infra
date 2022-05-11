@@ -6,7 +6,7 @@ resource "tls_private_key" "ssh_key" {
 }
 
 resource "local_file" "ssh_public_key" {
-  content  = tls_private_key.ssh_key.private_key_pem
+  content  = tls_private_key.ssh_key.private_key_openssh
   filename = var.key_path
   provisioner "local-exec" {
     command = "chmod 0600 ${local_file.ssh_public_key.filename}"
