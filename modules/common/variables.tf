@@ -6,13 +6,11 @@ variable "global_tags" {
 
 variable "vpc_id" {}
 
-variable "platform" {
-  default = "ubuntu_18.04"
-}
-
 variable "ami_obj" {}
 
 variable "ami_obj_win" {}
+
+variable "controller_port" {}
 
 variable "key_path" {}
 

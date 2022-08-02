@@ -1,7 +1,3 @@
-data "aws_availability_zones" "all" {}
-
-# Network VPC, gateway, and routes
-
 resource "aws_vpc" "network" {
   cidr_block                       = var.host_cidr
   assign_generated_ipv6_cidr_block = true
@@ -25,18 +21,14 @@ resource "aws_route_table" "default" {
   }
 }
 
-# Subnets (one per availability zone)
 resource "aws_subnet" "public" {
-  count                   = 3
   vpc_id                  = aws_vpc.network.id
-  availability_zone       = data.aws_availability_zones.all.names[count.index]
-  cidr_block              = cidrsubnet(var.host_cidr, 8, count.index)
+  cidr_block              = var.host_cidr
   map_public_ip_on_launch = true
   tags                    = var.global_tags
 }
 
 resource "aws_route_table_association" "public" {
-  count          = length(aws_subnet.public)
   route_table_id = aws_route_table.default.id
-  subnet_id      = element(aws_subnet.public.*.id, count.index)
+  subnet_id      = aws_subnet.public.id
 }

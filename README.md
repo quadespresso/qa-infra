@@ -4,19 +4,17 @@
 
 ## What is it
 
-This is based off the MCC (upstream Launchpad repo) of Launchpad, in particular the Terraform configuration files [located here](https://github.com/Mirantis/mcc/tree/master/examples/tf-aws).
+This is based off the MCC (upstream Launchpad repo) of Launchpad, in particular the Terraform configuration files [located here](https://github.com/Mirantis/mcc/tree/master/examples/tf-aws). Note that the current state has changed considerably from that original MCC upstream copy.
 
 The updates in this directory afford the user the ability to select between various OS platforms, such as:
 
 * RHEL: various 7.x and 8.x
 * CentOS: 7, 8
-* Ubuntu: 16.04, 18.04, 20.04
+* Ubuntu: 18.04, 20.04
 * SLES: various 12 and 15
 * Rocky Linux: 8
 
-as well as being able to select from a group of AMIs (currently `public` vs `mirantis`).
-
-**Note:** Just because the Terraform config supports it and builds it out, does _not_ mean that Launchpad will support it. But they've been added today, as a forward-looking optimism. As of this writing, SLES deployments and Ubuntu 20.04 are not yet supported by Launchpad.
+**Note:** Just because the Terraform config supports it and builds it out, does _not_ necessarily mean that Launchpad will support it. Skew between tools (eg, terraform and launchpad) is not an uncommon event, although we make the effort to minimize this skew.
 
 ## How do I use it
 
@@ -52,7 +50,7 @@ While it would be helpful to be familiar with [the steps provided in the MCC rep
 
 `terraform` will use variables configured in one or more files, using the loading order [described on this page](https://www.terraform.io/docs/language/values/variables.html#variable-definition-precedence).
 
-A brief recap is as follows:
+A brief overview:
 
 > Terraform loads variables in the following order, with later sources taking precedence over earlier ones:
 >
@@ -62,7 +60,7 @@ A brief recap is as follows:
 > * Any `*.auto.tfvars` or `*.auto.tfvars.json` files, processed in lexical order of their filenames.
 > * Any `-var` and `-var-file` options on the command line, in the order they are provided. (This includes variables set by a Terraform Cloud workspace.)
 
-If the filename doesn't match the above format, it will get ignored. Other than that, any file ending in `.tf` will be considered as Terraform HCL configuration. Unless a config file specifies a subdirectory (eg, module) to consider, all subdirs will be ignored.
+If the filename doesn't match the above format, it will get ignored. Other than that, any file ending in `.tf` in the current working directory will be considered as Terraform HCL configuration. Unless a config file specifies a subdirectory (eg, module) to consider, all subdirs will be ignored.
 
 In our case, most of the options you'll want or need to customize will belong in `terraform.tfvars`.
 
@@ -70,21 +68,31 @@ How we use these files:
 
 * `terraform.tfvars` (root dir of terraform config)
   * put most/all of your local config options in this file; use `terraform.tfvars.example` for inspiration
-* any other files ending in `.auto.tfvars` or `.auto.tfvars.json` (avoid overwriting `platforms.auto.tfvars.json`)
+* any other files ending in `.auto.tfvars` or `.auto.tfvars.json`
   * **Recommended:** create a separate file named `passwords.auto.tfvars` to hold your local password data, eg:
 
     ```text
-    admin_password                 = "abcd1234changeme"
-    windows_administrator_password = "tfaws,,CHANGEME..Example"
+    admin_password     = "abcd1234changeme"
+    win_admin_password = "tfaws,,CHANGEME..Example"
     ```
 
 **Notes:**
 
 * variables of particular interest:
-  * `windows_administrator_password` tends to be finicky; if you're experiencing Windows deployment issues, start here (and ask the team)
-  * `platform_name` popular choices include `rhel_8.4`, `rhel_7.9`, `ubuntu_18.04` - to see the full list, review `platforms.auto.tfvars.json` (eg, `jq '.platforms.public | keys' < platforms.auto.tfvars.json` for the public AMIs or `jq '.platforms.mirantis | keys' < platforms.auto.tfvars.json` for the private Mirantis AMIs)
+  * **NEW** `role_platform` is a map that will let you specify different linux platforms based on their role, eg:
+  
+    ```bash
+    role_platform = {
+        "manager" = "rhel_8.6"
+        "worker"  = "rocky_8"
+        "msr"     = "ubuntu_20.04"
+    }
+    ```
+
+    * in the event of having configured both `platform` and `role_platform`, `role_platform` always wins
+  * `win_admin_password` tends to be finicky; if you're experiencing Windows deployment issues, start here (and ask the team)
+  * `platform_name` popular choices include `rhel_8.4`, `rhel_8.6`, `ubuntu_20.04` - to see the full list, review [etc/platforms.json](etc/platforms.json).
   * `open_sg_for_myip` will add a SG rule which opens up your cluster to all ports/protocols from your IP (and only from your IP), in addition to the other minimalist SG rules; don't use this unless you have a need to access other ports (eg, troubleshooting, accessing a swarm or kube service you've created, etc)
-  * `pct_over_spot_price` will set a percentage over the minimum spot price; if the default results in your instances getting shut down, set this to a value between 1 and 100 (`20` is a good place to start)
   * `extra_tags` is a map of completely arbitrary and optional tags of your choosing that Terraform will attach to as many of your created resources as possible, eg:
 
     ```text
@@ -96,7 +104,7 @@ How we use these files:
       "email"  = "hercule@example.com"
     }
 
-* `variables.tf`
+* [variables.tf](variables.tf)
   * Config file with all of the requisite inputs for the root module
   * If you're not sure what variables you can set in `terraform.tfvars`, review (**DO NOT EDIT**) `variables.tf` for inspiration
 
@@ -105,8 +113,6 @@ How we use these files:
   * the prefixes for files such as `main.tf`, `variables.tf`, `outputs.tf` are arbitrary otherwise, and are named mainly for human convenience
 
 * **Any** file ending in `.tf` will be seen by Terraform, so be mindful of any extra files you create in the root or any of the directories referenced by the root `*.tf` files
-
-* utility script `deploy.sh` will do the right thing based on the above
 
 ### Teardown
 
@@ -118,7 +124,7 @@ How we use these files:
 As long as you have the prerequisites installed, try running this command:
 
 ```bash
-./deploy.sh
+terraform apply -auto-approve
 ```
 
 ## Tips and tricks

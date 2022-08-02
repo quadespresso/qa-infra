@@ -34,7 +34,7 @@ locals {
 
       cluster_prune = false
 
-      msr_nfs_storage_url = try(module.efs[0].dns_name, "")
+      msr_nfs_storage_url = try(local.efs.dns_name, "")
     }
   ))
 
@@ -53,16 +53,19 @@ locals {
   #    using `terraform output -json`
   ansible_inventory = templatefile("${path.module}/templates/ansible_inventory.tpl",
     {
-      user      = local.ami_obj.user,
-      key_file  = local.key_path,
-      win_passwd = var.windows_administrator_password,
-      mgr_hosts = var.manager_count == 0 ? [] : module.managers[0].instances,
-      mgr_idxs  = range(var.manager_count),
-      wkr_hosts = local.worker_count == 0 ? [] : module.workers[0].instances,
-      wkr_idxs  = range(local.worker_count),
-      msr_hosts = local.msr_count == 0 ? [] : module.msrs[0].instances,
-      msr_idxs  = range(local.msr_count),
-      win_wkr_hosts = var.windows_worker_count == 0 ? [] : module.windows_workers[0].instances,
+      # user      = local.ami_obj.user,
+      key_file      = local.key_path,
+      win_passwd    = var.win_admin_password,
+      mgr_hosts     = local.managers.instances,
+      mgr_user      = local.managers.user,
+      mgr_idxs      = range(var.manager_count),
+      wkr_hosts     = local.workers.instances,
+      wkr_user      = local.workers.user,
+      wkr_idxs      = range(local.worker_count),
+      msr_hosts     = local.msrs.instances,
+      msr_user      = local.msrs.user,
+      msr_idxs      = range(local.msr_count),
+      win_wkr_hosts = var.windows_worker_count == 0 ? [] : local.windows_workers.instances,
       win_wkr_idxs  = range(var.windows_worker_count)
     }
   )
@@ -106,15 +109,19 @@ output "mke_san" {
 
 output "msr_lb" {
   # If no MSR replicas, then no LB should exist
-  value = try("https://${module.elb_msr[0].lb_dns_name}", null)
+  value = try("https://${local.elb_msr}", "")
 }
 
 output "efs_dns" {
-  value = try(module.efs[0].dns_name, null)
+  value = try(local.efs.dns_name, null)
 }
 
 output "ansible_inventory" {
   value = local.ansible_inventory
+}
+
+output "aws_region" {
+  value = var.aws_region
 }
 
 # Write configs to YAML files

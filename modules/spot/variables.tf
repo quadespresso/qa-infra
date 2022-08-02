@@ -2,9 +2,9 @@ variable "globals" {
   description = "Map of global variables."
 }
 
-variable "asg_node_id" {
+variable "image_id" {
   type        = string
-  description = "AWS security group node ID."
+  description = "Amazon Machine Image ID."
 }
 
 variable "instance_type" {
@@ -17,18 +17,12 @@ variable "node_count" {
   description = "Number of nodes/machines."
 }
 
-variable "node_role" {
-  type        = string
-  description = "Local node role."
-}
-
-variable "os_type" {
-  type        = string
-  description = "Local OS type, ie, linux or windows."
-}
-
 variable "tags" {
   description = "Map of local tags."
+}
+
+variable "user_data" {
+  description = "User data script to be passed to cloud-init."
 }
 
 variable "volume_size" {

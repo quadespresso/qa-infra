@@ -23,6 +23,6 @@ resource "aws_lb_listener" "api" {
 resource "aws_lb_target_group_attachment" "api" {
   count            = var.node_count
   target_group_arn = aws_lb_target_group.api.arn
-  target_id        = var.machine_ids[count.index]
+  target_id        = var.node_ids[count.index]
   port             = var.port
 }

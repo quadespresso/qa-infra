@@ -1,6 +1,3 @@
-
-data "aws_availability_zones" "available" {}
-
 resource "tls_private_key" "ssh_key" {
   algorithm = "ED25519"
 }
@@ -15,40 +12,8 @@ resource "local_file" "ssh_public_key" {
 
 resource "aws_key_pair" "key" {
   key_name   = var.cluster_name
-  public_key = trimspace(tls_private_key.ssh_key.public_key_openssh)
+  public_key = tls_private_key.ssh_key.public_key_openssh
   tags       = var.global_tags
-}
-
-data "aws_ami" "linux" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = [var.ami_obj.ami_name]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = [var.ami_obj.owner]
-}
-
-data "aws_ami" "windows_2019" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = [var.ami_obj_win.ami_name]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = [var.ami_obj_win.owner]
 }
 
 data "http" "myip" {
@@ -71,6 +36,55 @@ resource "aws_security_group" "common" {
   ingress {
     from_port   = 22
     to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 2379
+    to_port   = 2380
+    protocol  = "tcp"
+    self      = true
+  }
+
+  ingress {
+    from_port   = var.controller_port
+    to_port     = var.controller_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8443
+    to_port     = 8443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 6443
+    to_port     = 6443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 5985
+    to_port     = 5986
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

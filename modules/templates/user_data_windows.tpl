@@ -36,21 +36,7 @@ New-NetFirewallRule -Name "WINRM-HTTPS-In-TCP-PUBLIC" `
     -Action Allow `
     -Profile Public
 
-[string[]] $Hostname = @([System.Net.Dns]::GetHostByName((hostname)).HostName.ToUpper())
-$metadata = @('public-hostname','public-ipv4')
-foreach ($item in $metadata) {
-    if ($response = Invoke-WebRequest -Uri "http://169.254.169.254/latest/meta-data/$item" -UseBasicParsing -ErrorAction Continue) {
-        if ($response.StatusCode -eq 200) {
-          $Hostname += $response.Content
-        }
-        else {
-            Write-Warning "Received unexpected response code [$($response.StatusCode)] from EC2 instance metadata [$item] request."
-        }
-      }
-      else {
-          Write-Warning "Unable to access EC2 instance [$item] metadata!"
-      }
-}
+$Hostname = [System.Net.Dns]::GetHostByName((hostname)).HostName.ToUpper()
 $pfx = New-SelfSignedCertificate -CertstoreLocation Cert:\LocalMachine\My -DnsName $Hostname
 $certThumbprint = $pfx.Thumbprint
 $certSubjectName = $pfx.SubjectName.Name.TrimStart("CN = ").Trim()

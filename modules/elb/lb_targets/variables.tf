@@ -9,12 +9,12 @@ variable "node_count" {
   description = "Number of nodes in the cluster."
 }
 
-variable "machine_ids" {
+variable "node_ids" {
   description = "List of node instance IDs."
 }
 
 variable "component" {
-  type = string
+  type        = string
   description = "Brief name of product component, ie, 'mke', 'msr'."
 }
 
@@ -23,9 +23,9 @@ variable "globals" {
 }
 
 variable "arn" {
-    description = "LB-specific ARN"
+  description = "LB-specific ARN"
 }
 
 variable "tags" {
-    description = "LB-specific map of tags"
+  description = "LB-specific map of tags"
 }
