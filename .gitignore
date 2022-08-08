@@ -4,7 +4,7 @@
 # ignore Terraform state files
 terraform.tfstate*
 # ignore Terraform init files
-.terraform
+.terraform.*
 # ignore Terraform lock file
 .terraform.lock.hcl
 
