@@ -58,6 +58,7 @@ module "managers" {
   role          = "manager"
   node_count    = var.manager_count
   instance_type = var.manager_type
+  life_cycle    = var.life_cycle
   volume_size   = var.manager_volume_size
   globals       = local.globals
 }
@@ -67,6 +68,7 @@ module "workers" {
   role          = "worker"
   node_count    = local.worker_count
   instance_type = var.worker_type
+  life_cycle    = var.life_cycle
   volume_size   = var.worker_volume_size
   globals       = local.globals
 }
@@ -76,6 +78,7 @@ module "msrs" {
   role          = "msr"
   node_count    = local.msr_count
   instance_type = var.msr_type
+  life_cycle    = var.life_cycle
   volume_size   = var.msr_volume_size
   globals       = local.globals
 }
@@ -85,6 +88,7 @@ module "windows_workers" {
   role               = "worker"
   node_count         = var.windows_worker_count
   instance_type      = var.worker_type
+  life_cycle         = var.life_cycle
   volume_size        = var.win_worker_volume_size
   win_admin_password = var.win_admin_password
   globals            = local.globals
@@ -137,6 +141,7 @@ locals {
       "project"   = var.project
       "platform"  = var.platform
       "expire"    = local.expire
+      "lifecycle" = var.life_cycle
       "user_id"   = local.user_id
       "username"  = var.username
       "task_name" = var.task_name

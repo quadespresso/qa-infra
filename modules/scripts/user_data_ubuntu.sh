@@ -5,5 +5,7 @@
 # Ubuntu customization
 
 # Prep for NFS mount (MSR 2.x prerequisites)
+echo "Running 'apt update -y'"
 apt update -y
+echo "Running 'apt install -y nfs-common'"
 apt install -y nfs-common

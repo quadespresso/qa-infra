@@ -1,10 +1,3 @@
-###
-# Input: platform name
-# Returns: image ID, login username
-###
-
-### variables
-
 variable "platform" {
   description = "Simple platform name, eg, 'ubuntu_20.04' - see .../etc/platforms.json for full reference."
 }

@@ -13,6 +13,12 @@ variable "role" {
   description = "The node's role in the cluster, ie, manager/worker/msr."
 }
 
+variable "life_cycle" {
+  type        = string
+  default     = "ondemand"
+  description = "Deploy instances as either 'spot' or 'ondemand'"
+}
+
 variable "instance_type" {
   type        = string
   default     = "m5.large"

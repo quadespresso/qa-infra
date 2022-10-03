@@ -43,6 +43,16 @@ variable "vpc_cidr" {
   description = "The CIDR to use when creating the VPC."
 }
 
+variable "life_cycle" {
+  description = "Deploy instances as either 'spot' or 'ondemand'"
+  type        = string
+  default     = "ondemand"
+  validation {
+    condition     = contains(["spot", "ondemand"], var.life_cycle)
+    error_message = "Valid values for var 'life_cycle' must be one of: 'spot', 'ondemand'"
+  }
+}
+
 variable "admin_username" {
   type        = string
   default     = "admin"

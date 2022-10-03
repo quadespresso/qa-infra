@@ -65,7 +65,7 @@ locals {
       msr_hosts     = local.msrs.instances,
       msr_user      = local.msrs.user,
       msr_idxs      = range(local.msr_count),
-      win_wkr_hosts = var.windows_worker_count == 0 ? [] : local.windows_workers.instances,
+      win_wkr_hosts = local.windows_workers.instances,
       win_wkr_idxs  = range(var.windows_worker_count)
     }
   )
@@ -112,7 +112,7 @@ output "msr_lb" {
   value = try("https://${local.elb_msr}", "")
 }
 
-output "efs_dns" {
+output "nfs_server" {
   value = try(local.efs.dns_name, null)
 }
 

@@ -3,5 +3,5 @@ output "node_ids" {
 }
 
 output "instances" {
-  value = local.instances
+  value = data.aws_instance.instance
 }

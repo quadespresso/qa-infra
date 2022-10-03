@@ -1,5 +1,6 @@
 output "node_ids" {
-  value = module.spot.node_ids
+  # value = module.spot.node_ids
+  value = local.node_ids
 }
 
 output "instances" {

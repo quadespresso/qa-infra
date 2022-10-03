@@ -3,7 +3,7 @@
 ###
 
 locals {
-  node_ids = var.node_count == 0 ? [] : data.aws_instances.machines.ids
+  node_ids = var.node_count == 0 ? [] : data.aws_instances.spot.ids
 }
 
 resource "aws_spot_fleet_request" "node" {
@@ -29,7 +29,7 @@ resource "aws_spot_fleet_request" "node" {
   }
 }
 
-data "aws_instances" "machines" {
+data "aws_instances" "spot" {
   # we use this to collect the instance IDs/IPs from the spot fleet request
   filter {
     name   = "tag:aws:ec2spot:fleet-request-id"
@@ -41,5 +41,5 @@ data "aws_instances" "machines" {
 
 data "aws_instance" "instance" {
   count       = var.node_count
-  instance_id = data.aws_instances.machines.ids[count.index]
+  instance_id = data.aws_instances.spot.ids[count.index]
 }

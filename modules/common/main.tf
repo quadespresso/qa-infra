@@ -17,7 +17,7 @@ resource "aws_key_pair" "key" {
 }
 
 data "http" "myip" {
-  url = "http://ipinfo.io/ip"
+  url = "https://api.ipify.org"
 }
 
 resource "aws_security_group" "common" {
