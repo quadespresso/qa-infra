@@ -18,6 +18,7 @@ This is based off the MCC (upstream Launchpad repo) of Launchpad, in particular 
 The updates in this stack afford the user the ability to select between various OS platforms, such as:
 
 - CentOS: 7
+- Oracle Linux 7.x, 8.x
 - RHEL: 7.x, 8.x, 9.x
 - Rocky Linux: 8, 9
 - SLES: various 12 and 15
@@ -101,6 +102,7 @@ How we use these files:
     ```
 
     - in the event of having configured both `platform` and `role_platform`, `role_platform` always wins
+  - **NEW** `ssh_algorithm` will let you select either `RSA` or `ED25519` (default: `ED25519`)
   - `win_admin_password` tends to be finicky; if you're experiencing Windows deployment issues, start here (and ask the team)
   - `platform_name` popular choices include `rhel_8.4`, `rhel_8.6`, `ubuntu_20.04` - to see the full list, review [etc/platforms.json](etc/platforms.json).
   - `open_sg_for_myip` will add a SG rule which opens up your cluster to all ports/protocols from your IP (and only from your IP), in addition to the other minimalist SG rules; don't use this unless you have a need to access other ports (eg, troubleshooting, accessing a swarm or kube service you've created, etc)

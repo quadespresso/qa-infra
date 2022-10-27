@@ -1,9 +1,23 @@
-resource "tls_private_key" "ssh_key" {
+resource "tls_private_key" "tls_ed25519" {
   algorithm = "ED25519"
 }
 
+resource "tls_private_key" "tls_rsa" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+locals {
+  # choose between ED25519 and RSA
+  ssh_key = (
+    var.ssh_algorithm == "ED25519" ?
+    tls_private_key.tls_ed25519 :
+    tls_private_key.tls_rsa
+    )
+}
+
 resource "local_file" "ssh_public_key" {
-  content  = tls_private_key.ssh_key.private_key_openssh
+  content  = local.ssh_key.private_key_openssh
   filename = var.key_path
   provisioner "local-exec" {
     command = "chmod 0600 ${local_file.ssh_public_key.filename}"
@@ -12,7 +26,7 @@ resource "local_file" "ssh_public_key" {
 
 resource "aws_key_pair" "key" {
   key_name   = var.cluster_name
-  public_key = tls_private_key.ssh_key.public_key_openssh
+  public_key = local.ssh_key.public_key_openssh
   tags       = var.global_tags
 }
 

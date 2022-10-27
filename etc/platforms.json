@@ -107,6 +107,12 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
+  "oracle_8.6": {
+    "ami_name": "OL8.6-x86_64-HVM-*",
+    "owner": "131827586825",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
   "rhel_7": {
     "ami_name": "RHEL-7.?_HVM*x86_64*Hourly2-GP2",
     "owner": "309956199498",

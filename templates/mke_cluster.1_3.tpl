@@ -61,7 +61,6 @@ spec:
     - "--force-minimums"%{ for upgradeFlag in mke_upgradeFlags }
     - "${upgradeFlag}"%{ endfor ~}
 
-%{ if msr_count > 0 }
   msr:
     version: ${msr_version}
     imageRepo: ${msr_image_repo}
@@ -76,9 +75,6 @@ spec:
     %{ endif }
 
     replicaIDs: ${msr_replica_config}
-%{ else }
-  # No MSR nodes configured
-%{ endif }
 
   cluster:
     prune: %{ if cluster_prune }true%{ else }false%{ endif }

@@ -30,6 +30,7 @@ module "common" {
   ami_obj          = local.ami_obj
   ami_obj_win      = local.ami_obj_win
   key_path         = local.key_path
+  ssh_algorithm    = var.ssh_algorithm
   open_sg_for_myip = var.open_sg_for_myip
   controller_port  = local.controller_port
   global_tags      = local.global_tags
@@ -112,7 +113,7 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   msr_install_flags = concat(
     var.msr_install_flags,
-    [try("--dtr-external-url=${local.elb_msr.lb_dns_name}", null)]
+    [try("--dtr-external-url=${local.elb_msr.lb_dns_name}", "")],
   )
 
   msr_version_major = tonumber(split(".", var.msr_version)[0])

@@ -253,6 +253,15 @@ variable "ssh_key_file_path" {
   description = "If non-empty, use this path/filename as the ssh key file instead of generating automatically."
 }
 
+variable "ssh_algorithm" {
+    type    = string
+    default = "ED25519"
+    validation {
+    condition     = contains(["ED25519", "RSA"], var.ssh_algorithm)
+    error_message = "Valid values for var 'ssh_algorithm' must be one of: 'spot', 'ondemand'"
+  }
+}
+
 variable "open_sg_for_myip" {
   type        = bool
   default     = false
