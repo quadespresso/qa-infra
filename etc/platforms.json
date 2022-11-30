@@ -1,63 +1,15 @@
 {
   "centos_7": {
-    "ami_name": "CentOS Linux 7 x86_64 HVM EBS ENA *",
-    "owner": "679593333241",
-    "user": "centos",
-    "interface": "eth0"
-  },
-  "centos_7.4": {
-    "ami_name": "CentOS Linux 7 x86_64 HVM EBS 1708_*",
-    "owner": "679593333241",
-    "user": "centos",
-    "interface": "eth0"
-  },
-  "centos_7.5": {
-    "ami_name": "CentOS Linux 7 x86_64 HVM EBS ENA 1804_*",
-    "owner": "679593333241",
-    "user": "centos",
-    "interface": "eth0"
-  },
-  "centos_7.6": {
-    "ami_name": "CentOS Linux 7 x86_64 HVM EBS ENA 1901_*",
-    "owner": "679593333241",
-    "user": "centos",
-    "interface": "eth0"
-  },
-  "centos_7.7": {
-    "ami_name": "CentOS Linux 7 x86_64 HVM EBS ENA 2002_*",
-    "owner": "679593333241",
-    "user": "centos",
-    "interface": "eth0"
+      "ami_name": "CentOS Linux 7 x86_64*",
+      "owner": "125523088429",
+      "user": "centos",
+      "interface": "eth0"
   },
   "centos_7.9": {
-    "ami_name": "CentOS 7.9.2009 x86_64",
-    "owner": "125523088429",
-    "user": "centos",
-    "interface": "eth0"
-  },
-  "centos_8": {
-    "ami_name": "CentOS 8.?.???? x86_64",
-    "owner": "125523088429",
-    "user": "centos",
-    "interface": "eth0"
-  },
-  "centos_8-o2": {
-    "ami_name": "CentOS 8.?.???? x86_64",
-    "owner": "125523088429",
-    "user": "centos",
-    "interface": "eth0"
-  },
-  "centos_8.2": {
-    "ami_name": "CentOS 8.2.2004 x86_64",
-    "owner": "125523088429",
-    "user": "centos",
-    "interface": "eth0"
-  },
-  "centos_8.3": {
-    "ami_name": "CentOS 8.3.2011 x86_64",
-    "owner": "125523088429",
-    "user": "centos",
-    "interface": "eth0"
+      "ami_name": "CentOS Linux 7 x86_64*",
+      "owner": "125523088429",
+      "user": "centos",
+      "interface": "eth0"
   },
   "oracle_7": {
     "ami_name": "OL7.?-x86_64-HVM-*",
