@@ -17,7 +17,7 @@ resource "aws_instance" "node" {
   tags                   = var.tags
   user_data              = var.user_data
   root_block_device {
-    volume_type = "gp2"
+    volume_type = "gp3"
     volume_size = var.volume_size
   }
 }

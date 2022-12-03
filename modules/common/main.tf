@@ -125,77 +125,26 @@ resource "aws_security_group_rule" "open_myip" {
   }
 }
 
-resource "aws_iam_role" "role" {
-  name               = "${var.cluster_name}_host"
+resource "aws_iam_role" "mke_role" {
+  name               = "${var.cluster_name}_MKE_role"
   tags               = var.global_tags
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
+  assume_role_policy = file("${path.module}/mke_role.json")
 }
 
 resource "aws_iam_instance_profile" "profile" {
-  name = "${var.cluster_name}_host"
-  role = aws_iam_role.role.name
+  name = "${var.cluster_name}_MKE_profile"
+  role = aws_iam_role.mke_role.name
 }
 
-resource "aws_iam_role_policy" "policy" {
-  name = "${var.cluster_name}_host"
-  role = aws_iam_role.role.id
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["ec2:*"],
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["elasticloadbalancing:*"],
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": ["ecr:*"],
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-          "autoscaling:DescribeLaunchConfigurations",
-          "autoscaling:DescribeAutoScalingGroups",
-          "autoscaling:DescribeAutoScalingInstances",
-          "autoscaling:DescribeTags",
-          "autoscaling:SetDesiredCapacity",
-          "autoscaling:TerminateInstanceInAutoScalingGroup"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [ "route53:*" ],
-      "Resource": [ "*" ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "s3:*",
-      "Resource": [ "arn:aws:s3:::kubernetes-*" ]
-    }
-  ]
+resource "aws_iam_role_policy" "mke_policy" {
+  name = "${var.cluster_name}_MKE_policy"
+  role = aws_iam_role.mke_role.id
+  # Ref: https://docs.mirantis.com/mke/3.6/install/install-aws/aws-prerequisites.html
+  policy = file("${path.module}/mke_policy.json")
 }
-EOF
+
+resource "aws_iam_role_policy" "ebs_csi_driver_policy" {
+  name = "${var.cluster_name}_EBSCSIDriverPolicy"
+  role = aws_iam_role.mke_role.id
+  policy = file("${path.module}/ebs_csi_driver_policy.json")
 }
