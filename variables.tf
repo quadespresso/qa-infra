@@ -198,6 +198,7 @@ variable "kube_orchestration" {
 
 variable "msr_version" {
   type        = string
+  default     = ""
   description = "The MSR version to deploy."
 }
 

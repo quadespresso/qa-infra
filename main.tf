@@ -116,7 +116,8 @@ locals {
     [try("--dtr-external-url=${local.elb_msr.lb_dns_name}", "")],
   )
 
-  msr_version_major = tonumber(split(".", var.msr_version)[0])
+  # set MSR version to token value if var.msr_version is empty string
+  msr_version_major = var.msr_version == "" ? 999 : tonumber( split(".", var.msr_version)[0] )
   # if msr_version_major >= 3 then:
   # add the msr_count onto worker_count, and set msr_count to 0
   # These changes keep MSR 3+ deployment configs out of launchpad.yaml
