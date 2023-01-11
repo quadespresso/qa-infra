@@ -149,6 +149,12 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
+  "rhel_8.7": {
+    "ami_name": "RHEL-8.7*HVM-202?????-x86_64-?-Hourly2-GP2",
+    "owner": "309956199498",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
   "rhel_9.0": {
     "ami_name": "RHEL-9.0*HVM-202?????-x86_64-?-Hourly2-GP2",
     "owner": "309956199498",
