@@ -1,22 +1,41 @@
 variable "username" {
   type        = string
+  default     = "UNDEFINED"
   description = "A string which represents the engineer running the test."
+  validation {
+    condition = length(var.username) < 11
+    error_message = "Length of username cannot exceed 10 characters"
+  }
 }
 
 variable "task_name" {
   type        = string
+  default     = "UNDEFINED"
   description = "An arbitrary yet unique string which represents the deployment, eg, 'refactor', 'unicorn', 'stresstest'."
+  validation {
+    condition = length(var.task_name) < 11
+    error_message = "Length of task_name cannot exceed 10 characters"
+  }
 }
 
 variable "project" {
   type        = string
+  default     = "UNDEFINED"
   description = "One of the official cost-tracking project names. Without this, your cluster may get terminated without warning."
+  validation {
+    condition = length(var.project) < 11
+    error_message = "Length of project cannot exceed 10 characters"
+  }
 }
 
 variable "cluster_name" {
   type        = string
   default     = ""
   description = "Global cluster name. Use this to override a dynamically created name."
+  validation {
+    condition = length(var.cluster_name) < 11
+    error_message = "Length of cluster_name cannot exceed 10 characters"
+  }
 }
 
 variable "extra_tags" {
