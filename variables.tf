@@ -3,8 +3,8 @@ variable "username" {
   default     = "UNDEFINED"
   description = "A string which represents the engineer running the test."
   validation {
-    condition = length(var.username) < 11
-    error_message = "Length of username cannot exceed 10 characters"
+    condition = length(var.username) < 31
+    error_message = "Length of username cannot exceed 30 characters"
   }
 }
 
@@ -13,8 +13,8 @@ variable "task_name" {
   default     = "UNDEFINED"
   description = "An arbitrary yet unique string which represents the deployment, eg, 'refactor', 'unicorn', 'stresstest'."
   validation {
-    condition = length(var.task_name) < 11
-    error_message = "Length of task_name cannot exceed 10 characters"
+    condition = length(var.task_name) < 31
+    error_message = "Length of task_name cannot exceed 30 characters"
   }
 }
 
