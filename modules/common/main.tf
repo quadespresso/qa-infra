@@ -143,8 +143,17 @@ resource "aws_iam_role_policy" "mke_policy" {
   policy = file("${path.module}/mke_policy.json")
 }
 
+# Pulling from the data source saves us trying to attach to the policy.
+# Problematic for 'docker-testing', even if not a problem for 'IAM_config_access'.
+# This approach lets us pull the data from the policy and use it to create the
+# 'ebs_csi_driver_policy', below. Avoids needing users to have more privs than
+# necessary.
+data "aws_iam_policy" "AmazonEBSCSIDriverPolicy" {
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+}
+
 resource "aws_iam_role_policy" "ebs_csi_driver_policy" {
-  name = "${var.cluster_name}_EBSCSIDriverPolicy"
-  role = aws_iam_role.mke_role.id
-  policy = file("${path.module}/ebs_csi_driver_policy.json")
+  name   = "${var.cluster_name}_EBSCSIDriverPolicy"
+  role   = aws_iam_role.mke_role.id
+  policy = data.aws_iam_policy.AmazonEBSCSIDriverPolicy.policy
 }
