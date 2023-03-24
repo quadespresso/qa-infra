@@ -103,9 +103,11 @@ resource "aws_security_group" "common" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+# nodeport_range as described here:
+# https://docs.mirantis.com/mke/3.6/ops/administer-cluster/configure-an-mke-cluster/configuration-options.html?highlight=nodeport_range
   ingress {
-    from_port   = 33000
-    to_port     = 33003
+    from_port   = 32768
+    to_port     = 35535
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
