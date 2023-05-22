@@ -108,49 +108,55 @@
     "interface": "eth0"
   },
   "rhel_8.0": {
-    "ami_name": "RHEL-8.0_HVM-201?????-x86_64-?-Hourly2-GP2",
+    "ami_name": "RHEL-8.0_HVM-201?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.1": {
-    "ami_name": "RHEL-8.1.0_HVM-201?????-x86_64-?-Hourly2-GP2",
+    "ami_name": "RHEL-8.1.0_HVM-201?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.2": {
-    "ami_name": "RHEL-8.2_HVM-202?????-x86_64-?-Hourly2-GP2",
+    "ami_name": "RHEL-8.2_HVM-202?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.3": {
-    "ami_name": "RHEL-8.3*HVM-202?????-x86_64-?-Hourly2-GP2",
+    "ami_name": "RHEL-8.3*HVM-202?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.4": {
-    "ami_name": "RHEL-8.4*HVM-202?????-x86_64-?-Hourly2-GP2",
+    "ami_name": "RHEL-8.4*HVM-202?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.5": {
-    "ami_name": "RHEL-8.5*HVM-202?????-x86_64-?-Hourly2-GP2",
+    "ami_name": "RHEL-8.5*HVM-202?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.6": {
-    "ami_name": "RHEL-8.6*HVM-202?????-x86_64-?-Hourly2-GP2",
+    "ami_name": "RHEL-8.6*HVM-202?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.7": {
-    "ami_name": "RHEL-8.7*HVM-202?????-x86_64-?-Hourly2-GP2",
+    "ami_name": "RHEL-8.7*HVM-202?????-x86_64-*-Hourly2-GP2",
+    "owner": "309956199498",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
+  "rhel_8.8": {
+    "ami_name": "RHEL-8.8*HVM-202?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
@@ -167,15 +173,45 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
+  "rocky_8.5": {
+    "ami_name": "Rocky-8-ec2-8.5-202*.x86_64",
+    "owner": "792107900819",
+    "user": "rocky",
+    "interface": "eth0"
+  },
+  "rocky_8.6": {
+    "ami_name": "Rocky-8-ec2-8.6-202*.x86_64",
+    "owner": "792107900819",
+    "user": "rocky",
+    "interface": "eth0"
+  },
+  "rocky_8.7": {
+    "ami_name": "Rocky-8-EC2-Base-8.7-202*.x86_64",
+    "owner": "792107900819",
+    "user": "rocky",
+    "interface": "eth0"
+  },
+  "rocky_8.8": {
+    "ami_name": "Rocky-8-EC2-Base-8.8-202*.x86_64",
+    "owner": "792107900819",
+    "user": "rocky",
+    "interface": "eth0"
+  },
   "rocky_8": {
-    "ami_name": "Rocky-8-ec2-*x86_64*",
-    "owner": "679593333241",
+    "ami_name": "Rocky-8-EC2-Base-8.7-202*.x86_64",
+    "owner": "792107900819",
+    "user": "rocky",
+    "interface": "eth0"
+  },
+  "rocky_9.0": {
+    "ami_name": "Rocky-9-EC2-9.0-202*.x86_64",
+    "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
   },
   "rocky_9": {
-    "ami_name": "Rocky-9-EC2-*x86_64*",
-    "owner": "679593333241",
+    "ami_name": "Rocky-9-EC2-9.0-202*.x86_64",
+    "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
   },
