@@ -128,7 +128,7 @@ resource "aws_security_group_rule" "open_myip" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = ["${chomp(data.http.myip.body)}/32"]
+  cidr_blocks       = ["${chomp(data.http.myip.response_body)}/32"]
   lifecycle {
     create_before_destroy = true
   }
