@@ -66,7 +66,8 @@ locals {
       msr_user      = local.msrs.user,
       msr_idxs      = range(local.msr_count),
       win_wkr_hosts = local.windows_workers.instances,
-      win_wkr_idxs  = range(var.windows_worker_count)
+      win_wkr_idxs  = range(var.windows_worker_count),
+      linux_user      = local.managers.user
     }
   )
 }
