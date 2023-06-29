@@ -198,19 +198,19 @@
     "interface": "eth0"
   },
   "rocky_8.7": {
-    "ami_name": "Rocky-8-EC2-LVM-8.7-20230215.0.x86_64",
+    "ami_name": "Rocky-8-EC2-8.7-202*.x86_64",
     "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
   },
   "rocky_8.8": {
-    "ami_name": "Rocky-8-EC2-LVM-8.8-202*.x86_64",
+    "ami_name": "Rocky-8-EC2-Base-8.8-202*.x86_64",
     "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
   },
   "rocky_8": {
-    "ami_name": "Rocky-8-EC2-LVM-8.8-202*.x86_64",
+    "ami_name": "Rocky-8-EC2-Base-8.8-202*.x86_64",
     "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
@@ -222,19 +222,19 @@
     "interface": "eth0"
   },
   "rocky_9.1": {
-    "ami_name": "Rocky-9-EC2-LVM-9.1-202*.x86_64",
+    "ami_name": "Rocky-9-EC2-Base-9.1-202*.x86_64",
     "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
   },
   "rocky_9.2": {
-    "ami_name": "Rocky-9-EC2-LVM-9.2-202*.x86_64",
+    "ami_name": "Rocky-9-EC2-Base-9.2-202*.x86_64",
     "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
   },
   "rocky_9": {
-    "ami_name": "Rocky-9-EC2-LVM-9.2-202*.x86_64",
+    "ami_name": "Rocky-9-EC2-Base-9.2-202*.x86_64",
     "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
