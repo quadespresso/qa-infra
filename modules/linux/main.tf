@@ -34,6 +34,8 @@ locals {
       "${local.scripts_dir}/user_data_default.sh"
   )
 
+  distro_script = "${local.scripts_dir}/user_data_${local.distro}.sh"
+
   final_linux_script = "${local.scripts_dir}/user_data_linux_final.sh"
 }
 
@@ -41,17 +43,6 @@ locals {
 module "ami" {
   source   = "../ami"
   platform = local.platform
-}
-
-data "template_file" "distro_script" {
-  template = (
-    file(
-      "${local.scripts_dir}/user_data_${local.distro}.sh"
-    )
-  )
-  vars = {
-    # future use
-  }
 }
 
 data "cloudinit_config" "linux" {
@@ -62,7 +53,7 @@ data "cloudinit_config" "linux" {
   }
   part {
     content_type = "text/x-shellscript"
-    content      = data.template_file.distro_script.rendered
+    content      = file(local.distro_script)
     filename     = "distro.sh"
   }
   part {

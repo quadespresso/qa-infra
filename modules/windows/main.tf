@@ -18,18 +18,17 @@ locals {
     local.tag_role
   )
   platform = var.globals.default_platform[local.os]
+  user_data_windows = templatefile(
+    "${path.module}/../templates/user_data_windows.tpl",
+    {
+      win_admin_password = var.win_admin_password
+    }
+  )
 }
 
 module "ami" {
   source   = "../ami"
   platform = local.platform
-}
-
-data "template_file" "windows" {
-  template = file("${path.module}/../templates/user_data_windows.tpl")
-  vars = {
-    win_admin_password = var.win_admin_password
-  }
 }
 
 locals {
@@ -45,7 +44,7 @@ module "spot" {
   instance_type = var.instance_type
   volume_size   = var.volume_size
   tags          = local.tags
-  user_data     = base64encode(data.template_file.windows.rendered)
+  user_data     = base64encode(local.user_data_windows)
 }
 
 module "ondemand" {
@@ -56,7 +55,7 @@ module "ondemand" {
   instance_type = var.instance_type
   volume_size   = var.volume_size
   tags          = local.tags
-  user_data     = base64encode(data.template_file.windows.rendered)
+  user_data     = base64encode(local.user_data_windows)
 }
 
 resource "null_resource" "cluster" {
