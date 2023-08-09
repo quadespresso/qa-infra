@@ -24,7 +24,7 @@ locals {
   )
   distro = split("_", local.platform)[0]
   scripts_dir       = "${path.module}/../scripts"
-  base_linux_script = "${local.scripts_dir}/user_data_linux.sh"
+  hostname_script = "${local.scripts_dir}/user_data_hostname.sh"
 
   platform_script = fileexists(
     "${local.scripts_dir}/user_data_${local.platform}.sh"
@@ -37,6 +37,9 @@ locals {
   distro_script = "${local.scripts_dir}/user_data_${local.distro}.sh"
 
   final_linux_script = "${local.scripts_dir}/user_data_linux_final.sh"
+
+  templates = "${path.module}/../templates"
+  cloud_init = "${local.templates}/cloud_init"
 }
 
 # get image ID from platform name
@@ -45,49 +48,56 @@ module "ami" {
   platform = local.platform
 }
 
+locals {
+  # cloud-config goodness
+  distro_tftpl = templatefile(
+    "${local.cloud_init}/distro.tftpl",
+    {
+      distro = local.distro
+      script = file("${local.scripts_dir}/user_data_${local.distro}.sh")
+      zypper = file("${local.scripts_dir}/user_data_zypper.sh")
+      user   = "docker"
+      github_user = "quadespresso"
+    }
+  )
+}
+
 data "cloudinit_config" "linux" {
   part {
-    content_type = "text/x-shellscript"
-    content      = file(local.base_linux_script)
-    filename     = "baselinux.sh"
+    content_type = "text/cloud-config"
+    content      = local.distro_tftpl
+    filename     = "distro.yaml"
   }
   part {
     content_type = "text/x-shellscript"
-    content      = file(local.distro_script)
-    filename     = "distro.sh"
-  }
-  part {
-    content_type = "text/x-shellscript"
-    content      = file(local.platform_script)
-    filename     = "platform.sh"
-  }
-  part {
-    content_type = "text/x-shellscript"
-    content      = file(local.final_linux_script)
-    filename     = "final.sh"
+    content      = file(local.hostname_script)
+    filename     = "hostname.sh"
   }
 }
 
 locals {
-  node_ids  = var.life_cycle == "spot" ? module.spot.node_ids : module.ondemand.node_ids
-  instances = var.life_cycle == "spot" ? module.spot.instances : module.ondemand.instances
+  # node_ids  = var.life_cycle == "spot" ? module.spot.node_ids : module.ondemand.node_ids
+  # instances = var.life_cycle == "spot" ? module.spot.instances : module.ondemand.instances
+  node_ids  = module.ondemand.node_ids
+  instances = module.ondemand.instances
 }
 
-module "spot" {
-  source        = "../spot"
-  globals       = var.globals
-  node_count    = var.life_cycle == "spot" ? var.node_count : 0
-  image_id      = module.ami.image_id
-  instance_type = var.instance_type
-  volume_size   = var.volume_size
-  tags          = local.tags
-  user_data     = data.cloudinit_config.linux.rendered
-}
+# module "spot" {
+#   source        = "../spot"
+#   globals       = var.globals
+#   node_count    = var.life_cycle == "spot" ? var.node_count : 0
+#   image_id      = module.ami.image_id
+#   instance_type = var.instance_type
+#   volume_size   = var.volume_size
+#   tags          = local.tags
+#   user_data     = data.cloudinit_config.linux.rendered
+# }
 
 module "ondemand" {
   source        = "../ondemand"
   globals       = var.globals
-  node_count    = var.life_cycle == "ondemand" ? var.node_count : 0
+  # node_count    = var.life_cycle == "ondemand" ? var.node_count : 0
+  node_count    = var.node_count
   image_id      = module.ami.image_id
   instance_type = var.instance_type
   volume_size   = var.volume_size

@@ -101,7 +101,6 @@ data "aws_caller_identity" "current" {}
 locals {
   cluster_name       = var.cluster_name == "" ? random_string.random.result : var.cluster_name
   expire             = timeadd(time_static.now.rfc3339, var.expire_duration)
-  kube_orchestration = var.kube_orchestration ? "--default-node-orchestrator=kubernetes" : ""
   platforms_map      = jsondecode(file("${path.root}/etc/platforms.json"))
   ami_obj            = local.platforms_map[var.platform]
   ami_obj_win        = local.platforms_map[var.win_platform]

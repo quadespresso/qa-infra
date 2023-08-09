@@ -330,13 +330,37 @@
     "interface": "ens5"
   },
   "windows_2019": {
-    "ami_name": "Windows_Server-2019-English-Core-ContainersLatest-*",
+    "ami_name": "Windows_Server-2019-English-Core-Base-*",
+    "owner": "801119661308",
+    "user": "Administrator",
+    "interface": "Ethernet 3"
+  },
+  "windows_core_2019": {
+    "ami_name": "Windows_Server-2019-English-Core-Base-*",
+    "owner": "801119661308",
+    "user": "Administrator",
+    "interface": "Ethernet 3"
+  },
+  "windows_full_2019": {
+    "ami_name": "Windows_Server-2019-English-Full-Base-*",
     "owner": "801119661308",
     "user": "Administrator",
     "interface": "Ethernet 3"
   },
   "windows_2022": {
-    "ami_name": "Windows_Server-2022-English-Core-ContainersLatest-*",
+    "ami_name": "Windows_Server-2022-English-Core-Base-*",
+    "owner": "801119661308",
+    "user": "Administrator",
+    "interface": "Ethernet 3"
+  },
+  "windows_core_2022": {
+    "ami_name": "Windows_Server-2022-English-Core-Base-*",
+    "owner": "801119661308",
+    "user": "Administrator",
+    "interface": "Ethernet 3"
+  },
+  "windows_full_2022": {
+    "ami_name": "Windows_Server-2022-English-Full-Base-*",
     "owner": "801119661308",
     "user": "Administrator",
     "interface": "Ethernet 3"

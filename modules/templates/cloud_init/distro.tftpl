@@ -1,0 +1,57 @@
+#cloud-config
+
+manage_etc_hosts: true
+preserve_hostname: true
+
+users:
+  - default
+  - name: ${user}
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_import_id:
+      - gh:${github_user}
+    lock_passwd: true
+
+%{if distro == "suse" ~}
+runcmd:
+  - |
+    ${indent(4, zypper)}
+%{endif ~}
+
+packages:
+  - jq
+  - tmux
+%{
+  if distro == "centos"
+    || distro == "oracle"
+    || distro == "rocky"
+    || distro == "rhel"
+~}
+  - nfs-utils
+%{ endif ~}
+%{ if distro == "sles" ~}
+  - nfs-client
+%{ endif ~}
+%{ if distro == "ubuntu" ~}
+  - nfs-common
+%{ endif ~}
+
+%{ if distro == "rhel" ~}
+write_files:
+  - path: /etc/yum/pluginconf.d/subscription-manager.conf
+    content: |
+      [main]
+      enabled=0
+      # When following option is set to 1, then all repositories defined outside redhat.repo will be disabled
+      # every time subscription-manager plugin is triggered by dnf or yum
+      disable_system_repos=0
+%{ endif ~}
+
+runcmd:
+  - |
+    ${indent(4, script)}
+  - echo "Final stage of the Mirantis terraform cloud-init script"
+  - echo "Creating dummy file /var/log/.cloud_init_done"
+  - touch /var/log/.cloud_init_done
+  - sleep 5
+  %{ if distro == "oracle" ~}- reboot%{ endif ~}

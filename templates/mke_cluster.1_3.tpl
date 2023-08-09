@@ -52,7 +52,6 @@ spec:
     adminPassword: ${mke_admin_password}
     installFlags:
     - "--san=${mke_san}"
-    %{ if mke_kube_orchestration }- "--default-node-orchestrator=kubernetes"%{ endif }
     %{ for installFlag in mke_installFlags }
     - "${installFlag}"%{ endfor ~}
 

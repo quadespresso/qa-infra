@@ -22,7 +22,6 @@ locals {
       mke_admin_username     = var.admin_username
       mke_admin_password     = var.admin_password
       mke_san                = module.elb_mke.lb_dns_name
-      mke_kube_orchestration = var.kube_orchestration
       mke_installFlags       = var.mke_install_flags
       mke_upgradeFlags       = []
 

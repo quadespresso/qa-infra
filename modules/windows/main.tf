@@ -32,25 +32,28 @@ module "ami" {
 }
 
 locals {
-  node_ids  = var.life_cycle == "spot" ? module.spot.node_ids : module.ondemand.node_ids
-  instances = var.life_cycle == "spot" ? module.spot.instances : module.ondemand.instances
+  # node_ids  = var.life_cycle == "spot" ? module.spot.node_ids : module.ondemand.node_ids
+  # instances = var.life_cycle == "spot" ? module.spot.instances : module.ondemand.instances
+  node_ids  = module.ondemand.node_ids
+  instances = module.ondemand.instances
 }
 
-module "spot" {
-  source        = "../spot"
-  globals       = var.globals
-  node_count    = var.life_cycle == "spot" ? var.node_count : 0
-  image_id      = module.ami.image_id
-  instance_type = var.instance_type
-  volume_size   = var.volume_size
-  tags          = local.tags
-  user_data     = base64encode(local.user_data_windows)
-}
+# module "spot" {
+#   source        = "../spot"
+#   globals       = var.globals
+#   node_count    = var.life_cycle == "spot" ? var.node_count : 0
+#   image_id      = module.ami.image_id
+#   instance_type = var.instance_type
+#   volume_size   = var.volume_size
+#   tags          = local.tags
+#   user_data     = base64encode(local.user_data_windows)
+# }
 
 module "ondemand" {
   source        = "../ondemand"
   globals       = var.globals
-  node_count    = var.life_cycle == "ondemand" ? var.node_count : 0
+  # node_count    = var.life_cycle == "ondemand" ? var.node_count : 0
+  node_count    = var.node_count
   image_id      = module.ami.image_id
   instance_type = var.instance_type
   volume_size   = var.volume_size
