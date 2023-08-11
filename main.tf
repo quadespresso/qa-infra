@@ -178,8 +178,30 @@ locals {
     iam_fleet_role    = "arn:aws:iam::${local.account_id}:role/AmazonEC2SpotFleetTaggingRole"
   }
 
+  # Set MKE orchestration (non-conflicting flags)
+  kube_orchestration = "--default-node-orchestrator=kubernetes"
+  swarm_orchestration = "--default-node-orchestrator=swarm"
+  node_orchestrators = [local.kube_orchestration, local.swarm_orchestration]
+  swarm_only = "--swarm-only"
+  contains_swarm_only = contains(var.mke_install_flags, local.swarm_only)
+  contains_swarm_mode = contains(var.mke_install_flags, local.swarm_orchestration)
+  # If --swarm-only explicitly set, remove all other flags.
+  # Else if --default-node-orchestrator=swarm explicitly set, remove --default-node-orchestrator=kubernetes
+  # Else default to --default-node-orchestrator=kubernetes, regardless of whether it was specified or not.
+  sanitize_mke_install_flags = (
+    local.contains_swarm_only ?
+    setsubtract(var.mke_install_flags, local.node_orchestrators) :
+    local.contains_swarm_mode ?
+      setsubtract(var.mke_install_flags, [local.kube_orchestration]) :
+      concat(var.mke_install_flags, [local.kube_orchestration])
+  )
+  # End set MKE orchestration
+
+  # Let's ensure we don't have duplicate MKE install flags
+  mke_install_flags = distinct(local.sanitize_mke_install_flags)
+
   # convert MKE install flags into a map
-  mke_opts = { for f in var.mke_install_flags : trimprefix(element(split("=", f), 0), "--") => element(split("=", f), 1) }
+  mke_opts = { for f in local.mke_install_flags : trimprefix(element(split("=", f), 0), "--") => element(split("=", f), 1) }
   # discover if there is a controller port override.
   controller_port = try(
     local.mke_opts.controller_port,
