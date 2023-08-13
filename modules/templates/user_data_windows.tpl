@@ -2,6 +2,9 @@
 $admin = [adsi]("WinNT://./administrator, user")
 $admin.psbase.invoke("SetPassword", "${win_admin_password}")
 
+# The Windows instance may not have the Containers feature (a requirement for MCR) installed
+$rebootNeededForContainersFeature = ((Get-WindowsFeature -Name 'Containers').InstallState -ne 'Installed')
+
 # Snippet to enable WinRM over HTTPS with a self-signed certificate
 # from https://gist.github.com/TechIsCool/d65017b8427cfa49d579a6d7b6e03c93
 Write-Output "Disabling WinRM over HTTP..."
@@ -57,10 +60,16 @@ $certSubjectName = $pfx.SubjectName.Name.TrimStart("CN = ").Trim()
 
 New-Item -Path WSMan:\LocalHost\Listener -Address * -Transport HTTPS -Hostname $certSubjectName -CertificateThumbPrint $certThumbprint -Port "5986" -force
 
-Write-Output "Restarting WinRM Service..."
+Write-Output "Stopping WinRM Service..."
 Stop-Service WinRM
+Write-Output "Stopping WinRM Service complete."
 Set-Service WinRM -StartupType "Automatic"
-Start-Service WinRM
+if (!($rebootNeededForContainersFeature)) {
+    # If no reboot needed start the service so the system is accessible
+    Write-Output "Starting WinRM Service..."
+    Start-Service WinRM
+    Write-Output "Starting WinRM Service complete."
+}
 
 # Setup SSH
 $metadataUrl = "http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key"
@@ -71,43 +80,53 @@ Try {
     $response = Invoke-Webrequest -Uri $metadataUrl -UseBasicParsing -ErrorAction Stop
     if ($response.StatusCode -eq 200) {
         # We were able to obtain the public key so proceed with setting up SSH service
-        if ((Get-WindowsCapability -Online -Name $sshCapability).State -ne 'Installed') {
-            $null = Add-WindowsCapability -Online -Name $sshCapability
-        }
-        if (Get-Service -Name $sshServiceName -ErrorAction SilentlyContinue) {
-            New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
-            Set-Service -Name $sshServiceName -StartupType Automatic
-            Start-Service -Name $sshServiceName
-            Start-Sleep -Seconds 3
-            Try {
-                $openSshKeyPath = Join-Path -Path $env:USERPROFILE -ChildPath '.ssh'
-                if (-not(Test-Path -Path $openSshKeyPath -PathType Container)) {
-                    $null = New-Item -Path $openSshKeyPath -ItemType Directory -ErrorAction Stop
+        Try {
+            if ((Get-WindowsCapability -Online -Name $sshCapability -ErrorAction Stop).State -ne 'Installed') {
+                $null = Add-WindowsCapability -Online -Name $sshCapability -ErrorAction Stop
+            }
+            if (Get-Service -Name $sshServiceName -ErrorAction SilentlyContinue) {
+                New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
+                Set-Service -Name $sshServiceName -StartupType Automatic
+                Start-Service -Name $sshServiceName
+                Start-Sleep -Seconds 3
+                Try {
+                    $openSshKeyPath = Join-Path -Path $env:USERPROFILE -ChildPath '.ssh'
+                    if (-not(Test-Path -Path $openSshKeyPath -PathType Container)) {
+                        $null = New-Item -Path $openSshKeyPath -ItemType Directory -ErrorAction Stop
+                    }
+                    $authorizedKeyPath = Join-Path -Path $openSshKeyPath -ChildPath 'authorized_keys'
+                    $response.Content | Out-File -FilePath $authorizedKeyPath -Encoding ascii -NoNewline -Force -ErrorAction Stop
+                    # Disable password based SSH access
+                    if (Test-Path -Path $sshConfigPath -PathType Leaf) {
+                        $sshConfigContent = Get-Content -Raw $sshConfigPath
+                        $replaceString = '#PubkeyAuthentication yes'
+                        $sshConfigContent = $sshConfigContent.Replace($replaceString, ($replaceString.TrimStart('#') + [System.Environment]::NewLine + 'AuthenticationMethods publickey'))
+                        $replaceString = 'Match Group administrators'
+                        $sshConfigContent = $sshConfigContent.Replace($replaceString, ('#' + $replaceString))
+                        $replaceString = '       AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys'
+                        $sshConfigContent = $sshConfigContent.Replace($replaceString, ('#' + $replaceString))
+                        $sshConfigContent | Out-File -FilePath $sshConfigPath -Encoding ascii
+                        if (!($rebootNeededForContainersFeature)) {
+                            # If no reboot needed restart the service so the system is accessible
+                            Write-Output "Restarting [$sshServiceName] Service..."
+                            Restart-Service -Name $sshServiceName -Force
+                            Write-Output "Restarting [$sshServiceName] Service complete."
+                        }
+                    }
+                    else {
+                        Write-Warning "SSH Service config file [$sshConfigPath] missing.  Unable to apply updated configuration settings."
+                    }
                 }
-                $authorizedKeyPath = Join-Path -Path $openSshKeyPath -ChildPath 'authorized_keys'
-                $response.Content | Out-File -FilePath $authorizedKeyPath -Encoding ascii -NoNewline -Force -ErrorAction Stop
-                # Disable password based SSH access
-                if (Test-Path -Path $sshConfigPath -PathType Leaf) {
-                    $sshConfigContent = Get-Content -Raw $sshConfigPath
-                    $replaceString = '#PubkeyAuthentication yes'
-                    $sshConfigContent = $sshConfigContent.Replace($replaceString, ($replaceString.TrimStart('#') + [System.Environment]::NewLine + 'AuthenticationMethods publickey'))
-                    $replaceString = 'Match Group administrators'
-                    $sshConfigContent = $sshConfigContent.Replace($replaceString, ('#' + $replaceString))
-                    $replaceString = '       AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys'
-                    $sshConfigContent = $sshConfigContent.Replace($replaceString, ('#' + $replaceString))
-                    $sshConfigContent | Out-File -FilePath $sshConfigPath -Encoding ascii
-                    Restart-Service -Name $sshServiceName
-                }
-                else {
-                    Write-Warning "SSH Service config file [$sshConfigPath] missing.  Unable to apply updated configuration settings."
+                Catch {
+                    Write-Warning "Unable to save public key to file [$authorizedKeyPath] to allow SSH access."
                 }
             }
-            Catch {
-                Write-Warning "Unable to save public key to file [$authorizedKeyPath] to allow SSH access."
-            }
+            else {
+                Write-Warning "Unable to install the SSH service.  System will not be accessible via SSH."
+            }   
         }
-        else {
-            Write-Warning "Unable to install the SSH service.  System will not be accessible via SSH."
+        Catch {
+            Write-Warning "Exception adding Windows capability [$sshCapability]. Reason: $($_.Exception.Message). System will not be accessible via SSH."
         }
     }
     else {
@@ -116,5 +135,18 @@ Try {
 }
 Catch {
     Write-Warning "Exception accessing URL [$metadataUrl]. Reason: $($_.Exception.Message).  Unable to configure SSH access."
+}
+
+if ($rebootNeededForContainersFeature) {
+    Write-Output "Installing Windows Containers feature..."
+    $feature = Install-WindowsFeature -Name 'Containers'
+    if ($feature.Success) {
+        Write-Output "Windows Containers feature setup complete."
+    }
+    else {
+        Write-Warning "Unable to install Windows Containers feature.  Exit code [$($feature.ExitCode)]."
+    }
+    Write-Output "Restarting computer to complete initialization process."
+    Restart-Computer -Force
 }
 </powershell>
