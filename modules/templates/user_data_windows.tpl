@@ -2,6 +2,10 @@
 $admin = [adsi]("WinNT://./administrator, user")
 $admin.psbase.invoke("SetPassword", "${win_admin_password}")
 
+# Setting path to docker in advance so that docker commands resolve without a reboot to update env
+$updatedPath = $ENV:Path.TrimEnd(';') + ";$env:ProgramFiles\Docker"
+[Environment]::SetEnvironmentVariable('Path', $updatedPath, 'Machine')
+
 # The Windows instance may not have the Containers feature (a requirement for MCR) installed
 $rebootNeededForContainersFeature = ((Get-WindowsFeature -Name 'Containers').InstallState -ne 'Installed')
 
@@ -123,7 +127,7 @@ Try {
             }
             else {
                 Write-Warning "Unable to install the SSH service.  System will not be accessible via SSH."
-            }   
+            }
         }
         Catch {
             Write-Warning "Exception adding Windows capability [$sshCapability]. Reason: $($_.Exception.Message). System will not be accessible via SSH."
