@@ -29,9 +29,19 @@ disable_nm_cloud_setup() {
   ip rule show
 }
 
-if grep -q 'REDHAT_SUPPORT_PRODUCT_VERSION="8.4"' /etc/os-release; then
-    # Call the function to disable nm cloud setup
+upgrade_selinux_policy() {
+  # needed for RHEL 9.0, to prevent blocked ports during MKE install
+  # Ref: https://mirantis.jira.com/browse/PRODENG-2296
+  dnf upgrade -y selinux-policy
+}
+
+RHEL_PROD_VER=$(grep 'REDHAT_SUPPORT_PRODUCT_VERSION' /etc/os-release)
+RHEL_VER=$(echo "${RHEL_PROD_VER}" | grep -Eo '[0-9]+(\.[0-9]+)?')
+
+if [[ "${RHEL_VER}" = "8.4" ]]; then
     disable_nm_cloud_setup
+elif [[ "${RHEL_VER}" = "9.0" ]]; then
+    upgrade_selinux_policy
 else
-    echo "REDHAT_SUPPORT_PRODUCT_VERSION is not 8.4."
+    echo "No special handling needed for RHEL ${RHEL_VER}."
 fi
