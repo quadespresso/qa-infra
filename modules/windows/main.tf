@@ -79,7 +79,7 @@ resource "null_resource" "cluster" {
       port     = 5986
     }
     inline = [
-      "echo hello"
+      "hostname"
     ]
   }
 }

@@ -2,8 +2,8 @@
 $admin = [adsi]("WinNT://./administrator, user")
 $admin.psbase.invoke("SetPassword", "${win_admin_password}")
 
-# Setting path to docker in advance so that docker commands resolve without a reboot to update env
-$updatedPath = $ENV:Path.TrimEnd(';') + ";$env:ProgramFiles\Docker"
+# Setting path to docker + containerd in advance so that docker and containerd commands resolve without a reboot to update env
+$updatedPath = $ENV:Path.TrimEnd(';') + ";$env:ProgramFiles\Docker;$env:ProgramFiles\containerd"
 [Environment]::SetEnvironmentVariable('Path', $updatedPath, 'Machine')
 
 # The Windows instance may not have the Containers feature (a requirement for MCR) installed
@@ -150,7 +150,34 @@ if ($rebootNeededForContainersFeature) {
     else {
         Write-Warning "Unable to install Windows Containers feature.  Exit code [$($feature.ExitCode)]."
     }
-    Write-Output "Restarting computer to complete initialization process."
-    Restart-Computer -Force
 }
+
+# Change hostname to conform to EC2 instance naming
+[bool] $rebootNeededForHostname = $false
+$metadataUrl = "http://169.254.169.254/latest/meta-data/hostname"
+Try {
+    $response = Invoke-Webrequest -Uri $metadataUrl -UseBasicParsing -ErrorAction Stop
+    if ($response.StatusCode -eq 200) {
+        if ((& hostname) -ne $response.Content) {
+            Write-Output "Changing hostname from [$(& hostname)] to [$($response.Content)]" 
+            Set-ItemProperty 'HKLM:\system\currentcontrolset\services\tcpip\parameters' -Name 'NV Hostname' -Value $response.Content
+            $rebootNeededForHostname = $true   
+        }
+        else {
+            Write-Output "Hostname [$(& hostname)] follows the expected naming convention and will not be changed." 
+        }
+    }
+    else {
+        Write-Warning "Received unexpected response code [$($response.StatusCode)] from EC2 instance metadata URL [$metadataUrl].  Unable to configure rename host."
+    }
+}
+Catch {
+    Write-Warning "Exception accessing URL [$metadataUrl]. Reason: $($_.Exception.Message).  Unable to rename host."
+}
+
+if (($rebootNeededForContainersFeature) -or ($rebootNeededForHostname)) {
+    Write-Output "Restarting computer to complete initialization process."
+    Restart-Computer -Force   
+}
+
 </powershell>
