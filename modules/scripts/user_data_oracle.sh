@@ -39,7 +39,7 @@ replace_kernel() {
     echo "Installing RHCK kernel"
     yum -y install kernel
     # determine which installed kernel is RHCK and get the full path
-    NEW_KERNEL=$(grubby --info=ALL | awk -F'=' '/vmlinuz.*el7.x86_64/ {print $2}') || true
+    NEW_KERNEL=$(grubby --info=ALL | awk -F'=' '/vmlinuz-.*.x86_64/ {print $2}' | grep -v 'uek.x86_64' | head -n 1 | tr -d '"') || true
     # update grub config to use RHCK
     echo "Setting RHCK kernel as default"
     grubby --set-default "${NEW_KERNEL}"
