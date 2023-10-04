@@ -30,10 +30,8 @@ resource "aws_key_pair" "key" {
   tags       = var.global_tags
 }
 
-# get our external IP with the help of a robust Python script
-data "external" "ip_service" {
-  program = ["python3", "check.py"]
-  working_dir = path.module
+data "http" "ip_service" {
+  url = "https://checkip.amazonaws.com/"
 }
 
 resource "aws_security_group" "common" {
@@ -53,7 +51,8 @@ resource "aws_security_group" "common" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    # cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${chomp(data.http.ip_service.response_body)}/32"]
   }
 
   ingress {
@@ -122,19 +121,21 @@ resource "aws_security_group" "common" {
   }
 }
 
-resource "aws_security_group_rule" "open_myip" {
-  # conditionally add this rule to SG 'common'
-  security_group_id = aws_security_group.common.id
-  count             = var.open_sg_for_myip ? 1 : 0
-  type              = "ingress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["${chomp(data.external.ip_service.result["ip"])}/32"]
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+# Leaving this here for now, as TEST-1655 may find some use for it.
+# resource "aws_security_group_rule" "open_myip" {
+#   # conditionally add this rule to SG 'common'
+#   security_group_id = aws_security_group.common.id
+#   count             = var.open_sg_for_myip ? 1 : 0
+#   type              = "ingress"
+#   from_port         = 0
+#   to_port           = 0
+#   protocol          = "-1"
+#   # cidr_blocks       = ["${chomp(data.external.ip_service.result["ip"])}/32"]
+#   cidr_blocks       = ["${chomp(data.http.ip_service.response_body)}/32"]
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 resource "aws_iam_role" "mke_role" {
   name               = "${var.cluster_name}_MKE_role"
