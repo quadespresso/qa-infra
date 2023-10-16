@@ -7,6 +7,15 @@ stop_sshd () {
     systemctl stop sshd
 }
 
+fix_selinux () {
+    # Correcting for OL 9.0 shortfall.
+    # Not an issue running these commands on OL 8.6, 9.1, or 9.2.
+    if [[ -f /usr/bin/dnf ]]; then
+        dnf -y upgrade selinux-policy
+        dnf -y reinstall container-selinux
+    fi
+}
+
 add_open_ports() {
     # Ensure correct ports are open
     # define contiguous range of ports for inclusion
@@ -58,6 +67,7 @@ check_kernel() {
 
 main() {
     stop_sshd
+    fix_selinux
     add_open_ports
     check_kernel
 }
