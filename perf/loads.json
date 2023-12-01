@@ -1,0 +1,32 @@
+{
+  "loads": {
+    "xsmall": {
+      "NUM_WORKER_NODES": 3,
+      "NUM_NAMESPACES": 25,
+      "NUM_SECRETS": 125,
+      "NUM_CONFIGMAPS": 125,
+      "NUM_SERVICES": 50
+    },
+    "small": {
+      "NUM_WORKER_NODES": 25,
+      "NUM_NAMESPACES": 225,
+      "NUM_SECRETS": 1000,
+      "NUM_CONFIGMAPS": 1125,
+      "NUM_SERVICES": 250
+    },
+    "medium": {
+      "NUM_WORKER_NODES": 125,
+      "NUM_NAMESPACES": 1125,
+      "NUM_SECRETS": 5000,
+      "NUM_CONFIGMAPS": 5625,
+      "NUM_SERVICES": 1250
+    },
+    "large": {
+      "NUM_WORKER_NODES": 300,
+      "NUM_NAMESPACES": 2700,
+      "NUM_SECRETS": 12000,
+      "NUM_CONFIGMAPS": 13500,
+      "NUM_SERVICES": 3000
+    }
+  }
+}
