@@ -179,6 +179,12 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
+  "rhel_8.9": {
+    "ami_name": "RHEL-8.9.?_HVM-202?????-x86_64-*-Hourly2-GP?",
+    "owner": "309956199498",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
   "rhel_8": {
     "ami_name": "RHEL-8.8*HVM-202?????-x86_64-*-Hourly2-GP2",
     "owner": "309956199498",
@@ -203,8 +209,14 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
+  "rhel_9.3": {
+    "ami_name": "RHEL-9.3*HVM-202?????-x86_64-*-Hourly2-GP?",
+    "owner": "309956199498",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
   "rhel_9": {
-    "ami_name": "RHEL-9.2*HVM-202?????-x86_64-*-Hourly2-GP2",
+    "ami_name": "RHEL-9.3*HVM-202?????-x86_64-*-Hourly2-GP?",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
