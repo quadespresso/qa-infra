@@ -199,7 +199,7 @@ variable "mke_version" {
 
 variable "mke_image_repo" {
   type        = string
-  default     = "docker.io/mirantiseng"
+  default     = "msr.ci.mirantis.com/mirantiseng"
   description = "The repository to pull the MKE images from."
 }
 
@@ -223,7 +223,7 @@ variable "msr_version" {
 
 variable "msr_image_repo" {
   type        = string
-  default     = "docker.io/mirantiseng"
+  default     = "msr.ci.mirantis.com/msr"
   description = "The repository to pull the MSR images from."
 }
 
