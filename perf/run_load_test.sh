@@ -51,10 +51,14 @@ cleanup_cluster_load_resources() {
         printf "Error: Cluster load config file '$configPath' not found. Unable to cleanup resources.\n"
         return 1
     fi
-    cluster_load_namespace_prefix=$(yq e '.namespace.prefix' "$configPath")
+    cluster_load_namespace_prefix=$(cat "$configPath" | yq e '.namespace.prefix' -)
+    if [ -z "$cluster_load_namespace_prefix" ]; then
+        printf "Error: Unable to retrieve cluster namespace prefix. Check if [$configPath] is missing a '.namespace.prefix' value.\n"
+        return 1
+    fi
     cluster_load_namespaces=$(kubectl get namespaces --no-headers=true | awk -v prefix="$cluster_load_namespace_prefix" '$1 ~ "^" prefix {print $1}')
     if [ -z "$cluster_load_namespaces" ]; then
-        printf "Error: Unable to obtain any cluster namespaces prefixed with [$cluster_load_namespaces].\n"
+        printf "Error: Unable to obtain any cluster namespaces prefixed with [$cluster_load_namespace_prefix].\n"
         return 1
     fi
     echo "$cluster_load_namespaces" | xargs kubectl delete namespace
