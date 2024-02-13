@@ -56,6 +56,8 @@ spec:
     - "${installFlag}"%{ endfor ~}
 
     upgradeFlags:
+    # - "--disable-rollback"       # Useful when upgrading large clusters
+    # - "--manual-worker-upgrade"  # Useful when upgrading large clusters
     - "--force-recent-backup"
     - "--force-minimums"%{ for upgradeFlag in mke_upgradeFlags }
     - "${upgradeFlag}"%{ endfor ~}
