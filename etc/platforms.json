@@ -11,6 +11,12 @@
       "user": "centos",
       "interface": "eth0"
   },
+  "centos_9": {
+      "ami_name": "CentOS Stream 9 x86_64 202?????",
+      "owner": "125523088429",
+      "user": "ec2-user",
+      "interface": "eth0"
+  },
   "oracle_7": {
     "ami_name": "OL7.?-x86_64-HVM-*",
     "owner": "131827586825",
