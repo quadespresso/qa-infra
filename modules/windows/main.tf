@@ -22,9 +22,17 @@ locals {
     "${path.module}/../templates/user_data_windows.tpl",
     {
       win_admin_password = var.win_admin_password
+      enable_fips        = var.enable_fips
     }
   )
 }
+
+# Useful for troubleshooting the Windows user-data script - uncomment as needed
+# resource "local_file" "user_data_windows_file" {
+#   filename = "${path.module}/output/user_data_windows.txt"
+#   content  = local.user_data_windows
+# }
+
 
 module "ami" {
   source   = "../ami"

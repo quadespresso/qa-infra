@@ -159,12 +159,12 @@ Try {
     $response = Invoke-Webrequest -Uri $metadataUrl -UseBasicParsing -ErrorAction Stop
     if ($response.StatusCode -eq 200) {
         if ((& hostname) -ne $response.Content) {
-            Write-Output "Changing hostname from [$(& hostname)] to [$($response.Content)]" 
+            Write-Output "Changing hostname from [$(& hostname)] to [$($response.Content)]"
             Set-ItemProperty 'HKLM:\system\currentcontrolset\services\tcpip\parameters' -Name 'NV Hostname' -Value $response.Content
-            $rebootNeededForHostname = $true   
+            $rebootNeededForHostname = $true
         }
         else {
-            Write-Output "Hostname [$(& hostname)] follows the expected naming convention and will not be changed." 
+            Write-Output "Hostname [$(& hostname)] follows the expected naming convention and will not be changed."
         }
     }
     else {
@@ -175,9 +175,18 @@ Catch {
     Write-Warning "Exception accessing URL [$metadataUrl]. Reason: $($_.Exception.Message).  Unable to rename host."
 }
 
-if (($rebootNeededForContainersFeature) -or ($rebootNeededForHostname)) {
+# Set FIPS as needed
+[bool] $rebootNeededForFIPS = $false
+%{ if enable_fips ~}
+# Enable FIPS
+Write-Output "Enabling FIPS..."
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa\FipsAlgorithmPolicy\" -Name "Enabled" -Value "1"
+[bool] $rebootNeededForFIPS = $true
+%{ endif ~}
+
+if (($rebootNeededForContainersFeature) -or ($rebootNeededForHostname) -or ($rebootNeededForFIPS)) {
     Write-Output "Restarting computer to complete initialization process."
-    Restart-Computer -Force   
+    Restart-Computer -Force
 }
 
 </powershell>

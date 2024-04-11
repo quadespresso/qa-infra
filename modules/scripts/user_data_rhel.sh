@@ -1,6 +1,12 @@
 #!/bin/bash
 echo "RHEL cloud-init customization"
 
+stop_sshd() {
+    # Prevent early logins
+    echo "Stopping sshd until reboot"
+    systemctl stop sshd
+}
+
 disable_nm_cloud_setup() {
   # disable component uniquely problematic to RHEL 8.4 for MKE
   echo "Running 'systemctl disable nm-cloud-setup.timer'"
@@ -35,13 +41,20 @@ upgrade_selinux_policy() {
   dnf upgrade -y selinux-policy
 }
 
-RHEL_PROD_VER=$(grep 'REDHAT_SUPPORT_PRODUCT_VERSION' /etc/os-release)
-RHEL_VER=$(echo "${RHEL_PROD_VER}" | grep -Eo '[0-9]+(\.[0-9]+)?')
+main(){
+  RHEL_PROD_VER=$(grep 'REDHAT_SUPPORT_PRODUCT_VERSION' /etc/os-release)
+  RHEL_VER=$(echo "${RHEL_PROD_VER}" | grep -Eo '[0-9]+(\.[0-9]+)?')
 
-if [[ "${RHEL_VER}" = "8.4" ]]; then
-    disable_nm_cloud_setup
-elif [[ "${RHEL_VER}" = "9.0" ]]; then
-    upgrade_selinux_policy
-else
-    echo "No special handling needed for RHEL ${RHEL_VER}."
-fi
+  stop_sshd
+
+  if [[ "${RHEL_VER}" = "8.4" ]]; then
+      disable_nm_cloud_setup
+  elif [[ "${RHEL_VER}" = "9.0" ]]; then
+      upgrade_selinux_policy
+  else
+      echo "No special handling needed for RHEL ${RHEL_VER}."
+  fi
+}
+
+# Run the main function
+main

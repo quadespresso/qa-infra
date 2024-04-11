@@ -27,6 +27,16 @@ variable "life_cycle" {
   description = "Deploy instances as either 'spot' or 'ondemand'"
 }
 
+variable "enable_fips" {
+  type        = bool
+  default     = false
+  validation {
+    condition     = contains([true, false], var.enable_fips)
+    error_message = "Valid values for var 'enable_fips' must be one of: 'true', 'false'"
+  }
+  description = "Enable FIPS mode on the cluster. Be mindful of 'ssh_algorithm' compatibility."
+}
+
 variable "globals" {
   description = "Map of global variables."
 }

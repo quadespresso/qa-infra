@@ -61,6 +61,7 @@ module "managers" {
   instance_type = var.manager_type
   life_cycle    = var.life_cycle
   volume_size   = var.manager_volume_size
+  enable_fips   = var.enable_fips
   globals       = local.globals
 }
 
@@ -71,6 +72,7 @@ module "workers" {
   instance_type = var.worker_type
   life_cycle    = var.life_cycle
   volume_size   = var.worker_volume_size
+  enable_fips   = var.enable_fips
   globals       = local.globals
 }
 
@@ -81,6 +83,7 @@ module "msrs" {
   instance_type = var.msr_type
   life_cycle    = var.life_cycle
   volume_size   = var.msr_volume_size
+  enable_fips   = var.enable_fips
   globals       = local.globals
 }
 
@@ -91,6 +94,7 @@ module "windows_workers" {
   instance_type      = var.worker_type
   life_cycle         = var.life_cycle
   volume_size        = var.win_worker_volume_size
+  enable_fips        = var.enable_fips
   win_admin_password = var.win_admin_password
   globals            = local.globals
 }

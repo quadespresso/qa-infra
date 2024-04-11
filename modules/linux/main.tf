@@ -58,6 +58,7 @@ locals {
       zypper = file("${local.scripts_dir}/user_data_zypper.sh")
       user   = "docker"
       github_user = "quadespresso"
+      enable_fips = var.enable_fips
     }
   )
 }

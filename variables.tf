@@ -124,25 +124,25 @@ variable "msr_type" {
 
 variable "manager_volume_size" {
   type        = number
-  default     = 100
+  default     = 50
   description = "The volume size (in GB) to use for manager nodes."
 }
 
 variable "worker_volume_size" {
   type        = number
-  default     = 100
+  default     = 50
   description = "The volume size (in GB) to use for worker nodes."
 }
 
 variable "win_worker_volume_size" {
   type        = number
-  default     = 100
+  default     = 50
   description = "The volume size (in GB) to use for Windows worker nodes."
 }
 
 variable "msr_volume_size" {
   type        = number
-  default     = 100
+  default     = 50
   description = "The volume size (in GB) to use for MSR replica nodes."
 }
 
@@ -280,6 +280,16 @@ variable "ssh_algorithm" {
     condition     = contains(["ED25519", "RSA"], var.ssh_algorithm)
     error_message = "Valid values for var 'ssh_algorithm' must be one of: 'spot', 'ondemand'"
   }
+}
+
+variable "enable_fips" {
+  type        = bool
+  default     = false
+  validation {
+    condition     = contains([true, false], var.enable_fips)
+    error_message = "Valid values for var 'enable_fips' must be one of: 'true', 'false'"
+  }
+  description = "Enable FIPS mode on the cluster. Be mindful of 'ssh_algorithm' compatibility."
 }
 
 variable "open_sg_for_myip" {
