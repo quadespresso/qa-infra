@@ -47,6 +47,38 @@ locals {
     }
   ))
 
+  mke4_upgrade = templatefile("${path.module}/templates/mke4_upgrade.tpl",
+    {
+      key_path = abspath(local.key_path)
+      hosts    = local.hosts
+    }
+  )
+
+  mke4_install = templatefile("${path.module}/templates/mke4_install.tpl",
+    {
+      key_path = abspath(local.key_path)
+      hosts    = local.hosts
+    }
+  )
+
+  blueprint = templatefile("${path.module}/templates/bop_blueprint.tpl",
+    {
+      key_path = local.key_path
+      hosts    = local.hosts
+      managers = local.managers.instances
+      mke_san  = module.elb_mke.lb_dns_name
+    }
+  )
+
+  k0sctl = templatefile("${path.module}/templates/k0sctl.tpl",
+    {
+      key_path = local.key_path
+      hosts    = local.hosts
+      managers = local.managers.instances
+      mke_san  = module.elb_mke.lb_dns_name
+    }
+  )
+
   # Ansible config object which could be output to yaml.
   # @NOTE we use an object so that it can be interpreted in parts, and read as
   #    using `terraform output -json`
@@ -91,6 +123,22 @@ output "nodes" {
 
 output "nodes_yaml" {
   value = yamlencode(local.nodes)
+}
+
+output "mke4_install" {
+  value = local.mke4_install
+}
+
+output "mke4_upgrade" {
+  value = local.mke4_upgrade
+}
+
+output "blueprint" {
+  value = local.blueprint
+}
+
+output "k0sctl" {
+  value = local.k0sctl
 }
 
 output "cluster_name" {
@@ -140,4 +188,24 @@ resource "local_file" "nodes_yaml" {
 resource "local_file" "ansible_inventory" {
   content  = local.ansible_inventory
   filename = "hosts.ini"
+}
+
+resource "local_file" "mke4_install" {
+  content = local.mke4_install
+  filename = "mke4_install.yaml"
+}
+
+resource "local_file" "mke4_upgrade" {
+  content = local.mke4_upgrade
+  filename = "mke4_upgrade.yaml"
+}
+
+resource "local_file" "blueprint" {
+  content = local.blueprint
+  filename = "blueprint.yaml"
+}
+
+resource "local_file" "k0sctl" {
+  content = local.k0sctl
+  filename = "k0sctl.yaml"
 }
