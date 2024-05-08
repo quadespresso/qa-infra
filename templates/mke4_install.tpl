@@ -1,13 +1,20 @@
 hosts:
 %{ for host in hosts ~}
-- ssh:
-    address: ${host.ssh.address}
 %{ if can( host.ssh ) ~}
+- ssh:
     user: ${host.ssh.user}
+    address: ${host.ssh.address}
     keyPath: ${key_path}
     port: 22
-  role: %{ if host.role == "manager" }controller+worker%{ else }worker%{ endif }
+%{ else ~}
+- winRM:
+    address: ${host.winrm.address}
+    user: ${host.winrm.user}
+    password: ${host.winrm.password}
+    useHTTPS: ${host.winrm.useHTTPS}
+    insecure: ${host.winrm.insecure}
 %{ endif ~}
+  role: %{ if host.role == "manager" }controller+worker%{ else }worker%{ endif }
 %{ endfor ~}
 hardening:
   enabled: true

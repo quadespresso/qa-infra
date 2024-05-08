@@ -2,8 +2,10 @@ hosts:
 %{ for host in hosts ~}
   - address: ${host.instance.public_ip}
 %{ if can( host.ssh ) ~}
-    port: 22
     user: ${host.ssh.user}
-    keyPath: ${key_path}
+%{ else ~}
+    user: ${host.winrm.user}
 %{ endif ~}
+    keyPath: ${key_path}
+    port: 22
 %{ endfor }

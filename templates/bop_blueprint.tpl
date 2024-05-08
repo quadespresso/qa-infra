@@ -28,15 +28,25 @@ spec:
               initial-cluster: ${ join(",", [for m in managers : "${m.private_dns}=https://${m.private_ip}:2380"]) }
               initial-cluster-state: existing
     infra:
-      hosts:%{ for host in hosts }
+      hosts:
+        %{~ for host in hosts ~}
+        %{~ if can(host.ssh) ~}
         - ssh:
+            user: ${host.ssh.user}
             address: ${host.ssh.address}
             keyPath: ${key_path}
             port: 22
-            user: ${host.ssh.user}%{ if host.role == "manager" }
-          role: controller+worker%{ else }
-          role: worker%{ endif ~}
-%{ endfor }
+          role: %{ if host.role == "manager" }controller+worker%{ else }worker%{~ endif }
+        %{~ else ~}
+        - winRM:
+            address: ${host.winrm.address}
+            user: ${host.winrm.user}
+            password: ${host.winrm.password}
+            useHTTPS: ${host.winrm.useHTTPS}
+            insecure: ${host.winrm.insecure}
+          role: worker
+        %{~ endif ~}
+        %{~ endfor ~}
   components:
     addons:
     - name: monitoring
