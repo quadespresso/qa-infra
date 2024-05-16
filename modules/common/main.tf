@@ -13,7 +13,7 @@ locals {
     var.ssh_algorithm == "ED25519" ?
     tls_private_key.tls_ed25519 :
     tls_private_key.tls_rsa
-    )
+  )
 }
 
 resource "local_file" "ssh_public_key" {
@@ -48,9 +48,9 @@ resource "aws_security_group" "common" {
   }
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
     # cidr_blocks = ["0.0.0.0/0"]
     cidr_blocks = ["${chomp(data.http.ip_service.response_body)}/32"]
   }
@@ -104,8 +104,18 @@ resource "aws_security_group" "common" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-# nodeport_range as described here:
-# https://docs.mirantis.com/mke/3.6/ops/administer-cluster/configure-an-mke-cluster/configuration-options.html?highlight=nodeport_range
+  # new for MKE 4 - TESTING-1854
+  # 5555 needed for the (future) web UI
+  # 5556 needed for dex
+  ingress {
+    from_port   = 5555
+    to_port     = 5556
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # nodeport_range as described here:
+  # https://docs.mirantis.com/mke/3.6/ops/administer-cluster/configure-an-mke-cluster/configuration-options.html?highlight=nodeport_range
   ingress {
     from_port   = 32768
     to_port     = 35535
