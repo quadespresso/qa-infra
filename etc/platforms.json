@@ -1,21 +1,21 @@
 {
   "centos_7": {
-      "ami_name": "CentOS Linux 7 x86_64*",
-      "owner": "125523088429",
-      "user": "centos",
-      "interface": "eth0"
+    "ami_name": "CentOS Linux 7 x86_64*",
+    "owner": "125523088429",
+    "user": "centos",
+    "interface": "eth0"
   },
   "centos_7.9": {
-      "ami_name": "CentOS Linux 7 x86_64*",
-      "owner": "125523088429",
-      "user": "centos",
-      "interface": "eth0"
+    "ami_name": "CentOS Linux 7 x86_64*",
+    "owner": "125523088429",
+    "user": "centos",
+    "interface": "eth0"
   },
   "centos_9": {
-      "ami_name": "CentOS Stream 9 x86_64 202?????",
-      "owner": "125523088429",
-      "user": "ec2-user",
-      "interface": "eth0"
+    "ami_name": "CentOS Stream 9 x86_64 202?????",
+    "owner": "125523088429",
+    "user": "ec2-user",
+    "interface": "eth0"
   },
   "oracle_7": {
     "ami_name": "OL7.?-x86_64-HVM-*",
@@ -89,8 +89,14 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
+  "oracle_9.3": {
+    "ami_name": "OL9.3-x86_64-HVM-*",
+    "owner": "131827586825",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
   "oracle_9": {
-    "ami_name": "OL9.2-x86_64-HVM-*",
+    "ami_name": "OL9.3-x86_64-HVM-*",
     "owner": "131827586825",
     "user": "ec2-user",
     "interface": "eth0"
