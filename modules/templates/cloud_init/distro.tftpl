@@ -52,11 +52,11 @@ runcmd:
   - |
     ${indent(4, script)}
   - echo "Final stage of the Mirantis terraform cloud-init script"
-%{ if distro == "rhel" && enable_fips ~}
+%{ if ( distro == "rhel" || distro == "oracle" || distro == "rocky" ) && enable_fips ~}
   - echo "Enabling FIPS mode"
   - fips-mode-setup --enable
 %{ endif ~}
   - echo "Creating dummy file /var/log/.cloud_init_done"
   - touch /var/log/.cloud_init_done
   - sleep 5
-  %{ if distro == "oracle" || distro == "rhel" ~}- reboot%{ endif ~}
+  - reboot
