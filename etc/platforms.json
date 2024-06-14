@@ -66,9 +66,9 @@
     "interface": "eth0"
   },
   "oracle_8.6": {
-    "ami_name": "OL8.6-x86_64-HVM-*",
-    "owner": "131827586825",
-    "user": "ec2-user",
+    "ami_name": "testkit/oracle_8.6/20231101001402",
+    "owner": "546848686991",
+    "user": "docker",
     "interface": "eth0"
   },
   "oracle_9.0": {
