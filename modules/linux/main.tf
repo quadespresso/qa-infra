@@ -22,23 +22,23 @@ locals {
     local.role_platform[var.role],
     local.default_platform[local.os]
   )
-  distro = split("_", local.platform)[0]
-  scripts_dir       = "${path.module}/../scripts"
+  distro          = split("_", local.platform)[0]
+  scripts_dir     = "${path.module}/../scripts"
   hostname_script = "${local.scripts_dir}/user_data_hostname.sh"
 
   platform_script = fileexists(
     "${local.scripts_dir}/user_data_${local.platform}.sh"
     ) ? (
-      "${local.scripts_dir}/user_data_${local.platform}.sh"
+    "${local.scripts_dir}/user_data_${local.platform}.sh"
     ) : (
-      "${local.scripts_dir}/user_data_default.sh"
+    "${local.scripts_dir}/user_data_default.sh"
   )
 
   distro_script = "${local.scripts_dir}/user_data_${local.distro}.sh"
 
   final_linux_script = "${local.scripts_dir}/user_data_linux_final.sh"
 
-  templates = "${path.module}/../templates"
+  templates  = "${path.module}/../templates"
   cloud_init = "${local.templates}/cloud_init"
 }
 
@@ -53,10 +53,11 @@ locals {
   distro_tftpl = templatefile(
     "${local.cloud_init}/distro.tftpl",
     {
-      distro = local.distro
-      script = file("${local.scripts_dir}/user_data_${local.distro}.sh")
-      zypper = file("${local.scripts_dir}/user_data_zypper.sh")
-      user   = "docker"
+      distro      = local.distro
+      platform    = local.platform
+      script      = file("${local.scripts_dir}/user_data_${local.distro}.sh")
+      zypper      = file("${local.scripts_dir}/user_data_zypper.sh")
+      user        = "docker"
       github_user = "quadespresso"
       enable_fips = var.enable_fips
     }
@@ -95,8 +96,8 @@ locals {
 # }
 
 module "ondemand" {
-  source        = "../ondemand"
-  globals       = var.globals
+  source  = "../ondemand"
+  globals = var.globals
   # node_count    = var.life_cycle == "ondemand" ? var.node_count : 0
   node_count    = var.node_count
   image_id      = module.ami.image_id

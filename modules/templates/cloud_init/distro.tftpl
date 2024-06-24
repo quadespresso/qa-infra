@@ -52,9 +52,25 @@ runcmd:
   - |
     ${indent(4, script)}
   - echo "Final stage of the Mirantis terraform cloud-init script"
-%{ if ( distro == "rhel" || distro == "oracle" || distro == "rocky" ) && enable_fips ~}
+%{ if enable_fips ~}
   - echo "Enabling FIPS mode"
+%{ if ( distro == "rhel" || distro == "oracle" || distro == "rocky" ) ~}
   - fips-mode-setup --enable
+  - grub2-mkconfig -o /boot/grub2/grub.cfg
+%{ endif ~}
+%{ if distro == "centos" || platform == "rhel_7.9" ~}
+  - grubby --update-kernel=$(grubby --default-kernel) --args=fips=1
+%{ endif ~}
+%{ if distro == "sles" ~}
+  - zypper -n in -t pattern fips
+  - sed -i '/^GRUB_CMDLINE_LINUX=/ s/"$/ fips=1"/' /etc/default/grub
+  - grub2-mkconfig -o /boot/grub2/grub.cfg
+%{ endif ~}
+%{ if platform == "oracle_7.9" ~}
+  - sed -i '/^GRUB_CMDLINE_LINUX=/ s/"$/ fips=1"/' /etc/default/grub
+  - grub2-mkconfig -o /boot/grub2/grub.cfg
+%{ endif ~}
+  - echo "FIPS mode enabled"
 %{ endif ~}
   - echo "Creating dummy file /var/log/.cloud_init_done"
   - touch /var/log/.cloud_init_done
