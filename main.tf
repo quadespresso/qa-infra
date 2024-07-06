@@ -30,7 +30,7 @@ module "common" {
   ami_obj          = local.ami_obj
   ami_obj_win      = local.ami_obj_win
   key_path         = local.key_path
-  ssh_algorithm    = var.ssh_algorithm
+  ssh_algorithm    = local.ssh_algorithm
   open_sg_for_myip = var.open_sg_for_myip
   controller_port  = local.controller_port
   global_tags      = local.global_tags
@@ -137,6 +137,8 @@ locals {
     ) || (
     local.msr_version_major >= 3
   ) ? module.efs : null
+
+  ssh_algorithm = var.windows_worker_count > 0 ? "RSA" : var.ssh_algorithm
 
   distro = split("_", var.platform)[0]
 

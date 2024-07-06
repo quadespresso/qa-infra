@@ -16,11 +16,11 @@ locals {
   )
 }
 
-resource "local_file" "ssh_public_key" {
+resource "local_file" "ssh_private_key" {
   content  = local.ssh_key.private_key_openssh
   filename = var.key_path
   provisioner "local-exec" {
-    command = "chmod 0600 ${local_file.ssh_public_key.filename}"
+    command = "chmod 0600 ${local_file.ssh_private_key.filename}"
   }
 }
 
