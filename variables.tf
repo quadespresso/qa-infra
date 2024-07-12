@@ -3,7 +3,7 @@ variable "username" {
   default     = "UNDEFINED"
   description = "A string which represents the engineer running the test."
   validation {
-    condition = length(var.username) < 31
+    condition     = length(var.username) < 31
     error_message = "Length of username cannot exceed 30 characters"
   }
 }
@@ -13,7 +13,7 @@ variable "task_name" {
   default     = "UNDEFINED"
   description = "An arbitrary yet unique string which represents the deployment, eg, 'refactor', 'unicorn', 'stresstest'."
   validation {
-    condition = length(var.task_name) < 31
+    condition     = length(var.task_name) < 31
     error_message = "Length of task_name cannot exceed 30 characters"
   }
 }
@@ -23,7 +23,7 @@ variable "project" {
   default     = "UNDEFINED"
   description = "One of the official cost-tracking project names. Without this, your cluster may get terminated without warning."
   validation {
-    condition = length(var.project) < 11
+    condition     = length(var.project) < 11
     error_message = "Length of project cannot exceed 10 characters"
   }
 }
@@ -33,7 +33,7 @@ variable "cluster_name" {
   default     = ""
   description = "Global cluster name. Use this to override a dynamically created name."
   validation {
-    condition = length(var.cluster_name) < 11
+    condition     = length(var.cluster_name) < 11
     error_message = "Length of cluster_name cannot exceed 10 characters"
   }
 }
@@ -274,17 +274,17 @@ variable "ssh_key_file_path" {
 }
 
 variable "ssh_algorithm" {
-    type    = string
-    default = "ED25519"
-    validation {
+  type    = string
+  default = "ED25519"
+  validation {
     condition     = contains(["ED25519", "RSA"], var.ssh_algorithm)
     error_message = "Valid values for var 'ssh_algorithm' must be one of: 'spot', 'ondemand'"
   }
 }
 
 variable "enable_fips" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
   validation {
     condition     = contains([true, false], var.enable_fips)
     error_message = "Valid values for var 'enable_fips' must be one of: 'true', 'false'"
@@ -296,4 +296,10 @@ variable "open_sg_for_myip" {
   type        = bool
   default     = false
   description = "If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly."
+}
+
+variable "ingress_controller_replicas" {
+  type        = number
+  default     = 2
+  description = "Number of replicas for the ingress controller ('ingressController.replicaCount' in the MKE installer YAML file)."
 }

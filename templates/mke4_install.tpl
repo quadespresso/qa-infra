@@ -43,9 +43,69 @@ audit:
 license:
   refresh: true
 apiServer:
+  externalAddress: ${lb}
   sans: []
 ingressController:
-  enabled: false
+  enabled: true
+  replicaCount: ${ingress_controller_replicas}
+  extraArgs:
+    httpPort: 80
+    httpsPort: 443
+    enableSslPassthrough: false
+    defaultSslCertificate: mke/auth-https.tls
 monitoring:
   enableGrafana: true
   enableOpscare: false
+network:
+  kubeProxy:
+    disabled: false
+    mode: iptables
+    metricsbindaddress: 0.0.0.0:10249
+    iptables:
+      masqueradebit: null
+      masqueradeall: false
+      localhostnodeports: null
+      syncperiod:
+        duration: 0s
+      minsyncperiod:
+        duration: 0s
+    ipvs:
+      syncperiod:
+        duration: 0s
+      minsyncperiod:
+        duration: 0s
+      scheduler: ""
+      excludecidrs: []
+      strictarp: false
+      tcptimeout:
+        duration: 0s
+      tcpfintimeout:
+        duration: 0s
+      udptimeout:
+        duration: 0s
+    nodeportaddresses: []
+  nllb:
+    disabled: true
+  cplb:
+    disabled: true
+  providers:
+    - provider: calico
+      enabled: true
+      CALICO_DISABLE_FILE_LOGGING: true
+      CALICO_STARTUP_LOGLEVEL: DEBUG
+      FELIX_LOGSEVERITYSCREEN: DEBUG
+      clusterCIDRIPv4: 192.168.0.0/16
+      deployWithOperator: false
+      enableWireguard: false
+      ipAutodetectionMethod: null
+      mode: vxlan
+      overlay: Always
+      vxlanPort: 4789
+      vxlanVNI: 10000
+      windowsNodes: false
+    - provider: kuberouter
+      enabled: false
+      deployWithOperator: false
+    - provider: custom
+      enabled: false
+      deployWithOperator: false

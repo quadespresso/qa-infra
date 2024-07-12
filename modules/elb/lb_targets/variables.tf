@@ -1,4 +1,10 @@
-variable "port" {
+variable "listen_port" {
+  type        = string
+  default     = "443"
+  description = "Port for the listener."
+}
+
+variable "target_port" {
   type        = string
   default     = "443"
   description = "Port for the target group."

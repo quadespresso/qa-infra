@@ -6,9 +6,9 @@ username             = "alex"
 task_name            = "ostrich"
 project              = "ST-SZNG"
 expire_duration      = "72h"
-mcr_version          = "19.03.14"
-mke_version          = "3.3.7"
-msr_version          = "2.8.5"
+mcr_version          = "23.0.13"
+mke_version          = "3.7.9"
+msr_version          = "2.9.5"
 
 ###
 # Popular options which already have sane defaults; you can change these here.
@@ -17,22 +17,14 @@ msr_version          = "2.8.5"
 #
 # Choose from a plethora of platforms.
 # Refer to platforms.auto.tfvars.json for available choices.
-# platform                       = "rhel_7.8"
+# platform                       = "rhel_9.4"
 
-# Choose either "public" or "mirantis". If you choose "mirantis", refer to
-# platforms.auto.tfvars.json to see what you can set 'platform' to.
-# platform_repo                  = "public"
-
-# List of MSR installer flags. What you see here is the default behavior.
+# List of MSR 2.9.x installer flags. What you see here is the default behavior.
 # msr_install_flags    = ["--ucp-insecure-tls"]
 
 # Sets the security group wide open, but only from your IP address.
 # Mainly for debugging purposes.
 # open_sg_for_myip               = true
-
-# This is the %age over the current spot price. Default is 2%.
-# If set to 0, it uses the on-demand price.
-# pct_over_spot_price            = 0
 
 # As the var names suggest, these are the MKE/MSR 'admin' and the Windows 'Administrator'
 # password values.
@@ -42,3 +34,6 @@ msr_version          = "2.8.5"
 # passwords.
 # admin_password                 = "abcd1234changemepleasedontusemeatall"
 # windows_administrator_password = "tfaws,,CHANGEME..ExampleButPleaseStillDontUseMe"
+
+# New for MKE 4:
+# ingress_controller_replicas = 2  # default

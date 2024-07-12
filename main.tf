@@ -32,23 +32,30 @@ module "common" {
   key_path         = local.key_path
   ssh_algorithm    = local.ssh_algorithm
   open_sg_for_myip = var.open_sg_for_myip
-  controller_port  = local.controller_port
+  controller_port  = local.controller_port_v3
   global_tags      = local.global_tags
 }
 
 module "elb_mke" {
-  source     = "./modules/elb"
-  component  = "mke"
-  ports      = [local.controller_port, "6443"]
+  source    = "./modules/elb"
+  component = "mke"
+  ports = {
+    443 : local.controller_port,
+    6443 : "6443",
+    8132 : "8132",
+    9443 : "9443",
+  }
   node_ids   = local.managers.node_ids
   node_count = var.manager_count
   globals    = local.globals
 }
 
 module "elb_msr" {
-  source     = "./modules/elb"
-  component  = "msr"
-  ports      = ["443"]
+  source    = "./modules/elb"
+  component = "msr"
+  ports = {
+    443 : "443"
+  }
   node_ids   = local.msrs.node_ids
   node_count = local.msr_count
   globals    = local.globals
@@ -103,11 +110,11 @@ module "windows_workers" {
 data "aws_caller_identity" "current" {}
 
 locals {
-  cluster_name       = var.cluster_name == "" ? random_string.random.result : var.cluster_name
-  expire             = timeadd(time_static.now.rfc3339, var.expire_duration)
-  platforms_map      = jsondecode(file("${path.root}/etc/platforms.json"))
-  ami_obj            = local.platforms_map[var.platform]
-  ami_obj_win        = local.platforms_map[var.win_platform]
+  cluster_name  = var.cluster_name == "" ? random_string.random.result : var.cluster_name
+  expire        = timeadd(time_static.now.rfc3339, var.expire_duration)
+  platforms_map = jsondecode(file("${path.root}/etc/platforms.json"))
+  ami_obj       = local.platforms_map[var.platform]
+  ami_obj_win   = local.platforms_map[var.win_platform]
   default_platform = {
     "linux"   = var.platform
     "windows" = var.win_platform
@@ -120,7 +127,7 @@ locals {
   )
 
   # set MSR version to token value if var.msr_version is empty string
-  msr_version_major = var.msr_version == "" ? 999 : tonumber( split(".", var.msr_version)[0] )
+  msr_version_major = var.msr_version == "" ? 999 : tonumber(split(".", var.msr_version)[0])
   # if msr_version_major >= 3 then:
   # add the msr_count onto worker_count, and set msr_count to 0
   # These changes keep MSR 3+ deployment configs out of launchpad.yaml
@@ -185,10 +192,10 @@ locals {
   }
 
   # Set MKE orchestration (non-conflicting flags)
-  kube_orchestration = "--default-node-orchestrator=kubernetes"
+  kube_orchestration  = "--default-node-orchestrator=kubernetes"
   swarm_orchestration = "--default-node-orchestrator=swarm"
-  node_orchestrators = [local.kube_orchestration, local.swarm_orchestration]
-  swarm_only = "--swarm-only"
+  node_orchestrators  = [local.kube_orchestration, local.swarm_orchestration]
+  swarm_only          = "--swarm-only"
   contains_swarm_only = contains(var.mke_install_flags, local.swarm_only)
   contains_swarm_mode = contains(var.mke_install_flags, local.swarm_orchestration)
   # If --swarm-only explicitly set, remove all other flags.
@@ -198,8 +205,8 @@ locals {
     local.contains_swarm_only ?
     setsubtract(var.mke_install_flags, local.node_orchestrators) :
     local.contains_swarm_mode ?
-      setsubtract(var.mke_install_flags, [local.kube_orchestration]) :
-      concat(var.mke_install_flags, [local.kube_orchestration])
+    setsubtract(var.mke_install_flags, [local.kube_orchestration]) :
+    concat(var.mke_install_flags, [local.kube_orchestration])
   )
   # End set MKE orchestration
 
@@ -209,10 +216,14 @@ locals {
   # convert MKE install flags into a map
   mke_opts = { for f in local.mke_install_flags : trimprefix(element(split("=", f), 0), "--") => element(split("=", f), 1) }
   # discover if there is a controller port override.
-  controller_port = try(
+  controller_port_v3 = try(
     local.mke_opts.controller_port,
     "443"
   )
+  # If this is MKE 4.x, we need to override the controller port
+  mke_version_major = tonumber(split(".", var.mke_version)[0])
+  controller_port   = local.mke_version_major >= 4 ? "33001" : local.controller_port_v3
+
   # Pick a path for saving the RSA private key
   key_path = var.ssh_key_file_path == "" ? "${path.root}/ssh_keys/${local.cluster_name}.pem" : var.ssh_key_file_path
 

@@ -1,6 +1,10 @@
 variable "ports" {
-  type        = list(string)
-  default     = ["443"]
+  # type        = list(string)
+  # default     = ["443"]
+  type        = map(string)
+  default     = {
+    443: "443"
+  }
   description = "Ports for the target groups."
 }
 

@@ -104,15 +104,35 @@ resource "aws_security_group" "common" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # new for MKE 4 - TESTING-1854
-  # 5555 needed for the (future) web UI
-  # 5556 needed for dex
+  # new for MKE 4, post full integration (without helper container or kubectl proxy)
   ingress {
-    from_port   = 5555
-    to_port     = 5556
+    from_port   = 33001
+    to_port     = 33001
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = 8132
+    to_port     = 8132
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 9443
+    to_port     = 9443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 33337
+    to_port     = 33337
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  # end of new ports required for MKE 4
 
   # nodeport_range as described here:
   # https://docs.mirantis.com/mke/3.6/ops/administer-cluster/configure-an-mke-cluster/configuration-options.html?highlight=nodeport_range

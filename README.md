@@ -50,7 +50,7 @@ While it would be helpful to be familiar with [the steps provided in the MCC rep
 
   _This only needs to be set **once** for all engineers, ie, infra bootstrap in a new IAM account_
 
-    navigate to the `aws-ec2-spot-fleet-role` [here](https://console.aws.amazon.com/iam/home?region=us-west-2#/roles/aws-ec2-spot-fleet-role)
+    Navigate to the `aws-ec2-spot-fleet-role` [here](https://console.aws.amazon.com/iam/home?region=us-west-2#/roles/aws-ec2-spot-fleet-role)
     ensure these policies are attached:
       `AmazonEC2SpotFleetRole`
       `AmazonEC2SpotFleetTaggingRole`
@@ -92,10 +92,10 @@ How we use these files:
 - variables of particular interest:
   - **NEW** `life_cycle` will let you specify `ondemand` or `spot` instance types (default: `ondemand`)
   - **NEW** `role_platform` is a map that will let you specify different linux platforms based on their role, eg:
-  
+
     ```bash
     role_platform = {
-        "manager" = "rhel_8.6"
+        "manager" = "rhel_9.4"
         "worker"  = "rocky_8"
         "msr"     = "ubuntu_20.04"
     }
@@ -116,6 +116,8 @@ How we use these files:
       "music"  = "downtempo"
       "email"  = "hercule@example.com"
     }
+
+  - NEW for MKE 4: `ingress_controller_replicas` (default `2`)
 
 - [variables.tf](variables.tf)
   - Config file with all of the requisite inputs for the root module

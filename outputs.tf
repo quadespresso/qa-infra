@@ -58,6 +58,8 @@ locals {
     {
       key_path = abspath(local.key_path)
       hosts    = local.hosts
+      lb       = module.elb_mke.lb_dns_name
+      ingress_controller_replicas = var.ingress_controller_replicas
     }
   )
 
@@ -170,6 +172,10 @@ output "ansible_inventory" {
 
 output "aws_region" {
   value = var.aws_region
+}
+
+output "mkectl_upgrade_command" {
+  value = "mkectl upgrade --hosts-path mke4_upgrade.yaml --admin-username ${var.admin_username} --admin-password ${var.admin_password} -l debug --config-out mke4.yaml --external-address \"${module.elb_mke.lb_dns_name}\""
 }
 
 # Write configs to YAML files

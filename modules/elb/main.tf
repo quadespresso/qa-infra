@@ -17,13 +17,14 @@ resource "aws_lb" "lb" {
 }
 
 module "lb_targets" {
-  source     = "./lb_targets"
-  for_each   = toset(var.ports)
-  port       = each.key
-  arn        = aws_lb.lb.arn
-  component  = var.component
-  globals    = var.globals
-  node_ids   = var.node_ids
-  node_count = var.node_count
-  tags       = local.tags
+  source      = "./lb_targets"
+  for_each    = var.ports
+  listen_port = each.key
+  target_port = each.value
+  arn         = aws_lb.lb.arn
+  component   = var.component
+  globals     = var.globals
+  node_ids    = var.node_ids
+  node_count  = var.node_count
+  tags        = local.tags
 }
