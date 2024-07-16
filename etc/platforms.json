@@ -430,5 +430,17 @@
     "owner": "801119661308",
     "user": "Administrator",
     "interface": "Ethernet 3"
+  },
+  "mkex_8-23.0.9-3.7.5": {
+    "ami_name": "mkex/8-23.0.9-3.7.5/*",
+    "owner": "374275670816",
+    "user": "rocky",
+    "interface": "Ethernet 3"
+  },
+  "mkex_8-23.0.10-3.7.6": {
+    "ami_name": "mkex/8-23.0.10-3.7.6/*",
+    "owner": "374275670816",
+    "user": "rocky",
+    "interface": "Ethernet 3"
   }
 }
