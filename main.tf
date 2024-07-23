@@ -32,7 +32,7 @@ module "common" {
   key_path         = local.key_path
   ssh_algorithm    = local.ssh_algorithm
   open_sg_for_myip = var.open_sg_for_myip
-  controller_port  = local.controller_port_v3
+  controller_port  = local.controller_port
   global_tags      = local.global_tags
 }
 
@@ -41,6 +41,18 @@ module "elb_mke" {
   component = "mke"
   ports = {
     443 : local.controller_port,
+    6443 : "6443",
+  }
+  node_ids   = local.managers.node_ids
+  node_count = var.manager_count
+  globals    = local.globals
+}
+
+module "elb_mke4" {
+  source    = "./modules/elb"
+  component = "mke4"
+  ports = {
+    443 : "33001",
     6443 : "6443",
     8132 : "8132",
     9443 : "9443",
@@ -216,13 +228,10 @@ locals {
   # convert MKE install flags into a map
   mke_opts = { for f in local.mke_install_flags : trimprefix(element(split("=", f), 0), "--") => element(split("=", f), 1) }
   # discover if there is a controller port override.
-  controller_port_v3 = try(
+  controller_port = try(
     local.mke_opts.controller_port,
     "443"
   )
-  # If this is MKE 4.x, we need to override the controller port
-  mke_version_major = tonumber(split(".", var.mke_version)[0])
-  controller_port   = local.mke_version_major >= 4 ? "33001" : local.controller_port_v3
 
   # Pick a path for saving the RSA private key
   key_path = var.ssh_key_file_path == "" ? "${path.root}/ssh_keys/${local.cluster_name}.pem" : var.ssh_key_file_path

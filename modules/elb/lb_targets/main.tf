@@ -5,8 +5,10 @@ resource "aws_lb_target_group" "api" {
   tags     = var.tags
   port     = var.target_port
   health_check {
-    interval = 10
-    protocol = "TCP"
+    unhealthy_threshold = 2
+    healthy_threshold   = 4
+    interval            = 10
+    protocol            = "TCP"
   }
 }
 

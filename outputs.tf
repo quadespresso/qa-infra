@@ -17,13 +17,13 @@ locals {
       mcr_installURLLinux   = var.mcr_install_url_linux
       mcr_installURLWindows = var.mcr_install_url_windows
 
-      mke_version            = var.mke_version
-      mke_image_repo         = var.mke_image_repo
-      mke_admin_username     = var.admin_username
-      mke_admin_password     = var.admin_password
-      mke_san                = module.elb_mke.lb_dns_name
-      mke_installFlags       = local.mke_install_flags
-      mke_upgradeFlags       = []
+      mke_version        = var.mke_version
+      mke_image_repo     = var.mke_image_repo
+      mke_admin_username = var.admin_username
+      mke_admin_password = var.admin_password
+      mke_san            = module.elb_mke.lb_dns_name
+      mke_installFlags   = local.mke_install_flags
+      mke_upgradeFlags   = []
 
       msr_version        = var.msr_version
       msr_image_repo     = var.msr_image_repo
@@ -56,9 +56,9 @@ locals {
 
   mke4_install = templatefile("${path.module}/templates/mke4_install.tpl",
     {
-      key_path = abspath(local.key_path)
-      hosts    = local.hosts
-      lb       = module.elb_mke.lb_dns_name
+      key_path                    = abspath(local.key_path)
+      hosts                       = local.hosts
+      lb                          = module.elb_mke4.lb_dns_name
       ingress_controller_replicas = var.ingress_controller_replicas
     }
   )
@@ -100,7 +100,7 @@ locals {
       msr_idxs      = range(local.msr_count),
       win_wkr_hosts = local.windows_workers.instances,
       win_wkr_idxs  = range(var.windows_worker_count),
-      linux_user      = local.managers.user
+      linux_user    = local.managers.user
     }
   )
 }
@@ -151,6 +151,10 @@ output "mke_lb" {
   value = "https://${module.elb_mke.lb_dns_name}"
 }
 
+output "mke4_lb" {
+  value = "https://${module.elb_mke4.lb_dns_name}"
+}
+
 # Use this output is you are trying to build your own launchpad yaml and need
 # the value for "--san={}
 output "mke_san" {
@@ -197,21 +201,21 @@ resource "local_file" "ansible_inventory" {
 }
 
 resource "local_file" "mke4_install" {
-  content = local.mke4_install
+  content  = local.mke4_install
   filename = "mke4_install.yaml"
 }
 
 resource "local_file" "mke4_upgrade" {
-  content = local.mke4_upgrade
+  content  = local.mke4_upgrade
   filename = "mke4_upgrade.yaml"
 }
 
 resource "local_file" "blueprint" {
-  content = local.blueprint
+  content  = local.blueprint
   filename = "blueprint.yaml"
 }
 
 resource "local_file" "k0sctl" {
-  content = local.k0sctl
+  content  = local.k0sctl
   filename = "k0sctl.yaml"
 }

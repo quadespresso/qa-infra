@@ -143,6 +143,14 @@ resource "aws_security_group" "common" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # opens everything to the outside world - handy for testing
+  # ingress {
+  #   from_port   = 0
+  #   to_port     = 0
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
+
   egress {
     from_port   = 0
     to_port     = 0
