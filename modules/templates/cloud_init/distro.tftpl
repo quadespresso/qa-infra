@@ -47,8 +47,13 @@ write_files:
       disable_system_repos=0
 %{ endif ~}
 
-
 runcmd:
+%{ if startswith(platform, "centos_7") ~}
+  - cp /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bak
+  - curl -o /etc/yum.repos.d/CentOS-Base.repo https://raw.githubusercontent.com/AtlasGondal/centos7-eol-repo-fix/main/CentOS-Base.repo
+  - yum clean all
+  - yum makecache
+%{ endif ~}
   - |
     ${indent(4, script)}
   - echo "Final stage of the Mirantis terraform cloud-init script"
