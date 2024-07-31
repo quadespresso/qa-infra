@@ -12,7 +12,8 @@ PODS_PER_NODE_DEFAULT=100
 PODS_PER_NODE=$PODS_PER_NODE_DEFAULT
 MKE_USER_DEFAULT='admin'
 MKE_USER=$MKE_USER_DEFAULT
-
+MKE_CONFIG_TOML_PATH_DEFAULT=/tmp/mke-config.toml
+MKE_CONFIG_TOML_PATH=$MKE_CONFIG_TOML_PATH_DEFAULT
 
 # Function to display script usage
 show_usage() {
@@ -33,6 +34,7 @@ Options:
   --mke-url                   URL to MKE (will be prompted if not supplied)
   --mke-user                  MKE admin user (default is $MKE_USER_DEFAULT)
   --mke-password              MKE user password (will be prompted if not supplied)
+  --mke-config-toml-path      Specify where the config.toml file should be output (default is $MKE_CONFIG_TOML_PATH_DEFAULT)
   -r, --report-dir            Specify the report output directory (default is $REPORT_DIR_DEFAULT)
 
 
@@ -65,6 +67,51 @@ cleanup_cluster_load_resources() {
     printf "Cleaning up cluster load resources complete.\n"
     return 0
 }
+
+get_mke_auth_token() {
+    local MKE_USER="$1"
+    local MKE_PASSWORD="$2"
+    local MKE_URL="$3"
+
+    echo "Obtaining an auth token from MKE..." >&2
+    
+    local AUTHTOKEN
+    AUTHTOKEN=$(curl -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" "$MKE_URL/auth/login" | grep -oP '(?<="auth_token":")[^"]*')
+    
+    if [ -z "$AUTHTOKEN" ]; then
+        echo "Error: Unable to obtain auth token from MKE." >&2
+        return 1
+    fi
+    
+    echo "Obtaining an auth token from MKE complete." >&2   
+    echo "$AUTHTOKEN"
+}
+
+# MKE config TOML download
+download_mke_config_toml() {
+    local MKE_URL="$1"
+    local AUTHTOKEN="$2"
+    local TOML_FILE_PATH="$3"
+
+    echo "Downloading MKE configuration file to [$TOML_FILE_PATH]..." >&2
+
+    local CONFIG_RESPONSE
+    CONFIG_RESPONSE=$(curl --silent --insecure -X GET "$MKE_URL/api/ucp/config-toml" -H "accept: application/toml" -H "Authorization: Bearer $AUTHTOKEN")
+
+    if [ $? -ne 0 ]; then
+        echo "Error: Unable to download MKE configuration file." >&2
+        return 1
+    fi
+
+    if [ -z "$CONFIG_RESPONSE" ]; then
+        echo "Error: MKE configuration file is empty." >&2
+        return 1
+    fi
+
+    echo "$CONFIG_RESPONSE" > "$TOML_FILE_PATH"
+    echo "Downloading MKE configuration file complete." >&2
+}
+
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -116,6 +163,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --mke-password)
             MKE_PASSWORD="$2"
+            shift
+            ;;
+        --mke-config-toml-path)
+            if [ -z "$2" ]; then
+                printf "Error: The config TOML path must be specified after --mke-config-toml-path.\n"
+                exit 1
+            fi
+            MKE_CONFIG_TOML_PATH="$2"
             shift
             ;;
         -r|--report-dir)
@@ -206,6 +261,26 @@ WORKER_COUNT=$(echo "$TF_OUTPUT" | jq -r '.hosts.value[] | select(.instance.tags
 WORKER_INSTANCE_TYPE=$(echo "$TF_OUTPUT" | jq -r '.hosts.value[] | select(.instance.tags.Role == "worker") | .instance.instance_type' | head -n 1)
 MANAGER_COUNT=$(echo "$TF_OUTPUT" | jq -r '.hosts.value[] | select(.instance.tags.Role == "manager") | .instance.instance_type' | wc -l)
 MANAGER_INSTANCE_TYPE=$(echo "$TF_OUTPUT" | jq -r '.hosts.value[] | select(.instance.tags.Role == "manager") | .instance.instance_type' | head -n 1)
+printf "Obtaining cluster info from the parent directory complete.\n"
+
+printf "Obtaining cluster info from config TOML...\n"
+AUTHTOKEN=$(get_mke_auth_token "$MKE_USER" "$MKE_PASSWORD" "$MKE_URL")
+if [ -z "$AUTHTOKEN" ]; then
+    printf "Error: Unable to obtain an MKE authtoken.\n"
+    exit 1
+fi
+download_mke_config_toml "$MKE_URL" "$AUTHTOKEN" "$MKE_CONFIG_TOML_PATH"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+PODS_PER_NODE_LIMIT_SETTING=$(grep -Po 'kubelet_max_pods = \K\d+' "$MKE_CONFIG_TOML_PATH" | awk '{print $1}')
+ETCD_SIZE_IN_GB_SETTING=$(grep -Po 'etcd_storage_quota = \K"[^"]+"' "$MKE_CONFIG_TOML_PATH" | tr -d '"')
+PROM_MEM_LIMIT_IN_GB_SETTING=$(grep -Po 'prometheus_memory_limit = \K"[^"]+"' "$MKE_CONFIG_TOML_PATH" | tr -d '"')
+PROM_MEM_REQUEST_IN_GB_SETTING=$(grep -Po 'prometheus_memory_request = \K"[^"]+"' "$MKE_CONFIG_TOML_PATH" | tr -d '"')
+PUBKEY_AUTH_CACHE_ENABLED_SETTING=$(awk -F= -v key="pubkey_auth_cache_enabled" '{gsub(/^[ \t]+|[ \t]+$/, "", $1); if ($1 == key) {gsub(/"/, "", $2); gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2; exit}}' "$MKE_CONFIG_TOML_PATH")
+CALICO_KDD_SETTING=$(awk -F= -v key="calico_kdd" '{gsub(/^[ \t]+|[ \t]+$/, "", $1); if ($1 == key) {gsub(/"/, "", $2); gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2; exit}}' "$MKE_CONFIG_TOML_PATH")
+printf "Obtaining cluster info from config TOML complete.\n"
+
 cluster_report_dir="$REPORT_DIR/${LOAD}_${MANAGER_INSTANCE_TYPE}_${CLUSTER_NAME}"
 if [ ! -d "$cluster_report_dir" ]; then
     mkdir -p "$cluster_report_dir"
@@ -218,6 +293,12 @@ cluster_info=$(jq -n \
   --arg worker_instance_type "$WORKER_INSTANCE_TYPE" \
   --arg manager_count "$MANAGER_COUNT" \
   --arg manager_instance_type "$MANAGER_INSTANCE_TYPE" \
+  --arg kubelet_max_pods "$PODS_PER_NODE_LIMIT_SETTING" \
+  --arg etcd_storage_quota "$ETCD_SIZE_IN_GB_SETTING" \
+  --arg prometheus_memory_limit "$PROM_MEM_LIMIT_IN_GB_SETTING" \
+  --arg prometheus_request_limit "$PROM_MEM_REQUEST_IN_GB_SETTING" \
+  --arg pubkey_auth_cache_enabled "$PUBKEY_AUTH_CACHE_ENABLED_SETTING" \
+  --arg calico_kdd "$CALICO_KDD_SETTING" \
   '{
      cluster_name: $cluster_name,
      mcr_version: $mcr_version,
@@ -225,10 +306,18 @@ cluster_info=$(jq -n \
      worker_count: $worker_count,
      worker_instance_type: $worker_instance_type,
      manager_count: $manager_count,
-     manager_instance_type: $manager_instance_type
+     manager_instance_type: $manager_instance_type,
+     kubelet_max_pods $pods_per_node_limit_setting,
+     etcd_storage_quota $etcd_size_in_gb_setting,
+     prometheus_memory_limit $prom_mem_limit_in_gb_setting,
+     prometheus_request_limit $prom_mem_request_in_gb_setting,
+     pubkey_auth_cache_enabled $pubkey_auth_cache_enabled_setting
   }')
+
+printf "Exporting cluster info to [$cluster_report_dir/cluster_info.json]...\n"
 echo "$cluster_info" > "$cluster_report_dir/cluster_info.json"
-printf "Obtaining cluster info from the parent directory complete.\n"
+printf "Exporting cluster info to [$cluster_report_dir/cluster_info.json] complete.\n"
+exit 0
 
 # Directory for load specific settings and load output
 load_report_dir="$cluster_report_dir/pods_per_node_${PODS_PER_NODE}"
