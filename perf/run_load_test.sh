@@ -64,6 +64,7 @@ cleanup_cluster_load_resources() {
         return 1
     fi
     echo "$cluster_load_namespaces" | xargs kubectl delete namespace
+    sleep 120 # Can take a while to work through resource cleanup
     printf "Cleaning up cluster load resources complete.\n"
     return 0
 }
@@ -76,7 +77,7 @@ get_mke_auth_token() {
     echo "Obtaining an auth token from MKE..." >&2
     
     local AUTHTOKEN
-    AUTHTOKEN=$(curl -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" "$MKE_URL/auth/login" | grep -oP '(?<="auth_token":")[^"]*')
+    AUTHTOKEN=$(curl --retry 5 --retry-max-time 60 --max-time 20 -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" "$MKE_URL/auth/login" | grep -oP '(?<="auth_token":")[^"]*')
     
     if [ -z "$AUTHTOKEN" ]; then
         echo "Error: Unable to obtain auth token from MKE." >&2
@@ -96,7 +97,7 @@ download_mke_config_toml() {
     echo "Downloading MKE configuration file to [$TOML_FILE_PATH]..." >&2
 
     local CONFIG_RESPONSE
-    CONFIG_RESPONSE=$(curl --silent --insecure -X GET "$MKE_URL/api/ucp/config-toml" -H "accept: application/toml" -H "Authorization: Bearer $AUTHTOKEN")
+    CONFIG_RESPONSE=$(curl --retry 5 --retry-max-time 60 --max-time 20 --silent --insecure -X GET "$MKE_URL/api/ucp/config-toml" -H "accept: application/toml" -H "Authorization: Bearer $AUTHTOKEN")
 
     if [ $? -ne 0 ]; then
         echo "Error: Unable to download MKE configuration file." >&2
@@ -307,17 +308,17 @@ cluster_info=$(jq -n \
      worker_instance_type: $worker_instance_type,
      manager_count: $manager_count,
      manager_instance_type: $manager_instance_type,
-     kubelet_max_pods $pods_per_node_limit_setting,
-     etcd_storage_quota $etcd_size_in_gb_setting,
-     prometheus_memory_limit $prom_mem_limit_in_gb_setting,
-     prometheus_request_limit $prom_mem_request_in_gb_setting,
-     pubkey_auth_cache_enabled $pubkey_auth_cache_enabled_setting
+     kubelet_max_pods: $kubelet_max_pods,
+     etcd_storage_quota: $etcd_storage_quota,
+     prometheus_memory_limit: $prometheus_memory_limit,
+     prometheus_request_limit: $prometheus_request_limit,
+     pubkey_auth_cache_enabled: $pubkey_auth_cache_enabled,
+     calico_kdd: $calico_kdd
   }')
 
 printf "Exporting cluster info to [$cluster_report_dir/cluster_info.json]...\n"
 echo "$cluster_info" > "$cluster_report_dir/cluster_info.json"
 printf "Exporting cluster info to [$cluster_report_dir/cluster_info.json] complete.\n"
-exit 0
 
 # Directory for load specific settings and load output
 load_report_dir="$cluster_report_dir/pods_per_node_${PODS_PER_NODE}"
@@ -362,19 +363,22 @@ if [ -f "$generated_config_path" ]; then
 fi
 sleep 10 # Give them a moment to see the pod count
 
-# Apply API Load
 TOTAL_USER_COUNT_VALUES=${#USER_COUNT_VALUES[@]}
-# for USER_COUNT in "${USER_COUNT_VALUES[@]}"; do
 for ((i=0; i<TOTAL_USER_COUNT_VALUES; i++)); do
     USER_COUNT=${USER_COUNT_VALUES[i]}
     printf "Measuring MKE API responsiveness under [$LOAD] cluster load with [$USER_COUNT] active MKE users...\n"
     api_report_dir="$load_report_dir/mke_users_${USER_COUNT}"
     mkdir "$api_report_dir"
+
+    # k6 IP allocation (CNI - Calico) performance test where the time it takes to allocate an IP to a Pod is measured
+    export BASE_URL="$MKE_URL:6443"
+    export VU=$USER_COUNT
+    k6 run k6/ip-allocation.js --summary-export=$api_report_dir/k6_api_report_ipalloc.json
+
+    # k6 general performance test where a random user queries resources (pods, secrets, configs, services) from a random namespace
     script_name="apply_load_to_api.sh"
     script_options="--report-dir $api_report_dir"
     script_options="$script_options --namespaces $(echo $cluster_load_settings | jq -r '.NUM_NAMESPACES')"
-    # Originally had the user count in the loads.json file but this a value that should vary across loads.
-    # script_options="$script_options --users $(echo $cluster_load_settings | jq -r '.NUM_MKE_USERS')"
     script_options="$script_options --users $USER_COUNT"
     if [ -n "$MKE_URL" ]; then
         script_options="$script_options --mke-url $MKE_URL"
@@ -389,7 +393,7 @@ for ((i=0; i<TOTAL_USER_COUNT_VALUES; i++)); do
     printf "Measuring MKE API responsiveness under [$LOAD] cluster load with [$USER_COUNT] active MKE users complete.\n"
 
     printf "Obtaining CPU and Memory metrics for MKE Managers...\n"
-    AUTHTOKEN=$(curl -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" $MKE_URL/auth/login | grep -oP '(?<="auth_token":")[^"]*')
+    AUTHTOKEN=$(curl --retry 5 --retry-max-time 60 --max-time 20 -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" $MKE_URL/auth/login | grep -oP '(?<="auth_token":")[^"]*')
     if [ -z "$AUTHTOKEN" ]; then
         printf "Error: Cannot obtain auth token from MKE. Unable to query cluster for prometheus metrics (CPU and Memory).\n"
     else
@@ -404,7 +408,7 @@ for ((i=0; i<TOTAL_USER_COUNT_VALUES; i++)); do
         while [ $attempt -le $max_attempts ]; do
             # Peak CPU Usage over 2 minutes
             if [ "$cpu_query_success" != true ]; then
-                METRICS_RESPONSE=$(curl -sk -G "$MKE_URL/metricsservice/query" \
+                METRICS_RESPONSE=$(curl --max-time 20 -sk -G "$MKE_URL/metricsservice/query" \
                 --data-urlencode "query=$QUERY_STRING_CPU" \
                 -H "accept: application/json" \
                 -H "Authorization: Bearer $AUTHTOKEN")
@@ -424,7 +428,7 @@ for ((i=0; i<TOTAL_USER_COUNT_VALUES; i++)); do
             fi
             # Total Memory Used in Bytes
             if [ "$mem_query_success" != true ]; then
-                METRICS_RESPONSE=$(curl -sk -G "$MKE_URL/metricsservice/query" \
+                METRICS_RESPONSE=$(curl --max-time 20 -sk -G "$MKE_URL/metricsservice/query" \
                 --data-urlencode "query=$QUERY_STRING_MEM" \
                 -H "accept: application/json" \
                 -H "Authorization: Bearer $AUTHTOKEN")

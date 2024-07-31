@@ -3,6 +3,11 @@
     Process MKE load results and output the relevant data into CSV files
 .PARAMETER PerfRunPath
     Path to cluster performance run output
+.PARAMETER AddlClusterInfoProps
+    List of additional properties from the cluster info data ('cluster_info.json') to include in load_perf_metrics.csv file.
+    For example, the key differentiator between perf runs might be the value of the Calico KDD setting, which is included
+    in the cluster info data but not included in the load_perf_metrics.csv output file by default. In that case you can use
+    this parameter to specify that the 'calico_kdd' property should be added.
 .NOTES
     Author: Ryan Leap - rleap@mirantis.com
 #>
@@ -11,7 +16,10 @@ param (
     [Parameter(Mandatory=$true)]
     [ValidateScript({Test-Path $_ -PathType Container})]
     [string]
-    $PerfRunPath
+    $PerfRunPath,
+
+    [Parameter(Mandatory=$false)]
+    $AddlClusterInfoProps = @()
 )
 
 # See https://www.powershellgallery.com/packages/PSSharedGoods/0.0.31/Content/Public%5CObjects%5CMerge-Objects.ps1
@@ -40,11 +48,14 @@ $clusterLoadFile = 'cluster_load.json'
 $clusterLoadOutputPath = Join-Path -Path $PerfRunPath -ChildPath 'processed' -AdditionalChildPath $clusterLoadFile.Replace('json','csv')
 $clusterLoadList = [System.Collections.Generic.List[PSCustomObject]]::new()
 
-$k6LoadFile = 'k6_api_report.json'
 $mgrMetricsCpuLoadFile = 'mke_managers_cpu_peak.json'
 $mgrMetricsMemLoadFile = 'mke_managers_total_mem_bytes.json'
-$apiMetricsList = [System.Collections.Generic.List[PSCustomObject]]::new()
-$apiMetricsOutputPath = Join-Path -Path $PerfRunPath -ChildPath 'processed' -AdditionalChildPath 'load_perf_metrics.csv'
+
+$k6LoadFileList = @('k6_api_report_general.json', 'k6_api_report_ipalloc.json')
+$apiMetricsListGeneral = [System.Collections.Generic.List[PSCustomObject]]::new()
+$apiMetricsOutputPathGeneral = Join-Path -Path $PerfRunPath -ChildPath 'processed' -AdditionalChildPath 'load_perf_metrics_general.csv'
+$apiMetricsListIpAlloc = [System.Collections.Generic.List[PSCustomObject]]::new()
+$apiMetricsOutputPathIpAlloc = Join-Path -Path $PerfRunPath -ChildPath 'processed' -AdditionalChildPath 'load_perf_metrics_ipalloc.csv'
 
 $loadsFile = 'loads.json'
 $loadConfigsOutputPath = Join-Path -Path $PerfRunPath -ChildPath 'processed' -AdditionalChildPath 'load_configs.csv'
@@ -78,24 +89,34 @@ foreach ($clusterPath in $clusterInfoByPath) {
         }
         $mkeUserLoadByPath = $mkeUserLoadByPath | Sort-Object -Property Users
         foreach ($mkeUserLoadPath in $mkeUserLoadByPath) {
-            $k6FilePath = Join-Path -Path $mkeUserLoadPath -ChildPath $k6LoadFile
-            if (Test-Path -Path $k6FilePath -PathType Leaf) {
-                $k6Load = Get-Content -Path $k6FilePath | ConvertFrom-Json
-                $k6LoadCustom = [PSCustomObject]@{
-                    virtual_users         = $k6Load.metrics.vus.max
-                    p95_api_resp_ms       = [math]::Round($k6Load.metrics.http_req_duration.'p(95)', 2)
-                    script_iterations     = $k6Load.metrics.iterations.count
-                    effective_req_per_sec = [math]::Round($k6load.metrics.http_reqs.count / 60,1)
+            $k6LoadCustomHash = @{}
+            foreach ($k6LoadFile in $k6LoadFileList) {
+                $k6FilePath = Join-Path -Path $mkeUserLoadPath -ChildPath $k6LoadFile
+                if (Test-Path -Path $k6FilePath -PathType Leaf) {
+                    $k6Load = Get-Content -Path $k6FilePath | ConvertFrom-Json
+                    $k6LoadCustom = [PSCustomObject]@{
+                        virtual_users            = $k6Load.metrics.vus.max
+                      # p95_api_resp_ms          = [math]::Round($k6Load.metrics.http_req_duration.'p(95)', 2)
+                        http_req_duration_p95_ms = [math]::Round($k6Load.metrics.http_req_duration.'p(95)', 2) # (same metric as above, better name)
+                        http_req_duration_med_ms = [math]::Round($k6Load.metrics.http_req_duration.med, 2)
+                        http_req_duration_avg_ms = [math]::Round($k6Load.metrics.http_req_duration.avg, 2)
+                        script_iterations        = $k6Load.metrics.iterations.count
+                        effective_req_per_sec    = [math]::Round($k6load.metrics.http_reqs.count / 60,1)
+                    }
                 }
-            }
-            else {
-                $k6LoadCustom = [PSCustomObject]@{
-                    virtual_users         = 0
-                    p95_api_resp_ms       = 0.0
-                    script_iterations     = 0
-                    effective_req_per_sec = 0.0
+                else {
+                    $k6LoadCustom = [PSCustomObject]@{
+                        virtual_users             = 0
+                      # p95_api_resp_ms           = 0.0
+                        http_req_duration_p95_ms  = 0.0
+                        http_req_duration_med_ms  = 0.0
+                        http_req_duration_avg_ms  = 0.0
+                        script_iterations         = 0
+                        effective_req_per_sec     = 0.0
+                    }
+                    Write-Warning "File [$k6FilePath] missing!"
                 }
-                Write-Warning "File [$k6FilePath] missing!"
+                $k6LoadCustomHash.Add($k6LoadFile, $k6LoadCustom)
             }
             $mgrMetricsCpuLoadFilePath = Join-Path -Path $mkeUserLoadPath -ChildPath $mgrMetricsCpuLoadFile
             if (Test-Path -Path $mgrMetricsCpuLoadFilePath -PathType Leaf) {
@@ -131,10 +152,17 @@ foreach ($clusterPath in $clusterInfoByPath) {
                 pods_per_node         = $clusterLoad.NUM_PODS_PER_NODE
                 total_test_pods       = ([int] $clusterLoad.NUM_PODS_PER_NODE) * ([int] $clusterInfo.worker_count)
             }
-            $apiLoad = Merge-Objects -Object1 $apiLoad -Object2 $k6LoadCustom
+            if ($AddlClusterInfoProps.Count -gt 0) {
+                $apiLoad = Merge-Objects -Object1 $apiLoad -Object2 ($clusterInfo | Select-Object -Property $AddlClusterInfoProps)
+            }
             $apiLoad = $apiLoad | Select-Object -Property *,@{Name='mgr_peak_cpu_avg_pct'; Expression={$mgrPeakCpuAvg}},
                                                             @{Name='mgr_peak_mem_avg_gb'; Expression={$mgrPeakMemGbAvg}}
-            $apiMetricsList.Add($apiLoad)
+            if ($k6LoadCustomHash['k6_api_report_general.json']) {
+                $apiMetricsListGeneral.Add((Merge-Objects -Object1 $apiLoad -Object2 $k6LoadCustomHash['k6_api_report_general.json']))
+            }
+            if ($k6LoadCustomHash['k6_api_report_ipalloc.json']) {
+                $apiMetricsListIpAlloc.Add((Merge-Objects -Object1 $apiLoad -Object2 $k6LoadCustomHash['k6_api_report_ipalloc.json']))
+            }
         }
     }
 }
@@ -161,14 +189,27 @@ if ($clusterLoadList.Count -gt 0) {
     Write-Verbose "Exporting cluster loads to [$clusterLoadOutputPath]"
     $clusterLoadList | Sort-Object -Property NUM_WORKER_NODES | Export-Csv -Path $clusterLoadOutputPath -Force
 }
-if ($apiMetricsList.Count -gt 0) {
-    Write-Verbose "Exporting API loads to [$apiMetricsOutputPath]"
-    $apiMetricsList | Export-Csv -Path $apiMetricsOutputPath -Force
+
+if ($apiMetricsListGeneral.Count -gt 0) {
+    Write-Verbose "Exporting API loads to [$apiMetricsOutputPathGeneral]"
+    $apiMetricsListGeneral | Export-Csv -Path $apiMetricsOutputPathGeneral -Force
     $loadConfigs = import-csv $loadConfigsOutputPath | Select-Object -Property load_name,num_worker_nodes
-    foreach ($apiMetric in $apiMetricsList) {
+    foreach ($apiMetric in $apiMetricsListGeneral) {
         $workerNodeCount = ($loadConfigs | Where-Object -Property 'load_name' -eq $apiMetric.load_name).num_worker_nodes
         Add-Member -InputObject $apiMetric -NotePropertyName 'worker_nodes' -NotePropertyValue $workerNodeCount
     }
-    $apiMetricsList | Sort-Object -Property {[int] $_.worker_nodes }, 'cluster_name', {[int] $_.pods_per_node},
-      {[int] $_.virtual_users} | Select-Object -Property * -ExcludeProperty 'worker_nodes' | Export-Csv -Path $apiMetricsOutputPath -Force  
+    $apiMetricsListGeneral | Sort-Object -Property {[int] $_.worker_nodes }, 'cluster_name', {[int] $_.pods_per_node},
+      {[int] $_.virtual_users} | Select-Object -Property * -ExcludeProperty 'worker_nodes' | Export-Csv -Path $apiMetricsOutputPathGeneral -Force  
+}
+
+if ($apiMetricsListIpAlloc.Count -gt 0) {
+    Write-Verbose "Exporting API loads to [$apiMetricsOutputPathIpAlloc]"
+    $apiMetricsListIpAlloc | Export-Csv -Path $apiMetricsOutputPathIpAlloc -Force
+    $loadConfigs = import-csv $loadConfigsOutputPath | Select-Object -Property load_name,num_worker_nodes
+    foreach ($apiMetric in $apiMetricsListIpAlloc) {
+        $workerNodeCount = ($loadConfigs | Where-Object -Property 'load_name' -eq $apiMetric.load_name).num_worker_nodes
+        Add-Member -InputObject $apiMetric -NotePropertyName 'worker_nodes' -NotePropertyValue $workerNodeCount
+    }
+    $apiMetricsListIpAlloc | Sort-Object -Property {[int] $_.worker_nodes }, 'cluster_name', {[int] $_.pods_per_node},
+      {[int] $_.virtual_users} | Select-Object -Property * -ExcludeProperty 'worker_nodes' | Export-Csv -Path $apiMetricsOutputPathIpAlloc -Force  
 }

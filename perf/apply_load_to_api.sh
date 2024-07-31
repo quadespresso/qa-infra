@@ -118,7 +118,7 @@ if [ -z "$MKE_PASSWORD" ]; then
   echo
 fi
 
-AUTHTOKEN=$(curl -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" $MKE_URL/auth/login | grep -oP '(?<="auth_token":")[^"]*')
+AUTHTOKEN=$(curl --retry 5 --retry-max-time 60 --max-time 20 -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" $MKE_URL/auth/login | grep -oP '(?<="auth_token":")[^"]*')
 if [ -z "$AUTHTOKEN" ]; then
     echo "Error obtaining auth token from MKE. Exiting."
     exit 1
@@ -135,4 +135,4 @@ if [ ! -d "$REPORT_DIR" ]; then
     mkdir -p "$REPORT_DIR"
 fi
 
-k6 run k6/script.js --summary-export=$REPORT_DIR/k6_api_report.json
+k6 run k6/script.js --summary-export=$REPORT_DIR/k6_api_report_general.json

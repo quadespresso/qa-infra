@@ -12,4 +12,4 @@ if [ -z "$MKE_PASSWORD" ]; then
 fi
 ./run_load_test.sh -l xsmall --pods-per-node 100 --user-num 20 50 100 150 200 --mke-url $MKE_URL --mke-password $MKE_PASSWORD --report-dir $REPORT_DIR
 ./run_load_test.sh -l xsmall --pods-per-node 250 --user-num 20 50 100 150 200 --mke-url $MKE_URL --mke-password $MKE_PASSWORD --report-dir $REPORT_DIR
-./run_load_test.sh -l xsmall --pods-per-node 500 --user-num 20 50 100 150 200 --mke-url $MKE_URL --mke-password $MKE_PASSWORD --report-dir $REPORT_DIR
+# ./run_load_test.sh -l xsmall --pods-per-node 500 --user-num 20 50 100 150 200 --mke-url $MKE_URL --mke-password $MKE_PASSWORD --report-dir $REPORT_DIR
