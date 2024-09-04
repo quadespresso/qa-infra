@@ -1,26 +1,22 @@
 #cloud-config
 
+%{ if distro != "sles" ~}
 manage_etc_hosts: true
 preserve_hostname: true
+%{ endif ~}
 
 users:
   - default
   - name: ${user}
     shell: /bin/bash
-    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
-    ssh_import_id:
-      - gh:${github_user}
+    sudo: ALL=(ALL) NOPASSWD:ALL
     lock_passwd: true
 
-%{if distro == "suse" ~}
-runcmd:
-  - |
-    ${indent(4, zypper)}
-%{endif ~}
-
+%{ if distro != "sles" ~}
 packages:
   - jq
   - tmux
+%{ endif ~}
 %{
   if distro == "centos"
     || distro == "oracle"
@@ -28,9 +24,6 @@ packages:
     || distro == "rhel"
 ~}
   - nfs-utils
-%{ endif ~}
-%{ if distro == "sles" ~}
-  - nfs-client
 %{ endif ~}
 %{ if distro == "ubuntu" ~}
   - nfs-common
@@ -77,6 +70,14 @@ runcmd:
 %{ endif ~}
   - echo "FIPS mode enabled"
 %{ endif ~}
+  - echo 'mv /etc/profile.local /etc/profile.local.orig'
+  - mv /etc/profile.local /etc/profile.local.orig
+  - echo "mkdir -p /home/${user}/.ssh"
+  - mkdir -p /home/${user}/.ssh
+  - echo "curl https://github.com/${github_user}.keys >> /home/${user}/.ssh/authorized_keys"
+  - curl https://github.com/${github_user}.keys >> /home/${user}/.ssh/authorized_keys
+  - echo "chown -R ${user} /home/${user}/.ssh"
+  - chown -R ${user} /home/${user}/.ssh
   - echo "Creating dummy file /var/log/.cloud_init_done"
   - touch /var/log/.cloud_init_done
   - sleep 5

@@ -57,7 +57,7 @@ locals {
       platform    = local.platform
       script      = file("${local.scripts_dir}/user_data_${local.distro}.sh")
       zypper      = file("${local.scripts_dir}/user_data_zypper.sh")
-      user        = "docker"
+      user        = "tester"
       github_user = "quadespresso"
       enable_fips = var.enable_fips
     }
