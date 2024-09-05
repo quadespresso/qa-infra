@@ -127,6 +127,13 @@ resource "aws_security_group" "common" {
   }
 
   ingress {
+    from_port   = 12393
+    to_port     = 12393
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port   = 33337
     to_port     = 33337
     protocol    = "tcp"
