@@ -4,15 +4,18 @@ metadata:
   name: mke
   namespace: mke
 spec:
-  hosts:%{ for host in hosts }
+  hosts:
+    %{~ for host in hosts ~}
+    %{~ if can( host.ssh ) ~}
     - ssh:
         address: ${host.ssh.address}
         keyPath: ${key_path}
         port: 22
         user: ${host.ssh.user}%{ if host.role == "manager" }
       role: controller+worker%{ else }
-      role: worker%{ endif ~}
-  %{ endfor }
+      role: worker%{ endif }
+    %{~ endif ~}
+  %{~ endfor ~}
   authentication:
     saml:
       enabled: false
@@ -38,7 +41,7 @@ spec:
       httpPort: 80
       httpsPort: 443
       enableSslPassthrough: false
-      defaultSslCertificate: mke/auth-https.tls
+      defaultSslCertificate: mke/mke-ingress.tls
   monitoring:
     enableGrafana: true
     enableOpscare: false
