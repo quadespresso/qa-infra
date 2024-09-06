@@ -371,6 +371,12 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
+  "sles_15sp6": {
+    "ami_name": "suse-sles-15-sp6-v20??????-hvm-ssd-x86_64",
+    "owner": "013907871322",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
   "ubuntu_16.04": {
     "ami_name": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*",
     "owner": "099720109477",
