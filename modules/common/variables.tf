@@ -15,9 +15,9 @@ variable "controller_port" {}
 variable "key_path" {}
 
 variable "ssh_algorithm" {
-    type        = string
-    default     = "ED25519"
-    description = "Choose between ED25519 and RSA."
+  type        = string
+  default     = "ED25519"
+  description = "Choose between ED25519 and RSA."
 }
 
 variable "open_sg_for_myip" {

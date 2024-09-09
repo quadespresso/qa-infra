@@ -35,8 +35,8 @@ variable "win_admin_password" {
 }
 
 variable "enable_fips" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
   validation {
     condition     = contains([true, false], var.enable_fips)
     error_message = "Valid values for var 'enable_fips' must be one of: 'true', 'false'"

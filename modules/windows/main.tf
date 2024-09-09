@@ -58,8 +58,8 @@ locals {
 # }
 
 module "ondemand" {
-  source        = "../ondemand"
-  globals       = var.globals
+  source  = "../ondemand"
+  globals = var.globals
   # node_count    = var.life_cycle == "ondemand" ? var.node_count : 0
   node_count    = var.node_count
   image_id      = module.ami.image_id
