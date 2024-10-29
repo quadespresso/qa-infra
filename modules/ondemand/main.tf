@@ -14,6 +14,7 @@ resource "aws_instance" "node" {
   subnet_id              = var.globals.subnet_id
   iam_instance_profile   = var.globals.instance_profile.id
   vpc_security_group_ids = [var.globals.security_group_id]
+  source_dest_check      = false
   tags                   = var.tags
   user_data              = var.user_data
   root_block_device {
