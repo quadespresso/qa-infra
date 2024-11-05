@@ -23,18 +23,6 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
-  "oracle_7.6": {
-    "ami_name": "OL7.6-x86_64-HVM-*",
-    "owner": "131827586825",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "oracle_7.8": {
-    "ami_name": "OL7.8-x86_64-HVM-*",
-    "owner": "131827586825",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
   "oracle_7.9": {
     "ami_name": "OL7.9-x86_64-HVM-*",
     "owner": "131827586825",
@@ -43,24 +31,6 @@
   },
   "oracle_8": {
     "ami_name": "OL8.?-x86_64-HVM-*",
-    "owner": "131827586825",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "oracle_8.1": {
-    "ami_name": "OL8.1-x86_64-HVM-*",
-    "owner": "131827586825",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "oracle_8.2": {
-    "ami_name": "OL8.2-x86_64-HVM-2020-05-22",
-    "owner": "131827586825",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "oracle_8.3": {
-    "ami_name": "OL8.3-x86_64-HVM-*",
     "owner": "131827586825",
     "user": "ec2-user",
     "interface": "eth0"
@@ -101,166 +71,70 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
-  "rhel_7": {
-    "ami_name": "RHEL-7.?_HVM*x86_64*Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_7.5": {
-    "ami_name": "RHEL-7.5_HVM*x86_64*Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_7.6": {
-    "ami_name": "RHEL-7.6_HVM*x86_64*Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_7.7": {
-    "ami_name": "RHEL-7.7_HVM*x86_64*Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_7.8": {
-    "ami_name": "RHEL-7.8_HVM*x86_64*Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
   "rhel_7.9": {
-    "ami_name": "RHEL-7.9_HVM*x86_64*Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_8.0": {
-    "ami_name": "RHEL-8.0_HVM-201?????-x86_64-*-Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_8.1": {
-    "ami_name": "RHEL-8.1.0_HVM-201?????-x86_64-*-Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_8.2": {
-    "ami_name": "RHEL-8.2_HVM-202?????-x86_64-*-Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_8.3": {
-    "ami_name": "RHEL-8.3*HVM-202?????-x86_64-*-Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_8.4": {
-    "ami_name": "RHEL-8.4*HVM-202?????-x86_64-*-Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_8.5": {
-    "ami_name": "RHEL-8.5*HVM-202?????-x86_64-*-Hourly2-GP2",
+    "ami_name": "RHEL-7.9_HVM*x86_64*Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.6": {
-    "ami_name": "RHEL-8.6*HVM-202?????-x86_64-*-Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_8.7": {
-    "ami_name": "RHEL-8.7*HVM-202?????-x86_64-*-Hourly2-GP2",
+    "ami_name": "RHEL-8.6*HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.8": {
-    "ami_name": "RHEL-8.8*HVM-202?????-x86_64-*-Hourly2-GP2",
+    "ami_name": "RHEL-8.8*HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.9": {
-    "ami_name": "RHEL-8.9.?_HVM-202?????-x86_64-*-Hourly2-GP?",
+    "ami_name": "RHEL-8.9.?_HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8.10": {
-    "ami_name": "RHEL-8.10.?_HVM-202?????-x86_64-*-Hourly2-GP?",
+    "ami_name": "RHEL-8.10.?_HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_8": {
-    "ami_name": "RHEL-8.10.?_HVM-202?????-x86_64-*-Hourly2-GP?",
+    "ami_name": "RHEL-8.10.?_HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_9.0": {
-    "ami_name": "RHEL-9.0*HVM-202?????-x86_64-*-Hourly2-GP2",
-    "owner": "309956199498",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rhel_9.1": {
-    "ami_name": "RHEL-9.1*HVM-202?????-x86_64-*-Hourly2-GP2",
+    "ami_name": "RHEL-9.0*HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_9.2": {
-    "ami_name": "RHEL-9.2*HVM-202?????-x86_64-*-Hourly2-GP2",
+    "ami_name": "RHEL-9.2*HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_9.3": {
-    "ami_name": "RHEL-9.3*HVM-202?????-x86_64-*-Hourly2-GP?",
+    "ami_name": "RHEL-9.3*HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_9.4": {
-    "ami_name": "RHEL-9.4*HVM-202?????-x86_64-*-Hourly2-GP?",
+    "ami_name": "RHEL-9.4*HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
     "interface": "eth0"
   },
   "rhel_9": {
-    "ami_name": "RHEL-9.4*HVM-202?????-x86_64-*-Hourly2-GP?",
+    "ami_name": "RHEL-9.4*HVM-202?????-x86_64-*-Hourly2-GP3",
     "owner": "309956199498",
     "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "rocky_8.5": {
-    "ami_name": "Rocky-8-ec2-8.5-202*.x86_64",
-    "owner": "792107900819",
-    "user": "rocky",
-    "interface": "eth0"
-  },
-  "rocky_8.6": {
-    "ami_name": "Rocky-8-ec2-8.6-202*.x86_64",
-    "owner": "792107900819",
-    "user": "rocky",
-    "interface": "eth0"
-  },
-  "rocky_8.7": {
-    "ami_name": "Rocky-8-EC2-8.7-202*.x86_64",
-    "owner": "792107900819",
-    "user": "rocky",
     "interface": "eth0"
   },
   "rocky_8.8": {
@@ -276,19 +150,7 @@
     "interface": "eth0"
   },
   "rocky_8": {
-    "ami_name": "Rocky-8-EC2-Base-8.8-202*.x86_64",
-    "owner": "792107900819",
-    "user": "rocky",
-    "interface": "eth0"
-  },
-  "rocky_9.0": {
-    "ami_name": "Rocky-9-EC2-9.0-202*.x86_64",
-    "owner": "792107900819",
-    "user": "rocky",
-    "interface": "eth0"
-  },
-  "rocky_9.1": {
-    "ami_name": "Rocky-9-EC2-Base-9.1-202*.x86_64",
+    "ami_name": "Rocky-8-EC2-Base-8.10-202*.x86_64",
     "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
@@ -299,74 +161,20 @@
     "user": "rocky",
     "interface": "eth0"
   },
-  "rocky_9": {
-    "ami_name": "Rocky-9-EC2-Base-9.2-202*.x86_64",
+  "rocky_9.4": {
+    "ami_name": "Rocky-9-EC2-Base-9.4-202*.x86_64",
     "owner": "792107900819",
     "user": "rocky",
     "interface": "eth0"
   },
-  "sles_12": {
-    "ami_name": "suse-sles-12-sp?-v????????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_12_sp4": {
-    "ami_name": "suse-sles-12-sp4-v????????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_12_sp5": {
-    "ami_name": "suse-sles-12-sp5-v????????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_12sp5": {
-    "ami_name": "suse-sles-12-sp5-v????????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
+  "rocky_9": {
+    "ami_name": "Rocky-9-EC2-Base-9.4-202*.x86_64",
+    "owner": "792107900819",
+    "user": "rocky",
     "interface": "eth0"
   },
   "sles_15": {
     "ami_name": "suse-sles-15-sp?-v20??????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_15_sp1": {
-    "ami_name": "suse-sles-15-sp1-v20??????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_15_sp2": {
-    "ami_name": "suse-sles-15-sp2-v20??????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_15sp2": {
-    "ami_name": "suse-sles-15-sp2-v20??????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_15_sp3": {
-    "ami_name": "suse-sles-15-sp3-v20??????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_15sp3": {
-    "ami_name": "suse-sles-15-sp3-v20??????-hvm-ssd-x86_64",
-    "owner": "013907871322",
-    "user": "ec2-user",
-    "interface": "eth0"
-  },
-  "sles_15sp4": {
-    "ami_name": "suse-sles-15-sp4-v20??????-hvm-ssd-x86_64",
     "owner": "013907871322",
     "user": "ec2-user",
     "interface": "eth0"
@@ -382,18 +190,6 @@
     "owner": "013907871322",
     "user": "ec2-user",
     "interface": "eth0"
-  },
-  "ubuntu_16.04": {
-    "ami_name": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*",
-    "owner": "099720109477",
-    "user": "ubuntu",
-    "interface": "ens5"
-  },
-  "ubuntu_18.04": {
-    "ami_name": "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*",
-    "owner": "099720109477",
-    "user": "ubuntu",
-    "interface": "ens5"
   },
   "ubuntu_20.04": {
     "ami_name": "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*",
