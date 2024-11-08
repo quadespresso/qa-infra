@@ -61,8 +61,9 @@ runcmd:
 %{ endif ~}
 %{ if distro == "sles" ~}
   - zypper -n in -t pattern fips
-  - sed -i '/^GRUB_CMDLINE_LINUX=/ s/"$/ fips=1"/' /etc/default/grub
+  - sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/"$/ fips=1"/' /etc/default/grub
   - grub2-mkconfig -o /boot/grub2/grub.cfg
+  - mkinitrd || zypper -n in crypto-policies-scripts && fips-mode-setup --enable
 %{ endif ~}
 %{ if platform == "oracle_7.9" ~}
   - sed -i '/^GRUB_CMDLINE_LINUX=/ s/"$/ fips=1"/' /etc/default/grub
