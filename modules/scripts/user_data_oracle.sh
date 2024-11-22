@@ -19,7 +19,7 @@ fix_selinux () {
 add_open_ports() {
     # Ensure correct ports are open
     # define contiguous range of ports for inclusion
-    PORT_RANGE=({12376..12390}/tcp)
+    PORT_RANGE=({12376..12392}/tcp)
     # define all ports, including prior list
     PORTS=(
         179/tcp
@@ -31,7 +31,11 @@ add_open_ports() {
         6444/tcp
         7946/tcp
         7946/udp
+        9055/tcp
+        9091/tcp
         9099/tcp
+        9100/tcp
+        10248/tcp
         10250/tcp
     )
     PORTS+=( "${PORT_RANGE[@]}" )
