@@ -24,6 +24,20 @@ packages:
     || distro == "rhel"
 ~}
   - nfs-utils
+  - curl
+  - socat
+  - iptables
+  - iputils
+  - gzip
+  - openssh
+%{ endif ~}
+%{
+  if startswith(platform, "rhel_8")
+    || startswith(platform, "rhel_9")
+    || startswith(platform, "rocky_8")
+    || startswith(platform, "rocky_9")
+~}
+  - python3.12
 %{ endif ~}
 %{ if distro == "ubuntu" ~}
   - nfs-common

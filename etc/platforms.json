@@ -1,14 +1,14 @@
 {
   "centos_7": {
-    "ami_name": "CentOS Linux 7 x86_64*",
-    "owner": "125523088429",
-    "user": "centos",
+    "ami_name": "testkit/centos_7.9/20240216073014",
+    "owner": "546848686991",
+    "user": "docker",
     "interface": "eth0"
   },
   "centos_7.9": {
-    "ami_name": "CentOS Linux 7 x86_64*",
-    "owner": "125523088429",
-    "user": "centos",
+    "ami_name": "testkit/centos_7.9/20240216073014",
+    "owner": "546848686991",
+    "user": "docker",
     "interface": "eth0"
   },
   "centos_9": {
