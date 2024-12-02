@@ -23,9 +23,9 @@ ansible_user=${linux_user}
 
 [windows:vars]
 ansible_user=administrator
-ansible_password=${win_passwd}
-ansible_connection=winrm
-ansible_winrm_server_cert_validation=ignore
+ansible_connection=ssh
+ansible_shell_type=powershell
+ansible_become_method=runas
 
 [all:vars]
 ansible_ssh_private_key_file=${key_file}
