@@ -75,16 +75,16 @@ get_mke_auth_token() {
     local MKE_URL="$3"
 
     echo "Obtaining an auth token from MKE..." >&2
-    
+
     local AUTHTOKEN
     AUTHTOKEN=$(curl --retry 5 --retry-max-time 60 --max-time 20 -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" "$MKE_URL/auth/login" | grep -oP '(?<="auth_token":")[^"]*')
-    
+
     if [ -z "$AUTHTOKEN" ]; then
         echo "Error: Unable to obtain auth token from MKE." >&2
         return 1
     fi
-    
-    echo "Obtaining an auth token from MKE complete." >&2   
+
+    echo "Obtaining an auth token from MKE complete." >&2
     echo "$AUTHTOKEN"
 }
 
@@ -422,7 +422,7 @@ for ((i=0; i<TOTAL_USER_COUNT_VALUES; i++)); do
                         echo "$METRICS_RESPONSE" > "$api_report_dir/mke_managers_cpu_peak_${timestamp}.err"
                         printf "Attempt $attempt/$max_attempts. Retrying in 10 seconds...\n"
                     fi
-                else                
+                else
                     printf "Empty response for Prometheus metrics CPU query. Attempt $attempt/$max_attempts. Retrying in 10 seconds...\n"
                 fi
             fi
@@ -442,29 +442,29 @@ for ((i=0; i<TOTAL_USER_COUNT_VALUES; i++)); do
                         echo "$METRICS_RESPONSE" > "$api_report_dir/mke_managers_total_mem_bytes_${timestamp}.err"
                         printf "Attempt $attempt/$max_attempts. Retrying in 10 seconds...\n"
                     fi
-                else                
+                else
                     printf "Empty response for Prometheus metrics memory query. Attempt $attempt/$max_attempts. Retrying in 10 seconds...\n"
                 fi
             fi
             if [ "$cpu_query_success" = true ] && [ "$mem_query_success" = true ]; then
-                break  
+                break
             fi
             sleep 10
-            ((attempt++))            
+            ((attempt++))
         done
         if [ $attempt -gt $max_attempts ]; then
             printf "Error: Reached maximum number of attempts CPU and Memory metrics for MKE Managers.\n"
         else
             printf "Obtaining CPU and Memory metrics for MKE Managers complete.\n"
         fi
-    fi 
+    fi
     printf "API test run results saved here: [$api_report_dir].\n"
     if [ $i -lt $((TOTAL_USER_COUNT_VALUES-1)) ]; then
         wait_in_min=1
         printf "Waiting [$wait_in_min] minute(s) between API runs for MKE manager resources to normalize...\n"
         sleep "$(echo $wait_in_min)m"
         printf "Waiting complete.\n"
-    fi    
+    fi
 done
 
 

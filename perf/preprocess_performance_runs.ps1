@@ -128,7 +128,7 @@ foreach ($clusterPath in $clusterInfoByPath) {
             }
             else {
                 $mgrPeakCpuAvg = 0.0
-                Write-Warning "File [$mgrMetricsCpuLoadFilePath] missing!"                
+                Write-Warning "File [$mgrMetricsCpuLoadFilePath] missing!"
             }
             $mgrMetricsMemLoadFilePath = Join-Path -Path $mkeUserLoadPath -ChildPath $mgrMetricsMemLoadFile
             if (Test-Path -Path $mgrMetricsMemLoadFilePath -PathType Leaf) {
@@ -140,7 +140,7 @@ foreach ($clusterPath in $clusterInfoByPath) {
             }
             else {
                 $mgrPeakMemGbAvg = 0.0
-                Write-Warning "File [$mgrMetricsMemLoadFilePath] missing!"                
+                Write-Warning "File [$mgrMetricsMemLoadFilePath] missing!"
             }
             $apiLoad = [PSCustomObject]@{
                 mke_version           = $clusterInfo.mke_version
@@ -199,7 +199,7 @@ if ($apiMetricsListGeneral.Count -gt 0) {
         Add-Member -InputObject $apiMetric -NotePropertyName 'worker_nodes' -NotePropertyValue $workerNodeCount
     }
     $apiMetricsListGeneral | Sort-Object -Property {[int] $_.worker_nodes }, 'cluster_name', {[int] $_.pods_per_node},
-      {[int] $_.virtual_users} | Select-Object -Property * -ExcludeProperty 'worker_nodes' | Export-Csv -Path $apiMetricsOutputPathGeneral -Force  
+      {[int] $_.virtual_users} | Select-Object -Property * -ExcludeProperty 'worker_nodes' | Export-Csv -Path $apiMetricsOutputPathGeneral -Force
 }
 
 if ($apiMetricsListIpAlloc.Count -gt 0) {
@@ -211,5 +211,5 @@ if ($apiMetricsListIpAlloc.Count -gt 0) {
         Add-Member -InputObject $apiMetric -NotePropertyName 'worker_nodes' -NotePropertyValue $workerNodeCount
     }
     $apiMetricsListIpAlloc | Sort-Object -Property {[int] $_.worker_nodes }, 'cluster_name', {[int] $_.pods_per_node},
-      {[int] $_.virtual_users} | Select-Object -Property * -ExcludeProperty 'worker_nodes' | Export-Csv -Path $apiMetricsOutputPathIpAlloc -Force  
+      {[int] $_.virtual_users} | Select-Object -Property * -ExcludeProperty 'worker_nodes' | Export-Csv -Path $apiMetricsOutputPathIpAlloc -Force
 }

@@ -41,16 +41,16 @@ get_mke_auth_token() {
     local MKE_HOST="$3"
 
     echo "Obtaining an auth token from MKE..." >&2
-    
+
     local AUTHTOKEN
     AUTHTOKEN=$(curl -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" "https://$MKE_HOST/auth/login" | grep -oP '(?<="auth_token":")[^"]*')
-    
+
     if [ -z "$AUTHTOKEN" ]; then
         echo "Error: Unable to obtain auth token from MKE." >&2
         return 1
     fi
-    
-    echo "Obtaining an auth token from MKE complete." >&2   
+
+    echo "Obtaining an auth token from MKE complete." >&2
     echo "$AUTHTOKEN"
 }
 
@@ -180,7 +180,7 @@ fi
 
 PODS_PER_NODE_LIMIT_SETTING=$(grep -Po 'kubelet_max_pods = \K\d+' "$MKE_CONFIG_TOML_PATH" | awk '{print $1}')
 printf "Current MKE pods-per-node limit is [$PODS_PER_NODE_LIMIT_SETTING].\n"
-if [ "$VIEW_ONLY" = true ]; then       
+if [ "$VIEW_ONLY" = true ]; then
     exit 0
 fi
 if [ "$PODS_PER_NODE_LIMIT_SETTING" -eq "$PODS_PER_NODE_LIMIT" ]; then

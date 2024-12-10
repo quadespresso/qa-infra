@@ -8,7 +8,7 @@
 #
 #   Port forwarding via http://localhost:3000/
 #   $ kubectl -n monitoring port-forward service/grafana 3000:3000
-#   
+#
 #   alternatively:
 #
 #   With a LB via http://<node-public-ip>:<node-port>/

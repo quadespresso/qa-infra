@@ -35,16 +35,16 @@ get_mke_auth_token() {
     local MKE_HOST="$3"
 
     echo "Obtaining an auth token from MKE..." >&2
-    
+
     local AUTHTOKEN
     AUTHTOKEN=$(curl -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" "https://$MKE_HOST/auth/login" | grep -oP '(?<="auth_token":")[^"]*')
-    
+
     if [ -z "$AUTHTOKEN" ]; then
         echo "Error: Unable to obtain auth token from MKE." >&2
         return 1
     fi
-    
-    echo "Obtaining an auth token from MKE complete." >&2   
+
+    echo "Obtaining an auth token from MKE complete." >&2
     echo "$AUTHTOKEN"
 }
 
@@ -185,7 +185,7 @@ if [ -z "$CONFIG_TOML_KEY_VALUE_SETTING" ]; then
 else
   printf "Current MKE parameter [$CONFIG_TOML_KEY_NAME] value is [$CONFIG_TOML_KEY_VALUE_SETTING].\n"
 fi
-if [ "$VIEW_ONLY" = true ]; then       
+if [ "$VIEW_ONLY" = true ]; then
     exit 0
 fi
 if [ "$CONFIG_TOML_KEY_VALUE_SETTING" == "$CONFIG_TOML_KEY_VALUE" ]; then

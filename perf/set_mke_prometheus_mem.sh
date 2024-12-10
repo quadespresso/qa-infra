@@ -46,16 +46,16 @@ get_mke_auth_token() {
     local MKE_HOST="$3"
 
     echo "Obtaining an auth token from MKE..." >&2
-    
+
     local AUTHTOKEN
     AUTHTOKEN=$(curl -sk -d "{\"username\":\"$MKE_USER\",\"password\":\"$MKE_PASSWORD\"}" "https://$MKE_HOST/auth/login" | grep -oP '(?<="auth_token":")[^"]*')
-    
+
     if [ -z "$AUTHTOKEN" ]; then
         echo "Error: Unable to obtain auth token from MKE." >&2
         return 1
     fi
-    
-    echo "Obtaining an auth token from MKE complete." >&2   
+
+    echo "Obtaining an auth token from MKE complete." >&2
     echo "$AUTHTOKEN"
 }
 
@@ -199,7 +199,7 @@ PROM_MEM_LIMIT_IN_GB_SETTING=$(grep -Po 'prometheus_memory_limit = \K"[^"]+"' "$
 printf "Current MKE Prometheus memory limit is [$PROM_MEM_LIMIT_IN_GB_SETTING].\n"
 PROM_MEM_REQUEST_IN_GB_SETTING=$(grep -Po 'prometheus_memory_request = \K"[^"]+"' "$MKE_CONFIG_TOML_PATH" | tr -d '"')
 printf "Current MKE Prometheus memory request is [$PROM_MEM_REQUEST_IN_GB_SETTING].\n"
-if [ "$VIEW_ONLY" = true ]; then       
+if [ "$VIEW_ONLY" = true ]; then
     exit 0
 fi
 if [ "$PROM_MEM_LIMIT_IN_GB_SETTING" == "$PROM_MEM_LIMIT_IN_GB" ] && [ "$PROM_MEM_REQUEST_IN_GB_SETTING" == "$PROM_MEM_REQUEST_IN_GB" ]; then

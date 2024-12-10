@@ -10,14 +10,10 @@ arg: ansible host alias
 import json
 import os
 import sys
-
 from operator import itemgetter
-
-from typing import Optional
 
 import ansible_runner
 import typer
-
 
 INVENTORY = "hosts.ini"
 __version__ = "0.1.0"
@@ -36,7 +32,7 @@ def main(
     ansible_host_alias: str = typer.Argument(
         "manager0", help="Ansible hostname alias to connect to"
     ),
-    version: Optional[bool] = typer.Option(
+    version: bool | None = typer.Option(
         None, "--version", callback=version_callback, help="Version of this script."
     ),
 ):

@@ -65,12 +65,12 @@ export function setup() {
 
 export default function (data) {
     const uniqueNamespace = data.NAMESPACE;
-    
+
     let baseUrl = __ENV.BASE_URL; // Replace with your Kubernetes API server address
     if (baseUrl.endsWith("/")) {
         baseUrl = baseUrl.slice(0, -1);
     }
-  
+
     const POD_NAME = `test-pod-${__VU}-${__ITER}`;
     // Simulate pod creation
     let createPodPayload = JSON.stringify({

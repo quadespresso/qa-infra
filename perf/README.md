@@ -103,7 +103,7 @@ steps below.
    ```bash
    # View
    ./set_mke_config_toml_bool.sh -k pubkey_auth_cache_enabled -v
-   
+
    # Enable auth caching
    ./set_mke_config_toml_bool.sh -k pubkey_auth_cache_enabled -b true
    ```

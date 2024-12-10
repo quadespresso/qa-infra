@@ -122,7 +122,7 @@ AUTHTOKEN=$(curl --retry 5 --retry-max-time 60 --max-time 20 -sk -d "{\"username
 if [ -z "$AUTHTOKEN" ]; then
     echo "Error obtaining auth token from MKE. Exiting."
     exit 1
-fi 
+fi
 printf "Obtaining an auth token from MKE complete\n"
 
 export VU=$USER_COUNT

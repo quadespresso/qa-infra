@@ -101,7 +101,7 @@ foreach ($comparisonReport in $comparisonReportList) {
     .\Compare-MkePerfRunsGrouped.ps1 @splat -Verbose | Export-Csv -Path (Join-Path -Path $comparisonReport.ReportPath -ChildPath $comparisonReportFile)
 }
 
-Get-Childitem -Path (Join-Path -Path (Join-Path -Path $ReportPath -ChildPath 'processed') -ChildPath 'calico_etcd_vs_kdd_*.csv') | 
+Get-Childitem -Path (Join-Path -Path (Join-Path -Path $ReportPath -ChildPath 'processed') -ChildPath 'calico_etcd_vs_kdd_*.csv') |
 ForEach-Object {
     Write-Verbose "Results from [$($_.Name)]"
     Import-Csv -Path $_.FullName | Format-Table -Wrap
