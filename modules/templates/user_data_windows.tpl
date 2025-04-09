@@ -1,6 +1,8 @@
 <powershell>
 $admin = [adsi]("WinNT://./administrator, user")
 $admin.psbase.invoke("SetPassword", "${win_admin_password}")
+$osVerWin2025 = [version]"10.0.26100"
+$osVer = [version](Get-CimInstance -ClassName Win32_OperatingSystem).Version
 
 # Setting path to docker + containerd in advance so that docker and containerd commands resolve without a reboot to update env
 $updatedPath = $ENV:Path.TrimEnd(';') + ";$env:ProgramFiles\Docker;$env:ProgramFiles\containerd"
@@ -43,10 +45,12 @@ New-NetFirewallRule -Name "WINRM-HTTPS-In-TCP-PUBLIC" `
     -Action Allow `
     -Profile Public
 
+$metadataToken = Invoke-WebRequest -Method PUT -Uri "http://169.254.169.254/latest/api/token" -Headers @{"X-aws-ec2-metadata-token-ttl-seconds"="21600"} -UseBasicParsing
+
 [string[]] $Hostname = @([System.Net.Dns]::GetHostByName((hostname)).HostName.ToUpper())
 $metadata = @('public-hostname','public-ipv4')
 foreach ($item in $metadata) {
-    if ($response = Invoke-WebRequest -Uri "http://169.254.169.254/latest/meta-data/$item" -UseBasicParsing -ErrorAction Continue) {
+    if ($response = Invoke-WebRequest -Uri "http://169.254.169.254/latest/meta-data/$item" -Headers @{"X-aws-ec2-metadata-token"=$metadataToken.Content} -UseBasicParsing -ErrorAction Continue) {
         if ($response.StatusCode -eq 200) {
           $Hostname += $response.Content
         }
@@ -81,7 +85,7 @@ $sshCapability = 'OpenSSH.Server~~~~0.0.1.0'
 $sshServiceName = 'sshd'
 $sshConfigPath = Join-Path -Path $env:ProgramData -ChildPath "\ssh\sshd_config"
 Try {
-    $response = Invoke-Webrequest -Uri $metadataUrl -UseBasicParsing -ErrorAction Stop
+    $response = Invoke-Webrequest -Uri $metadataUrl -Headers @{"X-aws-ec2-metadata-token"=$metadataToken.Content} -UseBasicParsing -ErrorAction Stop
     if ($response.StatusCode -eq 200) {
         # We were able to obtain the public key so proceed with setting up SSH service
         Try {
@@ -94,11 +98,15 @@ Try {
                 Start-Service -Name $sshServiceName
                 Start-Sleep -Seconds 3
                 Try {
+                    if ($osVer -ge $osVerWin2025) {
+                        Write-Output "Updating scope of SSH firewall rule to include all network profiles."
+                        Set-NetFirewallRule -DisplayName "OpenSSH SSH Server (sshd)" -Profile Public,Private,Domain -Enabled True -Action Allow
+                    }
                     $openSshKeyPath = Join-Path -Path $env:USERPROFILE -ChildPath '.ssh'
+                    $authorizedKeyPath = Join-Path -Path $openSshKeyPath -ChildPath 'authorized_keys'
                     if (-not(Test-Path -Path $openSshKeyPath -PathType Container)) {
                         $null = New-Item -Path $openSshKeyPath -ItemType Directory -ErrorAction Stop
                     }
-                    $authorizedKeyPath = Join-Path -Path $openSshKeyPath -ChildPath 'authorized_keys'
                     $response.Content | Out-File -FilePath $authorizedKeyPath -Encoding ascii -NoNewline -Force -ErrorAction Stop
                     # Disable password based SSH access
                     if (Test-Path -Path $sshConfigPath -PathType Leaf) {
@@ -156,7 +164,7 @@ if ($rebootNeededForContainersFeature) {
 [bool] $rebootNeededForHostname = $false
 $metadataUrl = "http://169.254.169.254/latest/meta-data/hostname"
 Try {
-    $response = Invoke-Webrequest -Uri $metadataUrl -UseBasicParsing -ErrorAction Stop
+    $response = Invoke-Webrequest -Uri $metadataUrl -Headers @{"X-aws-ec2-metadata-token"=$metadataToken.Content} -UseBasicParsing -ErrorAction Stop
     if ($response.StatusCode -eq 200) {
         if ((& hostname) -ne $response.Content) {
             Write-Output "Changing hostname from [$(& hostname)] to [$($response.Content)]"
