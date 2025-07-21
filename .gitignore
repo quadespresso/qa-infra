@@ -12,6 +12,7 @@ terraform.tfstate*
 launchpad.yaml
 nodes.yaml
 hosts.ini
+.terraform_temp/
 
 # security CYA
 *.pem

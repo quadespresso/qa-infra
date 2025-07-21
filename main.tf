@@ -12,6 +12,35 @@ resource "random_string" "random" {
 
 resource "time_static" "now" {}
 
+resource "null_resource" "prepare_temp_dir" {
+  provisioner "local-exec" {
+    command = "mkdir -p ${local.temp_dir}"
+  }
+}
+
+# create a temporary directory for TLS certs
+# This directory will be deleted on destroy
+resource "null_resource" "prepare_temp_tls_dir" {
+  triggers = {
+    path = "${local.temp_dir}/tls_cert"
+  }
+
+  # Create directory
+  provisioner "local-exec" {
+    command = "mkdir -p ${self.triggers.path}"
+  }
+
+  # Destroy-time cleanup
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOT
+      echo "Cleaning up TLS temp directory: ${self.triggers.path}"
+      rm -f ${self.triggers.path}/*
+      rmdir ${self.triggers.path} || echo "Directory not empty or already removed"
+    EOT
+  }
+}
+
 module "vpc" {
   source      = "./modules/vpc"
   host_cidr   = var.vpc_cidr
@@ -66,10 +95,10 @@ module "elb_msr" {
   source    = "./modules/elb"
   component = "msr"
   ports = {
-    443 : "443"
+    443 : var.msr_target_port
   }
-  node_ids   = local.msrs.node_ids
-  node_count = local.msr_count
+  node_ids   = local.workers.node_ids
+  node_count = local.worker_count
   globals    = local.globals
 }
 
@@ -319,5 +348,18 @@ locals {
     local.hosts_linux,
     local.hosts_win
   )
+  #   temp_dir for any file that will be deleted upon destroy
+  temp_dir = "${path.root}/.terraform_temp"
+}
 
+
+# Generate the OpenSSL configuration file and TLS certificate for MSR4
+module "tls" {
+  source          = "./modules/tls"
+  msr_common_name = local.elb_msr.lb_dns_name
+  cert_path       = "${local.temp_dir}/tls_cert"
+  cert_conf_name  = "msr-openssl.conf"
+  cert_key_name   = "msr.key"
+  cert_crt_name   = "msr.crt"
+  depends_on      = [null_resource.prepare_temp_dir, null_resource.prepare_temp_tls_dir]
 }

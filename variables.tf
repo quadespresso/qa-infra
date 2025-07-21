@@ -303,3 +303,9 @@ variable "ingress_controller_replicas" {
   default     = 2
   description = "Number of replicas for the ingress controller ('ingressController.replicaCount' in the MKE installer YAML file)."
 }
+
+variable "msr_target_port" {
+  type        = string
+  default     = "443"
+  description = "The target port for MSR LoadBalancer should lead to this port on the MSR replicas."
+}

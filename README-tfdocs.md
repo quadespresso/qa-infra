@@ -9,10 +9,11 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.63.1 |
-| <a name="provider_local"></a> [local](#provider\_local) | 2.5.1 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.6.2 |
-| <a name="provider_time"></a> [time](#provider\_time) | 0.12.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.3.0 |
+| <a name="provider_local"></a> [local](#provider\_local) | 2.5.3 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.2.4 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.7.2 |
+| <a name="provider_time"></a> [time](#provider\_time) | 0.13.1 |
 
 ## Modules
 
@@ -25,6 +26,7 @@
 | <a name="module_elb_msr"></a> [elb\_msr](#module\_elb\_msr) | ./modules/elb | n/a |
 | <a name="module_managers"></a> [managers](#module\_managers) | ./modules/linux | n/a |
 | <a name="module_msrs"></a> [msrs](#module\_msrs) | ./modules/linux | n/a |
+| <a name="module_tls"></a> [tls](#module\_tls) | ./modules/tls | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | ./modules/vpc | n/a |
 | <a name="module_windows_workers"></a> [windows\_workers](#module\_windows\_workers) | ./modules/windows | n/a |
 | <a name="module_workers"></a> [workers](#module\_workers) | ./modules/linux | n/a |
@@ -40,6 +42,8 @@
 | [local_file.mke4_install](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [local_file.mke4_upgrade](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [local_file.nodes_yaml](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
+| [null_resource.prepare_temp_dir](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.prepare_temp_tls_dir](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.random](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [time_static.now](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/static) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
@@ -76,6 +80,7 @@
 | <a name="input_msr_image_repo"></a> [msr\_image\_repo](#input\_msr\_image\_repo) | The repository to pull the MSR images from. | `string` | `"msr.ci.mirantis.com/msr"` | no |
 | <a name="input_msr_install_flags"></a> [msr\_install\_flags](#input\_msr\_install\_flags) | The MSR installer flags to use. | `list(string)` | <pre>[<br>  "--ucp-insecure-tls"<br>]</pre> | no |
 | <a name="input_msr_replica_config"></a> [msr\_replica\_config](#input\_msr\_replica\_config) | Set to 'sequential' to generate sequential replica id's for cluster members, for example 000000000001, 000000000002, etc. ('random' otherwise) | `string` | `"sequential"` | no |
+| <a name="input_msr_target_port"></a> [msr\_target\_port](#input\_msr\_target\_port) | The target port for MSR LoadBalancer should lead to this port on the MSR replicas. | `string` | `"443"` | no |
 | <a name="input_msr_type"></a> [msr\_type](#input\_msr\_type) | The AWS instance type to use for MSR replica nodes. | `string` | `"m5.xlarge"` | no |
 | <a name="input_msr_version"></a> [msr\_version](#input\_msr\_version) | The MSR version to deploy. | `string` | `""` | no |
 | <a name="input_msr_volume_size"></a> [msr\_volume\_size](#input\_msr\_volume\_size) | The volume size (in GB) to use for MSR replica nodes. | `number` | `50` | no |
