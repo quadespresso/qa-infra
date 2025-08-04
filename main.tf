@@ -355,6 +355,7 @@ locals {
 
 # Generate the OpenSSL configuration file and TLS certificate for MSR4
 module "tls" {
+  count           = local.elb_msr != null ? 1 : 0
   source          = "./modules/tls"
   msr_common_name = local.elb_msr.lb_dns_name
   cert_path       = "${local.temp_dir}/tls_cert"
