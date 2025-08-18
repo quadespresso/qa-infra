@@ -97,9 +97,12 @@ module "elb_msr" {
   ports = {
     443 : var.msr_target_port
   }
-  node_ids   = local.workers.node_ids
-  node_count = local.worker_count
-  globals    = local.globals
+  # For MSR 3 and 4, we only have one set of workers instead of msr dedicated nodes,
+  # so direct traffic to the workers.  More on TESTING-2305
+  node_ids   = startswith(var.msr_version, "2") ? local.msrs.node_ids : local.workers.node_ids
+  node_count = startswith(var.msr_version, "2") ? local.msr_count : local.worker_count
+
+  globals = local.globals
 }
 
 module "managers" {
