@@ -65,9 +65,27 @@
     "user": "ec2-user",
     "interface": "eth0"
   },
+  "oracle_9.4": {
+    "ami_name": "ProComputers Oracle-Linux-9.4-x86_64-Minimal-8GiB-HVM-202*",
+    "owner": "679593333241",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
+  "oracle_9.5": {
+    "ami_name": "ProComputers Oracle-Linux-9.5-x86_64-Minimal-8GiB-HVM-202*",
+    "owner": "679593333241",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
+  "oracle_9.6": {
+    "ami_name": "ProComputers Oracle-Linux-9.6-x86_64-Minimal-8GiB-HVM-202*",
+    "owner": "679593333241",
+    "user": "ec2-user",
+    "interface": "eth0"
+  },
   "oracle_9": {
-    "ami_name": "OL9.3-x86_64-HVM-*",
-    "owner": "131827586825",
+    "ami_name": "ProComputers Oracle-Linux-9-x86_64-Latest-8GiB-HVM-202*",
+    "owner": "679593333241",
     "user": "ec2-user",
     "interface": "eth0"
   },
