@@ -10,10 +10,17 @@
   - [Tips and tricks](#tips-and-tricks)
     - [Making edits to Terraform configs](#making-edits-to-terraform-configs)
     - [How would I use Ansible here?](#how-would-i-use-ansible-here)
+  - [Working with this Repository as a Submodule](#working-with-this-repository-as-a-submodule)
+    - [Initial Setup for testing-eng](#initial-setup-for-testing-eng)
+    - [Updating to Latest qa-infra Changes](#updating-to-latest-qa-infra-changes)
+    - [Making Changes to qa-infra](#making-changes-to-qa-infra)
+    - [Important Submodule Notes](#important-submodule-notes)
 
 ## What is it
 
 This is based off the MCC (upstream Launchpad repo) of Launchpad, in particular the Terraform configuration files [located here](https://github.com/Mirantis/mcc/tree/master/examples/tf-aws). Note that the current state has changed considerably from that original MCC upstream copy.
+
+**This repository was extracted from `system_test_toolbox/launchpad` in the testing-eng repository and is now used as a git submodule to enable independent development and reuse across projects.**
 
 The updates in this stack afford the user the ability to select between various OS platforms, such as:
 
@@ -173,3 +180,71 @@ Relevant files in the root dir of this repo:
 
 - `ansible.cfg` - a baseline config file which Ansible will reference; among other things, it describes the default inventory file, which is as follows:
 - `hosts.ini` - this is one of the files created by running terraform; do not check your `hosts.ini` into the repo
+
+## Working with this Repository as a Submodule
+
+This repository is referenced as a git submodule in the testing-eng repository at `system_test_toolbox/launchpad`.
+
+### Initial Setup for testing-eng
+
+When cloning testing-eng for the first time after the submodule integration:
+
+```bash
+git clone git@github.com:Mirantis/testing-eng.git
+cd testing-eng
+git submodule update --init --recursive
+```
+
+### Updating to Latest qa-infra Changes
+
+When qa-infra is updated, you need to update the submodule reference in testing-eng:
+
+```bash
+# In testing-eng repository
+cd system_test_toolbox/launchpad
+git pull origin main
+
+# Go back to testing-eng root and commit the submodule update
+cd ../..
+git add system_test_toolbox/launchpad
+git commit -m "Update qa-infra submodule to latest"
+git push origin your-branch-name
+```
+
+### Making Changes to qa-infra
+
+**Option 1: Direct development in qa-infra repository (Recommended)**
+```bash
+cd ~/git/quadespresso/qa-infra  # Or wherever you cloned qa-infra directly
+# Make changes
+git add .
+git commit -m "Your changes"
+git push origin main
+
+# Then update the submodule reference in testing-eng (see above)
+```
+
+**Option 2: Development via submodule**
+```bash
+# In testing-eng repository
+cd system_test_toolbox/launchpad
+# Make changes
+git add .
+git commit -m "Your changes"
+git push origin main
+
+# Update the submodule reference in testing-eng
+cd ../..
+git add system_test_toolbox/launchpad
+git commit -m "Update qa-infra submodule"
+```
+
+### Important Submodule Notes
+
+- **Always commit qa-infra changes first**, then update the submodule reference in testing-eng
+- **Check submodule status** with `git submodule status` to see which commit testing-eng is pinned to
+- **Pull latest submodule changes** when switching branches or pulling updates to testing-eng:
+  ```bash
+  git submodule update --remote
+  ```
+- **Your local files** (terraform.tfstate, passwords.auto.tfvars, ssh_keys/, etc.) are not tracked by git and will remain in your local working directory
