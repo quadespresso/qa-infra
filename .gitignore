@@ -1,3 +1,5 @@
+# ignore venv
+.venv
 # ignore the Terraform main user-config files
 # (to avoid committing your actual cluster passwords)
 *.tfvars

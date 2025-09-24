@@ -4,6 +4,7 @@
   - [What is it](#what-is-it)
   - [How to use it](#how-to-use-it)
     - [Prerequisites](#prerequisites)
+    - [Development Setup](#development-setup)
     - [Deploy](#deploy)
     - [Teardown](#teardown)
   - [Try it out](#try-it-out)
@@ -63,6 +64,40 @@ While it would be helpful to be familiar with [the steps provided in the MCC rep
       `AmazonEC2SpotFleetTaggingRole`
     screenshot of successful config:
       ![AWS EC2 spot fleet role](img/aws-ec2-spot-fleet-role.png)
+
+### Development Setup
+
+This repository uses `uv` for Python dependency management and pre-commit hooks for code quality.
+
+**Install uv:**
+- [Download and install uv](https://docs.astral.sh/uv/getting-started/installation/)
+- Or on macOS: `brew install uv`
+- Or via pip: `pip install uv`
+
+**Setup development environment:**
+```bash
+# Install dependencies and create virtual environment
+uv sync
+
+# Activate the virtual environment
+source .venv/bin/activate
+
+# Install pre-commit hooks
+pre-commit install
+```
+
+The pre-commit hooks will automatically run on commit to:
+- Check for large files and private keys
+- Validate YAML syntax
+- Fix end-of-file and trailing whitespace issues
+- Format Terraform code
+- Generate Terraform documentation
+
+**Manual pre-commit run:**
+```bash
+# Run all hooks on all files
+pre-commit run --all-files
+```
 
 ### Deploy
 

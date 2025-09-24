@@ -9,11 +9,11 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.3.0 |
-| <a name="provider_local"></a> [local](#provider\_local) | 2.5.3 |
-| <a name="provider_null"></a> [null](#provider\_null) | 3.2.4 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.7.2 |
-| <a name="provider_time"></a> [time](#provider\_time) | 0.13.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_local"></a> [local](#provider\_local) | n/a |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
+| <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_time"></a> [time](#provider\_time) | n/a |
 
 ## Modules
 
@@ -59,8 +59,8 @@
 | <a name="input_enable_fips"></a> [enable\_fips](#input\_enable\_fips) | Enable FIPS mode on the cluster. Be mindful of 'ssh\_algorithm' compatibility. | `bool` | `false` | no |
 | <a name="input_expire_duration"></a> [expire\_duration](#input\_expire\_duration) | The max time to allow this cluster to avoid early termination. Can use 'h', 'm', 's' in sane combinations, eg, '15h37m18s'. | `string` | `"120h"` | no |
 | <a name="input_extra_tags"></a> [extra\_tags](#input\_extra\_tags) | A map of arbitrary, customizable string key/value pairs to be included alongside a preset map of tags to be used across myriad AWS resources. | `map(string)` | `{}` | no |
-| <a name="input_hooks_apply_after"></a> [hooks\_apply\_after](#input\_hooks\_apply\_after) | A list of strings (shell commands) to be run after stages. | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
-| <a name="input_hooks_apply_before"></a> [hooks\_apply\_before](#input\_hooks\_apply\_before) | A list of strings (shell commands) to be run before stages. | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
+| <a name="input_hooks_apply_after"></a> [hooks\_apply\_after](#input\_hooks\_apply\_after) | A list of strings (shell commands) to be run after stages. | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
+| <a name="input_hooks_apply_before"></a> [hooks\_apply\_before](#input\_hooks\_apply\_before) | A list of strings (shell commands) to be run before stages. | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
 | <a name="input_ingress_controller_replicas"></a> [ingress\_controller\_replicas](#input\_ingress\_controller\_replicas) | Number of replicas for the ingress controller ('ingressController.replicaCount' in the MKE installer YAML file). | `number` | `2` | no |
 | <a name="input_kube_orchestration"></a> [kube\_orchestration](#input\_kube\_orchestration) | The option to enable/disable Kubernetes as the default orchestrator. | `bool` | `true` | no |
 | <a name="input_life_cycle"></a> [life\_cycle](#input\_life\_cycle) | Deploy instances as either 'spot' or 'ondemand' | `string` | `"ondemand"` | no |
@@ -78,7 +78,7 @@
 | <a name="input_msr_count"></a> [msr\_count](#input\_msr\_count) | The number of MSR replicas to create. | `number` | n/a | yes |
 | <a name="input_msr_enable_nfs"></a> [msr\_enable\_nfs](#input\_msr\_enable\_nfs) | Option to configure EFS/NFS for use with MSR 2.x | `bool` | `true` | no |
 | <a name="input_msr_image_repo"></a> [msr\_image\_repo](#input\_msr\_image\_repo) | The repository to pull the MSR images from. | `string` | `"msr.ci.mirantis.com/msr"` | no |
-| <a name="input_msr_install_flags"></a> [msr\_install\_flags](#input\_msr\_install\_flags) | The MSR installer flags to use. | `list(string)` | <pre>[<br>  "--ucp-insecure-tls"<br>]</pre> | no |
+| <a name="input_msr_install_flags"></a> [msr\_install\_flags](#input\_msr\_install\_flags) | The MSR installer flags to use. | `list(string)` | <pre>[<br/>  "--ucp-insecure-tls"<br/>]</pre> | no |
 | <a name="input_msr_replica_config"></a> [msr\_replica\_config](#input\_msr\_replica\_config) | Set to 'sequential' to generate sequential replica id's for cluster members, for example 000000000001, 000000000002, etc. ('random' otherwise) | `string` | `"sequential"` | no |
 | <a name="input_msr_target_port"></a> [msr\_target\_port](#input\_msr\_target\_port) | The target port for MSR LoadBalancer should lead to this port on the MSR replicas. | `string` | `"443"` | no |
 | <a name="input_msr_type"></a> [msr\_type](#input\_msr\_type) | The AWS instance type to use for MSR replica nodes. | `string` | `"m5.xlarge"` | no |
@@ -87,7 +87,7 @@
 | <a name="input_open_sg_for_myip"></a> [open\_sg\_for\_myip](#input\_open\_sg\_for\_myip) | If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly. | `bool` | `false` | no |
 | <a name="input_platform"></a> [platform](#input\_platform) | The Linux platform to use for manager/worker/MSR replica nodes | `string` | `"ubuntu_20.04"` | no |
 | <a name="input_project"></a> [project](#input\_project) | One of the official cost-tracking project names. Without this, your cluster may get terminated without warning. | `string` | `"UNDEFINED"` | no |
-| <a name="input_role_platform"></a> [role\_platform](#input\_role\_platform) | Platform names based on role. Linux-only, Windows uses win\_platform only. | `map(any)` | <pre>{<br>  "manager": null,<br>  "msr": null,<br>  "worker": null<br>}</pre> | no |
+| <a name="input_role_platform"></a> [role\_platform](#input\_role\_platform) | Platform names based on role. Linux-only, Windows uses win\_platform only. | `map(any)` | <pre>{<br/>  "manager": null,<br/>  "msr": null,<br/>  "worker": null<br/>}</pre> | no |
 | <a name="input_ssh_algorithm"></a> [ssh\_algorithm](#input\_ssh\_algorithm) | n/a | `string` | `"ED25519"` | no |
 | <a name="input_ssh_key_file_path"></a> [ssh\_key\_file\_path](#input\_ssh\_key\_file\_path) | If non-empty, use this path/filename as the ssh key file instead of generating automatically. | `string` | `""` | no |
 | <a name="input_task_name"></a> [task\_name](#input\_task\_name) | An arbitrary yet unique string which represents the deployment, eg, 'refactor', 'unicorn', 'stresstest'. | `string` | `"UNDEFINED"` | no |

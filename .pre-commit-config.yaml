@@ -1,0 +1,32 @@
+default_language_version:
+  python: python3.12
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: detect-private-key
+      - id: check-yaml
+        args:
+          - --allow-multiple-documents
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: "v1.100.0" # Get the latest from: https://github.com/antonbabenko/pre-commit-terraform/releases
+    hooks:
+      - id: terraform_fmt
+        args:
+          - --args=-list=true
+          - --args=-write=true
+          - --args=-recursive
+  - repo: https://github.com/terraform-docs/terraform-docs
+    rev: "v0.20.0"
+    hooks:
+      - id: terraform-docs-go
+        language_version: "1.24.6"
+        args:
+        - "markdown"
+        - "table"
+        - "--output-file"
+        - "README-tfdocs.md"
+        - "."
