@@ -4,12 +4,13 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4.6 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.0, !=5.39 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.0, !=5.39 |
 | <a name="provider_local"></a> [local](#provider\_local) | n/a |
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
@@ -54,19 +55,29 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | The MKE admin password to use. | `string` | `"orcaorcaorca"` | no |
 | <a name="input_admin_username"></a> [admin\_username](#input\_admin\_username) | The MKE admin username to use. | `string` | `"admin"` | no |
+| <a name="input_airgap"></a> [airgap](#input\_airgap) | Whether to create an env without Internet access. | `bool` | `false` | no |
+| <a name="input_airgap_subnet_cidr"></a> [airgap\_subnet\_cidr](#input\_airgap\_subnet\_cidr) | The CIDR to use when creating the airgap subnet. | `string` | `"172.31.1.0/24"` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The AWS region to deploy to. | `string` | `"us-west-2"` | no |
+| <a name="input_bastion_type"></a> [bastion\_type](#input\_bastion\_type) | The AWS instance type to use for bastion node in an airgapped env. | `string` | `"m5.xlarge"` | no |
+| <a name="input_bastion_volume_size"></a> [bastion\_volume\_size](#input\_bastion\_volume\_size) | The volume size (in GB) to use for bastion node in an airgapped env. | `number` | `100` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Global cluster name. Use this to override a dynamically created name. | `string` | `""` | no |
+| <a name="input_common_subnet_cidr"></a> [common\_subnet\_cidr](#input\_common\_subnet\_cidr) | The CIDR to use when creating the common subnet. | `string` | `"172.31.0.0/24"` | no |
+| <a name="input_dev_registries"></a> [dev\_registries](#input\_dev\_registries) | If true, the generated mke4.yaml will use ghcr registries instead of production registry.mirantis.com | `bool` | `false` | no |
+| <a name="input_dex_grpc_port"></a> [dex\_grpc\_port](#input\_dex\_grpc\_port) | NodePort for Dex gRPC traffic. MUST be within the node\_port\_range | `string` | `"33337"` | no |
+| <a name="input_dex_http_port"></a> [dex\_http\_port](#input\_dex\_http\_port) | NodePort for Dex HTTP traffic. MUST be within the node\_port\_range | `string` | `"33336"` | no |
+| <a name="input_dex_https_port"></a> [dex\_https\_port](#input\_dex\_https\_port) | NodePort for Dex HTTPS traffic. MUST be within the node\_port\_range | `string` | `"33334"` | no |
 | <a name="input_enable_fips"></a> [enable\_fips](#input\_enable\_fips) | Enable FIPS mode on the cluster. Be mindful of 'ssh\_algorithm' compatibility. | `bool` | `false` | no |
 | <a name="input_expire_duration"></a> [expire\_duration](#input\_expire\_duration) | The max time to allow this cluster to avoid early termination. Can use 'h', 'm', 's' in sane combinations, eg, '15h37m18s'. | `string` | `"120h"` | no |
 | <a name="input_extra_tags"></a> [extra\_tags](#input\_extra\_tags) | A map of arbitrary, customizable string key/value pairs to be included alongside a preset map of tags to be used across myriad AWS resources. | `map(string)` | `{}` | no |
 | <a name="input_hooks_apply_after"></a> [hooks\_apply\_after](#input\_hooks\_apply\_after) | A list of strings (shell commands) to be run after stages. | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
 | <a name="input_hooks_apply_before"></a> [hooks\_apply\_before](#input\_hooks\_apply\_before) | A list of strings (shell commands) to be run before stages. | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
 | <a name="input_ingress_controller_replicas"></a> [ingress\_controller\_replicas](#input\_ingress\_controller\_replicas) | Number of replicas for the ingress controller ('ingressController.replicaCount' in the MKE installer YAML file). | `number` | `2` | no |
+| <a name="input_ingress_http_port"></a> [ingress\_http\_port](#input\_ingress\_http\_port) | NodePort for Ingress Controller HTTP traffic. MUST be within the node\_port\_range | `string` | `"33000"` | no |
+| <a name="input_ingress_https_port"></a> [ingress\_https\_port](#input\_ingress\_https\_port) | NodePort for Ingress Controller HTTPS traffic. MUST be within the node\_port\_range | `string` | `"33001"` | no |
 | <a name="input_kube_orchestration"></a> [kube\_orchestration](#input\_kube\_orchestration) | The option to enable/disable Kubernetes as the default orchestrator. | `bool` | `true` | no |
-| <a name="input_life_cycle"></a> [life\_cycle](#input\_life\_cycle) | Deploy instances as either 'spot' or 'ondemand' | `string` | `"ondemand"` | no |
 | <a name="input_manager_count"></a> [manager\_count](#input\_manager\_count) | The number of MKE managers to create. | `number` | n/a | yes |
 | <a name="input_manager_type"></a> [manager\_type](#input\_manager\_type) | The AWS instance type to use for manager nodes. | `string` | `"m5.xlarge"` | no |
-| <a name="input_manager_volume_size"></a> [manager\_volume\_size](#input\_manager\_volume\_size) | The volume size (in GB) to use for manager nodes. | `number` | `50` | no |
+| <a name="input_manager_volume_size"></a> [manager\_volume\_size](#input\_manager\_volume\_size) | The volume size (in GB) to use for manager nodes. | `number` | `100` | no |
 | <a name="input_mcr_channel"></a> [mcr\_channel](#input\_mcr\_channel) | The channel to pull the mcr installer from. | `string` | n/a | yes |
 | <a name="input_mcr_install_url_linux"></a> [mcr\_install\_url\_linux](#input\_mcr\_install\_url\_linux) | Location of Linux installer script. | `string` | `"https://get.mirantis.com/"` | no |
 | <a name="input_mcr_install_url_windows"></a> [mcr\_install\_url\_windows](#input\_mcr\_install\_url\_windows) | Location of Windows installer script. | `string` | `"https://get.mirantis.com/install.ps1"` | no |
@@ -84,6 +95,7 @@
 | <a name="input_msr_type"></a> [msr\_type](#input\_msr\_type) | The AWS instance type to use for MSR replica nodes. | `string` | `"m5.xlarge"` | no |
 | <a name="input_msr_version"></a> [msr\_version](#input\_msr\_version) | The MSR version to deploy. | `string` | `""` | no |
 | <a name="input_msr_volume_size"></a> [msr\_volume\_size](#input\_msr\_volume\_size) | The volume size (in GB) to use for MSR replica nodes. | `number` | `50` | no |
+| <a name="input_node_port_range"></a> [node\_port\_range](#input\_node\_port\_range) | MKE 4 node port range specified in .spec.network.nodePortRange | `string` | `"32768-35535"` | no |
 | <a name="input_open_sg_for_myip"></a> [open\_sg\_for\_myip](#input\_open\_sg\_for\_myip) | If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly. | `bool` | `false` | no |
 | <a name="input_platform"></a> [platform](#input\_platform) | The Linux platform to use for manager/worker/MSR replica nodes | `string` | `"ubuntu_20.04"` | no |
 | <a name="input_project"></a> [project](#input\_project) | One of the official cost-tracking project names. Without this, your cluster may get terminated without warning. | `string` | `"UNDEFINED"` | no |
@@ -99,7 +111,7 @@
 | <a name="input_windows_worker_count"></a> [windows\_worker\_count](#input\_windows\_worker\_count) | The number of MKE Windows workers to create. | `number` | n/a | yes |
 | <a name="input_worker_count"></a> [worker\_count](#input\_worker\_count) | The number of MKE Linux workers to create. | `number` | n/a | yes |
 | <a name="input_worker_type"></a> [worker\_type](#input\_worker\_type) | The AWS instance type to use for Linux/Windows worker nodes. | `string` | `"m5.large"` | no |
-| <a name="input_worker_volume_size"></a> [worker\_volume\_size](#input\_worker\_volume\_size) | The volume size (in GB) to use for worker nodes. | `number` | `50` | no |
+| <a name="input_worker_volume_size"></a> [worker\_volume\_size](#input\_worker\_volume\_size) | The volume size (in GB) to use for worker nodes. | `number` | `100` | no |
 
 ## Outputs
 

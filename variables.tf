@@ -62,14 +62,16 @@ variable "vpc_cidr" {
   description = "The CIDR to use when creating the VPC."
 }
 
-variable "life_cycle" {
-  description = "Deploy instances as either 'spot' or 'ondemand'"
+variable "common_subnet_cidr" {
   type        = string
-  default     = "ondemand"
-  validation {
-    condition     = contains(["spot", "ondemand"], var.life_cycle)
-    error_message = "Valid values for var 'life_cycle' must be one of: 'spot', 'ondemand'"
-  }
+  default     = "172.31.0.0/24"
+  description = "The CIDR to use when creating the common subnet."
+}
+
+variable "airgap_subnet_cidr" {
+  type        = string
+  default     = "172.31.1.0/24"
+  description = "The CIDR to use when creating the airgap subnet."
 }
 
 variable "admin_username" {
@@ -87,6 +89,10 @@ variable "admin_password" {
 variable "manager_count" {
   type        = number
   description = "The number of MKE managers to create."
+  validation {
+    condition     = var.manager_count > 0
+    error_message = "You deployment must have at least 1 manager node"
+  }
 }
 
 variable "worker_count" {
@@ -124,13 +130,13 @@ variable "msr_type" {
 
 variable "manager_volume_size" {
   type        = number
-  default     = 50
+  default     = 100
   description = "The volume size (in GB) to use for manager nodes."
 }
 
 variable "worker_volume_size" {
   type        = number
-  default     = 50
+  default     = 100
   description = "The volume size (in GB) to use for worker nodes."
 }
 
@@ -278,7 +284,7 @@ variable "ssh_algorithm" {
   default = "ED25519"
   validation {
     condition     = contains(["ED25519", "RSA"], var.ssh_algorithm)
-    error_message = "Valid values for var 'ssh_algorithm' must be one of: 'spot', 'ondemand'"
+    error_message = "Valid values for var 'ssh_algorithm' must be one of: 'RSA', 'ED25519'"
   }
 }
 
@@ -305,7 +311,66 @@ variable "ingress_controller_replicas" {
 }
 
 variable "msr_target_port" {
-  type        = string
   default     = "443"
   description = "The target port for MSR LoadBalancer should lead to this port on the MSR replicas."
+}
+
+variable "node_port_range" {
+  type        = string
+  default     = "32768-35535"
+  description = "MKE 4 node port range specified in .spec.network.nodePortRange"
+}
+
+variable "ingress_https_port" {
+  type        = string
+  default     = "33001"
+  description = "NodePort for Ingress Controller HTTPS traffic. MUST be within the node_port_range"
+}
+
+variable "ingress_http_port" {
+  type        = string
+  default     = "33000"
+  description = "NodePort for Ingress Controller HTTP traffic. MUST be within the node_port_range"
+}
+
+variable "dex_http_port" {
+  type        = string
+  default     = "33336"
+  description = "NodePort for Dex HTTP traffic. MUST be within the node_port_range"
+}
+
+variable "dex_https_port" {
+  type        = string
+  default     = "33334"
+  description = "NodePort for Dex HTTPS traffic. MUST be within the node_port_range"
+}
+
+variable "dex_grpc_port" {
+  type        = string
+  default     = "33337"
+  description = "NodePort for Dex gRPC traffic. MUST be within the node_port_range"
+}
+
+variable "airgap" {
+  type        = bool
+  default     = false
+  description = "Whether to create an env without Internet access."
+}
+
+variable "bastion_type" {
+  type        = string
+  default     = "m5.xlarge"
+  description = "The AWS instance type to use for bastion node in an airgapped env."
+}
+
+variable "bastion_volume_size" {
+  type        = number
+  default     = 100
+  description = "The volume size (in GB) to use for bastion node in an airgapped env."
+}
+
+variable "dev_registries" {
+  type        = bool
+  default     = false
+  description = "If true, the generated mke4.yaml will use ghcr registries instead of production registry.mirantis.com"
 }
