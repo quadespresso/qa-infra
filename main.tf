@@ -41,9 +41,17 @@ resource "null_resource" "prepare_temp_tls_dir" {
   }
 }
 
+# get image ID from platform name
+module "ami" {
+  source   = "./modules/ami"
+  platform = var.platform
+}
+
 module "vpc" {
-  source      = "./modules/vpc"
-  host_cidr   = var.vpc_cidr
+  source = "./modules/vpc"
+  # host_cidr   = var.vpc_cidr
+  vpc_cidr    = var.vpc_cidr
+  subnet_cidr = var.common_subnet_cidr
   global_tags = local.global_tags
 }
 
@@ -69,8 +77,13 @@ module "elb_mke" {
   source    = "./modules/elb"
   component = "mke"
   ports = {
-    443 : local.controller_port,
+    # 443 : local.controller_port,
+    # 6443 : "6443",
+    (local.controller_port) : local.controller_port,
     6443 : "6443",
+    (var.ingress_https_port) : var.ingress_https_port
+    8132 : "8132"
+    9443 : "9443"
   }
   node_ids   = local.managers.node_ids
   node_count = var.manager_count
@@ -81,7 +94,7 @@ module "elb_mke4" {
   source    = "./modules/elb"
   component = "mke4"
   ports = {
-    443 : "33001",
+    443 : var.ingress_https_port,
     6443 : "6443",
     8132 : "8132",
     9443 : "9443",
@@ -110,7 +123,7 @@ module "managers" {
   role          = "manager"
   node_count    = var.manager_count
   instance_type = var.manager_type
-  life_cycle    = var.life_cycle
+  life_cycle    = "ondemand"
   volume_size   = var.manager_volume_size
   enable_fips   = var.enable_fips
   globals       = local.globals
@@ -121,7 +134,7 @@ module "workers" {
   role          = "worker"
   node_count    = local.worker_count
   instance_type = var.worker_type
-  life_cycle    = var.life_cycle
+  life_cycle    = "ondemand"
   volume_size   = var.worker_volume_size
   enable_fips   = var.enable_fips
   globals       = local.globals
@@ -132,7 +145,7 @@ module "msrs" {
   role          = "msr"
   node_count    = local.msr_count
   instance_type = var.msr_type
-  life_cycle    = var.life_cycle
+  life_cycle    = "ondemand"
   volume_size   = var.msr_volume_size
   enable_fips   = var.enable_fips
   globals       = local.globals
@@ -143,7 +156,7 @@ module "windows_workers" {
   role               = "worker"
   node_count         = var.windows_worker_count
   instance_type      = var.worker_type
-  life_cycle         = var.life_cycle
+  life_cycle         = "ondemand"
   volume_size        = var.win_worker_volume_size
   enable_fips        = var.enable_fips
   win_admin_password = var.win_admin_password
@@ -199,7 +212,7 @@ locals {
       "project"   = var.project
       "platform"  = var.platform
       "expire"    = local.expire
-      "lifecycle" = var.life_cycle
+      "lifecycle" = "ondemand"
       "user_id"   = local.user_id
       "username"  = var.username
       "task_name" = var.task_name
@@ -255,7 +268,8 @@ locals {
   # End set MKE orchestration
 
   # Let's ensure we don't have duplicate MKE install flags
-  mke_install_flags = distinct(local.sanitize_mke_install_flags)
+  # mke_install_flags = distinct(local.sanitize_mke_install_flags)
+  mke_install_flags = distinct(concat(tolist(local.sanitize_mke_install_flags), ["--nodeport-range=${var.node_port_range}"]))
 
   # convert MKE install flags into a map
   mke_opts = { for f in local.mke_install_flags : trimprefix(element(split("=", f), 0), "--") => element(split("=", f), 1) }
@@ -266,7 +280,7 @@ locals {
   )
 
   # Pick a path for saving the RSA private key
-  key_path = var.ssh_key_file_path == "" ? "${path.root}/ssh_keys/${local.cluster_name}.pem" : var.ssh_key_file_path
+  key_path = var.ssh_key_file_path == "" ? "${path.root}/ssh/${local.cluster_name}.pem" : var.ssh_key_file_path
 
   # Build a list of all machine hosts used in the cluster.
   # @NOTE This list is a meta structure that contains all of the host info used
@@ -366,4 +380,42 @@ module "tls" {
   cert_key_name   = "msr.key"
   cert_crt_name   = "msr.crt"
   depends_on      = [null_resource.prepare_temp_dir, null_resource.prepare_temp_tls_dir]
+}
+
+
+resource "null_resource" "mke4yaml" {
+  triggers = {
+    # This will force the local-exec provisioner to run on every terraform apply
+    apply_trigger = timestamp()
+  }
+
+  provisioner "local-exec" {
+    when    = create
+    command = "${abspath(path.root)}/scripts/mke4_generator.sh"
+
+    environment = {
+      AIRGAP               = var.airgap
+      LB                   = module.elb_mke4.lb_dns_name
+      NODE_PORT_RANGE      = var.node_port_range
+      INGRESS_HTTP_PORT    = var.ingress_http_port
+      INGRESS_HTTPS_PORT   = var.ingress_https_port
+      DEV_REGISTRY_ENABLED = var.dev_registries
+      HOSTS = jsonencode([
+        for h in local.hosts : {
+          ssh = {
+            address = h.ssh.address
+            user    = h.ssh.user
+            keyPath = abspath(h.ssh.keyPath)
+            port    = 22
+          }
+          role = h.role == "manager" ? "controller+worker" : "worker"
+        }
+      ])
+    }
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "rm -f mke4.yaml"
+  }
 }

@@ -88,6 +88,7 @@ variable "admin_password" {
 
 variable "manager_count" {
   type        = number
+  default     = 1
   description = "The number of MKE managers to create."
   validation {
     condition     = var.manager_count > 0
@@ -97,16 +98,19 @@ variable "manager_count" {
 
 variable "worker_count" {
   type        = number
+  default     = 0
   description = "The number of MKE Linux workers to create."
 }
 
 variable "msr_count" {
   type        = number
+  default     = 0
   description = "The number of MSR replicas to create."
 }
 
 variable "windows_worker_count" {
   type        = number
+  default     = 0
   description = "The number of MKE Windows workers to create."
 }
 
@@ -142,13 +146,13 @@ variable "worker_volume_size" {
 
 variable "win_worker_volume_size" {
   type        = number
-  default     = 50
+  default     = 100
   description = "The volume size (in GB) to use for Windows worker nodes."
 }
 
 variable "msr_volume_size" {
   type        = number
-  default     = 50
+  default     = 100
   description = "The volume size (in GB) to use for MSR replica nodes."
 }
 
@@ -160,29 +164,31 @@ variable "win_admin_password" {
 
 variable "platform" {
   type        = string
-  default     = "ubuntu_20.04"
+  default     = "ubuntu_22.04"
   description = "The Linux platform to use for manager/worker/MSR replica nodes"
 }
 
 variable "win_platform" {
   type        = string
-  default     = "windows_2019"
+  default     = "windows_2025"
   description = "The Windows platform to use for worker nodes"
 }
 
 variable "mcr_version" {
   type        = string
+  default     = "25.0"
   description = "The mcr version to deploy across all nodes in the cluster."
 }
 
 variable "mcr_channel" {
   type        = string
+  default     = "stable-25.0"
   description = "The channel to pull the mcr installer from."
 }
 
 variable "mcr_repo_url" {
   type        = string
-  default     = "https://repos-internal.mirantis.com"
+  default     = "https://repos.mirantis.com"
   description = "The repository to source the mcr installer."
 }
 
@@ -200,12 +206,14 @@ variable "mcr_install_url_windows" {
 
 variable "mke_version" {
   type        = string
+  default     = "3.8.7"
   description = "The MKE version to deploy."
 }
 
 variable "mke_image_repo" {
-  type        = string
-  default     = "msr.ci.mirantis.com/mirantiseng"
+  type = string
+  # default     = "msr.ci.mirantis.com/mirantiseng"
+  default     = "docker.io/mirantis"
   description = "The repository to pull the MKE images from."
 }
 
@@ -223,13 +231,14 @@ variable "kube_orchestration" {
 
 variable "msr_version" {
   type        = string
-  default     = ""
+  default     = "2.9.19"
   description = "The MSR version to deploy."
 }
 
 variable "msr_image_repo" {
-  type        = string
-  default     = "msr.ci.mirantis.com/msr"
+  type = string
+  # default     = "msr.ci.mirantis.com/msr"
+  default     = "docker.io/mirantis"
   description = "The repository to pull the MSR images from."
 }
 

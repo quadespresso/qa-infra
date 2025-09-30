@@ -2,7 +2,7 @@
 .venv
 # ignore the Terraform main user-config files
 # (to avoid committing your actual cluster passwords)
-*.tfvars
+# *.tfvars
 # ignore Terraform state files
 terraform.tfstate*
 # ignore Terraform init files
@@ -11,9 +11,9 @@ terraform.tfstate*
 .terraform.lock.hcl
 
 # ignore files expressly produced by Terraform
-launchpad.yaml
-nodes.yaml
-hosts.ini
+# launchpad.yaml
+# nodes.yaml
+# hosts.ini
 .terraform_temp/
 
 # security CYA

@@ -16,7 +16,7 @@ resource "aws_instance" "node" {
   vpc_security_group_ids = [var.globals.security_group_id]
   source_dest_check      = false
   tags                   = var.tags
-  user_data              = var.user_data
+  user_data_base64       = var.user_data
   root_block_device {
     volume_type = "gp3"
     volume_size = var.volume_size
