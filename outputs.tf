@@ -103,6 +103,14 @@ locals {
       linux_user    = local.managers.user
     }
   )
+
+  ssh_config = templatefile("${path.module}/templates/ssh_config.tpl", {
+    key_path = abspath(local.key_path)
+    ssh_user = module.ami.user
+    hosts    = local.hosts
+    }
+  )
+
 }
 
 # Various outputs for different format
@@ -178,8 +186,12 @@ output "aws_region" {
   value = var.aws_region
 }
 
+output "mkectl_install_command" {
+  value = "mkectl apply -f mke4.yaml --admin-password orcaorcaorca -l debug 2>&1 | tee  v4.1.1-$(date \"+%Y-%m-%dT%H:%M:%S\").log"
+}
+
 output "mkectl_upgrade_command" {
-  value = "mkectl upgrade --hosts-path mke4_upgrade.yaml --admin-username ${var.admin_username} --admin-password ${var.admin_password} -l debug --config-out mke4.yaml --external-address \"${module.elb_mke.lb_dns_name}\""
+  value = "mkectl upgrade --hosts-path mke4_upgrade.yaml --mke3-admin-username ${var.admin_username} --mke3-admin-password ${var.admin_password} -l debug --output=upgraded --external-address ${module.elb_mke4.lb_dns_name}  # --force"
 }
 
 # Write configs to YAML files
@@ -190,7 +202,9 @@ resource "local_file" "launchpad_yaml" {
 }
 
 resource "local_file" "nodes_yaml" {
-  content  = yamlencode(local.nodes)
+  content = yamlencode(local.nodes)
+  # substr cuts yamlencode artifacts
+  # content  = substr(yamlencode(local.nodes), 4, -1)
   filename = "nodes.yaml"
 }
 
@@ -218,4 +232,9 @@ resource "local_file" "blueprint" {
 resource "local_file" "k0sctl" {
   content  = local.k0sctl
   filename = "k0sctl.yaml"
+}
+
+resource "local_file" "ssh_config" {
+  filename = "${path.root}/ssh/config"
+  content  = local.ssh_config
 }

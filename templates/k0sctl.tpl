@@ -4,21 +4,15 @@ metadata:
   name: k0s-cluster
 spec:
   hosts:%{ for host in hosts }
-    %{~ if can( host.ssh ) ~}
+    %{ if can( host.ssh ) }
     - ssh:
-        user: ${host.ssh.user}
         address: ${host.ssh.address}
         keyPath: ${key_path}
         port: 22
-    %{~ else ~}
-    - winRM:
-        address: ${host.winrm.address}
-        user: ${host.winrm.user}
-        password: ${host.winrm.password}
-        useHTTPS: ${host.winrm.useHTTPS}
-        insecure: ${host.winrm.insecure}
-    %{~ endif ~}
-      role: %{ if host.role == "manager" }controller+worker%{ else }worker%{ endif ~}
+        user: ${host.ssh.user}%{ if host.role == "manager" }
+      role: controller+worker%{ else }
+      role: worker%{ endif ~}
+    %{ endif ~}
 %{ endfor }
   k0s:
     config:
@@ -29,6 +23,8 @@ spec:
       spec:
         network:
           provider: calico
+        telemetry:
+          enabled: true
         api:
           sans:
             - ${mke_san}

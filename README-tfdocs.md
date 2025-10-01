@@ -4,21 +4,23 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4.6 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.0, !=5.39 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
-| <a name="provider_local"></a> [local](#provider\_local) | n/a |
-| <a name="provider_null"></a> [null](#provider\_null) | n/a |
-| <a name="provider_random"></a> [random](#provider\_random) | n/a |
-| <a name="provider_time"></a> [time](#provider\_time) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.14.1 |
+| <a name="provider_local"></a> [local](#provider\_local) | 2.5.3 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.2.4 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.7.2 |
+| <a name="provider_time"></a> [time](#provider\_time) | 0.13.1 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_ami"></a> [ami](#module\_ami) | ./modules/ami | n/a |
 | <a name="module_common"></a> [common](#module\_common) | ./modules/common | n/a |
 | <a name="module_efs"></a> [efs](#module\_efs) | ./modules/efs | n/a |
 | <a name="module_elb_mke"></a> [elb\_mke](#module\_elb\_mke) | ./modules/elb | n/a |
@@ -42,6 +44,8 @@
 | [local_file.mke4_install](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [local_file.mke4_upgrade](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [local_file.nodes_yaml](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
+| [local_file.ssh_config](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
+| [null_resource.mke4yaml](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.prepare_temp_dir](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.prepare_temp_tls_dir](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_string.random](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
@@ -54,38 +58,49 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | The MKE admin password to use. | `string` | `"orcaorcaorca"` | no |
 | <a name="input_admin_username"></a> [admin\_username](#input\_admin\_username) | The MKE admin username to use. | `string` | `"admin"` | no |
+| <a name="input_airgap"></a> [airgap](#input\_airgap) | Whether to create an env without Internet access. | `bool` | `false` | no |
+| <a name="input_airgap_subnet_cidr"></a> [airgap\_subnet\_cidr](#input\_airgap\_subnet\_cidr) | The CIDR to use when creating the airgap subnet. | `string` | `"172.31.1.0/24"` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The AWS region to deploy to. | `string` | `"us-west-2"` | no |
+| <a name="input_bastion_type"></a> [bastion\_type](#input\_bastion\_type) | The AWS instance type to use for bastion node in an airgapped env. | `string` | `"m5.xlarge"` | no |
+| <a name="input_bastion_volume_size"></a> [bastion\_volume\_size](#input\_bastion\_volume\_size) | The volume size (in GB) to use for bastion node in an airgapped env. | `number` | `100` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Global cluster name. Use this to override a dynamically created name. | `string` | `""` | no |
+| <a name="input_common_subnet_cidr"></a> [common\_subnet\_cidr](#input\_common\_subnet\_cidr) | The CIDR to use when creating the common subnet. | `string` | `"172.31.0.0/24"` | no |
+| <a name="input_dev_registries"></a> [dev\_registries](#input\_dev\_registries) | If true, the generated mke4.yaml will use ghcr registries instead of production registry.mirantis.com | `bool` | `false` | no |
+| <a name="input_dex_grpc_port"></a> [dex\_grpc\_port](#input\_dex\_grpc\_port) | NodePort for Dex gRPC traffic. MUST be within the node\_port\_range | `string` | `"33337"` | no |
+| <a name="input_dex_http_port"></a> [dex\_http\_port](#input\_dex\_http\_port) | NodePort for Dex HTTP traffic. MUST be within the node\_port\_range | `string` | `"33336"` | no |
+| <a name="input_dex_https_port"></a> [dex\_https\_port](#input\_dex\_https\_port) | NodePort for Dex HTTPS traffic. MUST be within the node\_port\_range | `string` | `"33334"` | no |
 | <a name="input_enable_fips"></a> [enable\_fips](#input\_enable\_fips) | Enable FIPS mode on the cluster. Be mindful of 'ssh\_algorithm' compatibility. | `bool` | `false` | no |
 | <a name="input_expire_duration"></a> [expire\_duration](#input\_expire\_duration) | The max time to allow this cluster to avoid early termination. Can use 'h', 'm', 's' in sane combinations, eg, '15h37m18s'. | `string` | `"120h"` | no |
 | <a name="input_extra_tags"></a> [extra\_tags](#input\_extra\_tags) | A map of arbitrary, customizable string key/value pairs to be included alongside a preset map of tags to be used across myriad AWS resources. | `map(string)` | `{}` | no |
 | <a name="input_hooks_apply_after"></a> [hooks\_apply\_after](#input\_hooks\_apply\_after) | A list of strings (shell commands) to be run after stages. | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
 | <a name="input_hooks_apply_before"></a> [hooks\_apply\_before](#input\_hooks\_apply\_before) | A list of strings (shell commands) to be run before stages. | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
 | <a name="input_ingress_controller_replicas"></a> [ingress\_controller\_replicas](#input\_ingress\_controller\_replicas) | Number of replicas for the ingress controller ('ingressController.replicaCount' in the MKE installer YAML file). | `number` | `2` | no |
+| <a name="input_ingress_http_port"></a> [ingress\_http\_port](#input\_ingress\_http\_port) | NodePort for Ingress Controller HTTP traffic. MUST be within the node\_port\_range | `string` | `"33000"` | no |
+| <a name="input_ingress_https_port"></a> [ingress\_https\_port](#input\_ingress\_https\_port) | NodePort for Ingress Controller HTTPS traffic. MUST be within the node\_port\_range | `string` | `"33001"` | no |
 | <a name="input_kube_orchestration"></a> [kube\_orchestration](#input\_kube\_orchestration) | The option to enable/disable Kubernetes as the default orchestrator. | `bool` | `true` | no |
-| <a name="input_life_cycle"></a> [life\_cycle](#input\_life\_cycle) | Deploy instances as either 'spot' or 'ondemand' | `string` | `"ondemand"` | no |
-| <a name="input_manager_count"></a> [manager\_count](#input\_manager\_count) | The number of MKE managers to create. | `number` | n/a | yes |
+| <a name="input_manager_count"></a> [manager\_count](#input\_manager\_count) | The number of MKE managers to create. | `number` | `1` | no |
 | <a name="input_manager_type"></a> [manager\_type](#input\_manager\_type) | The AWS instance type to use for manager nodes. | `string` | `"m5.xlarge"` | no |
-| <a name="input_manager_volume_size"></a> [manager\_volume\_size](#input\_manager\_volume\_size) | The volume size (in GB) to use for manager nodes. | `number` | `50` | no |
-| <a name="input_mcr_channel"></a> [mcr\_channel](#input\_mcr\_channel) | The channel to pull the mcr installer from. | `string` | n/a | yes |
+| <a name="input_manager_volume_size"></a> [manager\_volume\_size](#input\_manager\_volume\_size) | The volume size (in GB) to use for manager nodes. | `number` | `100` | no |
+| <a name="input_mcr_channel"></a> [mcr\_channel](#input\_mcr\_channel) | The channel to pull the mcr installer from. | `string` | `"stable-25.0"` | no |
 | <a name="input_mcr_install_url_linux"></a> [mcr\_install\_url\_linux](#input\_mcr\_install\_url\_linux) | Location of Linux installer script. | `string` | `"https://get.mirantis.com/"` | no |
 | <a name="input_mcr_install_url_windows"></a> [mcr\_install\_url\_windows](#input\_mcr\_install\_url\_windows) | Location of Windows installer script. | `string` | `"https://get.mirantis.com/install.ps1"` | no |
-| <a name="input_mcr_repo_url"></a> [mcr\_repo\_url](#input\_mcr\_repo\_url) | The repository to source the mcr installer. | `string` | `"https://repos-internal.mirantis.com"` | no |
-| <a name="input_mcr_version"></a> [mcr\_version](#input\_mcr\_version) | The mcr version to deploy across all nodes in the cluster. | `string` | n/a | yes |
-| <a name="input_mke_image_repo"></a> [mke\_image\_repo](#input\_mke\_image\_repo) | The repository to pull the MKE images from. | `string` | `"msr.ci.mirantis.com/mirantiseng"` | no |
+| <a name="input_mcr_repo_url"></a> [mcr\_repo\_url](#input\_mcr\_repo\_url) | The repository to source the mcr installer. | `string` | `"https://repos.mirantis.com"` | no |
+| <a name="input_mcr_version"></a> [mcr\_version](#input\_mcr\_version) | The mcr version to deploy across all nodes in the cluster. | `string` | `"25.0"` | no |
+| <a name="input_mke_image_repo"></a> [mke\_image\_repo](#input\_mke\_image\_repo) | The repository to pull the MKE images from. | `string` | `"docker.io/mirantis"` | no |
 | <a name="input_mke_install_flags"></a> [mke\_install\_flags](#input\_mke\_install\_flags) | The MKE installer flags to use. | `list(string)` | `[]` | no |
-| <a name="input_mke_version"></a> [mke\_version](#input\_mke\_version) | The MKE version to deploy. | `string` | n/a | yes |
-| <a name="input_msr_count"></a> [msr\_count](#input\_msr\_count) | The number of MSR replicas to create. | `number` | n/a | yes |
+| <a name="input_mke_version"></a> [mke\_version](#input\_mke\_version) | The MKE version to deploy. | `string` | `"3.8.7"` | no |
+| <a name="input_msr_count"></a> [msr\_count](#input\_msr\_count) | The number of MSR replicas to create. | `number` | `0` | no |
 | <a name="input_msr_enable_nfs"></a> [msr\_enable\_nfs](#input\_msr\_enable\_nfs) | Option to configure EFS/NFS for use with MSR 2.x | `bool` | `true` | no |
-| <a name="input_msr_image_repo"></a> [msr\_image\_repo](#input\_msr\_image\_repo) | The repository to pull the MSR images from. | `string` | `"msr.ci.mirantis.com/msr"` | no |
+| <a name="input_msr_image_repo"></a> [msr\_image\_repo](#input\_msr\_image\_repo) | The repository to pull the MSR images from. | `string` | `"docker.io/mirantis"` | no |
 | <a name="input_msr_install_flags"></a> [msr\_install\_flags](#input\_msr\_install\_flags) | The MSR installer flags to use. | `list(string)` | <pre>[<br/>  "--ucp-insecure-tls"<br/>]</pre> | no |
 | <a name="input_msr_replica_config"></a> [msr\_replica\_config](#input\_msr\_replica\_config) | Set to 'sequential' to generate sequential replica id's for cluster members, for example 000000000001, 000000000002, etc. ('random' otherwise) | `string` | `"sequential"` | no |
 | <a name="input_msr_target_port"></a> [msr\_target\_port](#input\_msr\_target\_port) | The target port for MSR LoadBalancer should lead to this port on the MSR replicas. | `string` | `"443"` | no |
 | <a name="input_msr_type"></a> [msr\_type](#input\_msr\_type) | The AWS instance type to use for MSR replica nodes. | `string` | `"m5.xlarge"` | no |
-| <a name="input_msr_version"></a> [msr\_version](#input\_msr\_version) | The MSR version to deploy. | `string` | `""` | no |
-| <a name="input_msr_volume_size"></a> [msr\_volume\_size](#input\_msr\_volume\_size) | The volume size (in GB) to use for MSR replica nodes. | `number` | `50` | no |
+| <a name="input_msr_version"></a> [msr\_version](#input\_msr\_version) | The MSR version to deploy. | `string` | `"2.9.19"` | no |
+| <a name="input_msr_volume_size"></a> [msr\_volume\_size](#input\_msr\_volume\_size) | The volume size (in GB) to use for MSR replica nodes. | `number` | `100` | no |
+| <a name="input_node_port_range"></a> [node\_port\_range](#input\_node\_port\_range) | MKE 4 node port range specified in .spec.network.nodePortRange | `string` | `"32768-35535"` | no |
 | <a name="input_open_sg_for_myip"></a> [open\_sg\_for\_myip](#input\_open\_sg\_for\_myip) | If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly. | `bool` | `false` | no |
-| <a name="input_platform"></a> [platform](#input\_platform) | The Linux platform to use for manager/worker/MSR replica nodes | `string` | `"ubuntu_20.04"` | no |
+| <a name="input_platform"></a> [platform](#input\_platform) | The Linux platform to use for manager/worker/MSR replica nodes | `string` | `"ubuntu_22.04"` | no |
 | <a name="input_project"></a> [project](#input\_project) | One of the official cost-tracking project names. Without this, your cluster may get terminated without warning. | `string` | `"UNDEFINED"` | no |
 | <a name="input_role_platform"></a> [role\_platform](#input\_role\_platform) | Platform names based on role. Linux-only, Windows uses win\_platform only. | `map(any)` | <pre>{<br/>  "manager": null,<br/>  "msr": null,<br/>  "worker": null<br/>}</pre> | no |
 | <a name="input_ssh_algorithm"></a> [ssh\_algorithm](#input\_ssh\_algorithm) | n/a | `string` | `"ED25519"` | no |
@@ -94,12 +109,12 @@
 | <a name="input_username"></a> [username](#input\_username) | A string which represents the engineer running the test. | `string` | `"UNDEFINED"` | no |
 | <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | The CIDR to use when creating the VPC. | `string` | `"172.31.0.0/16"` | no |
 | <a name="input_win_admin_password"></a> [win\_admin\_password](#input\_win\_admin\_password) | The Windows Administrator password to use. | `string` | `"tfaws,,ABC..Example"` | no |
-| <a name="input_win_platform"></a> [win\_platform](#input\_win\_platform) | The Windows platform to use for worker nodes | `string` | `"windows_2019"` | no |
-| <a name="input_win_worker_volume_size"></a> [win\_worker\_volume\_size](#input\_win\_worker\_volume\_size) | The volume size (in GB) to use for Windows worker nodes. | `number` | `50` | no |
-| <a name="input_windows_worker_count"></a> [windows\_worker\_count](#input\_windows\_worker\_count) | The number of MKE Windows workers to create. | `number` | n/a | yes |
-| <a name="input_worker_count"></a> [worker\_count](#input\_worker\_count) | The number of MKE Linux workers to create. | `number` | n/a | yes |
+| <a name="input_win_platform"></a> [win\_platform](#input\_win\_platform) | The Windows platform to use for worker nodes | `string` | `"windows_2025"` | no |
+| <a name="input_win_worker_volume_size"></a> [win\_worker\_volume\_size](#input\_win\_worker\_volume\_size) | The volume size (in GB) to use for Windows worker nodes. | `number` | `100` | no |
+| <a name="input_windows_worker_count"></a> [windows\_worker\_count](#input\_windows\_worker\_count) | The number of MKE Windows workers to create. | `number` | `0` | no |
+| <a name="input_worker_count"></a> [worker\_count](#input\_worker\_count) | The number of MKE Linux workers to create. | `number` | `0` | no |
 | <a name="input_worker_type"></a> [worker\_type](#input\_worker\_type) | The AWS instance type to use for Linux/Windows worker nodes. | `string` | `"m5.large"` | no |
-| <a name="input_worker_volume_size"></a> [worker\_volume\_size](#input\_worker\_volume\_size) | The volume size (in GB) to use for worker nodes. | `number` | `50` | no |
+| <a name="input_worker_volume_size"></a> [worker\_volume\_size](#input\_worker\_volume\_size) | The volume size (in GB) to use for worker nodes. | `number` | `100` | no |
 
 ## Outputs
 
@@ -118,6 +133,7 @@
 | <a name="output_mke_cluster"></a> [mke\_cluster](#output\_mke\_cluster) | n/a |
 | <a name="output_mke_lb"></a> [mke\_lb](#output\_mke\_lb) | n/a |
 | <a name="output_mke_san"></a> [mke\_san](#output\_mke\_san) | Use this output is you are trying to build your own launchpad yaml and need the value for "--san={} |
+| <a name="output_mkectl_install_command"></a> [mkectl\_install\_command](#output\_mkectl\_install\_command) | n/a |
 | <a name="output_mkectl_upgrade_command"></a> [mkectl\_upgrade\_command](#output\_mkectl\_upgrade\_command) | n/a |
 | <a name="output_msr_lb"></a> [msr\_lb](#output\_msr\_lb) | n/a |
 | <a name="output_nfs_server"></a> [nfs\_server](#output\_nfs\_server) | n/a |

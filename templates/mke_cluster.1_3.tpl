@@ -39,14 +39,14 @@ spec:
 %{ endfor ~}
 
   mcr:
-    version: ${mcr_version}
+    version: "${mcr_version}"
     repoURL: ${mcr_repoURL}
     installURLLinux: ${mcr_installURLLinux}
     installURLWindows: ${mcr_installURLWindows}
     channel: ${mcr_channel}
 
   mke:
-    version: ${mke_version}
+    version: "${mke_version}"
     imageRepo: ${mke_image_repo}
     adminUsername: ${mke_admin_username}
     adminPassword: ${mke_admin_password}
@@ -63,7 +63,7 @@ spec:
     - "${upgradeFlag}"%{ endfor ~}
 
   msr:
-    version: ${msr_version}
+    version: "${msr_version}"
     imageRepo: ${msr_image_repo}
     installFlags:
     %{ for installFlag in msr_installFlags }
