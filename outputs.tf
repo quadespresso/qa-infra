@@ -186,6 +186,10 @@ output "aws_region" {
   value = var.aws_region
 }
 
+output "mkectl_install_command" {
+  value = "mkectl apply -f mke4.yaml --admin-password orcaorcaorca -l debug 2>&1 | tee  v4.1.1-$(date \"+%Y-%m-%dT%H:%M:%S\").log"
+}
+
 output "mkectl_upgrade_command" {
   value = "mkectl upgrade --hosts-path mke4_upgrade.yaml --mke3-admin-username ${var.admin_username} --mke3-admin-password ${var.admin_password} -l debug --output=upgraded --external-address ${module.elb_mke4.lb_dns_name}  # --force"
 }

@@ -133,6 +133,7 @@
 | <a name="output_mke_cluster"></a> [mke\_cluster](#output\_mke\_cluster) | n/a |
 | <a name="output_mke_lb"></a> [mke\_lb](#output\_mke\_lb) | n/a |
 | <a name="output_mke_san"></a> [mke\_san](#output\_mke\_san) | Use this output is you are trying to build your own launchpad yaml and need the value for "--san={} |
+| <a name="output_mkectl_install_command"></a> [mkectl\_install\_command](#output\_mkectl\_install\_command) | n/a |
 | <a name="output_mkectl_upgrade_command"></a> [mkectl\_upgrade\_command](#output\_mkectl\_upgrade\_command) | n/a |
 | <a name="output_msr_lb"></a> [msr\_lb](#output\_msr\_lb) | n/a |
 | <a name="output_nfs_server"></a> [nfs\_server](#output\_nfs\_server) | n/a |
