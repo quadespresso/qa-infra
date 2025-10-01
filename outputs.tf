@@ -187,7 +187,7 @@ output "aws_region" {
 }
 
 output "mkectl_upgrade_command" {
-  value = "mkectl upgrade --hosts-path mke4_upgrade.yaml --mke3-admin-username ${var.admin_username} --mke3-admin-password ${var.admin_password} -l debug --output=upgraded --external-address \"${module.elb_mke.lb_dns_name}\"  # --force"
+  value = "mkectl upgrade --hosts-path mke4_upgrade.yaml --mke3-admin-username ${var.admin_username} --mke3-admin-password ${var.admin_password} -l debug --output=upgraded --external-address ${module.elb_mke4.lb_dns_name}  # --force"
 }
 
 # Write configs to YAML files
