@@ -84,9 +84,13 @@ variable "manager_count" {
   type        = number
   default     = 1
   description = "The number of MKE managers to create."
+  # validation {
+  #   condition     = var.manager_count > 0
+  #   error_message = "You deployment must have at least 1 manager node"
+  # }
   validation {
-    condition     = var.manager_count > 0
-    error_message = "You deployment must have at least 1 manager node"
+    condition     = var.manager_count > 0 && var.manager_count % 2 == 1
+    error_message = "Manager count must be an odd number > 0 for quorum"
   }
 }
 
