@@ -68,12 +68,6 @@ variable "common_subnet_cidr" {
   description = "The CIDR to use when creating the common subnet."
 }
 
-variable "airgap_subnet_cidr" {
-  type        = string
-  default     = "172.31.1.0/24"
-  description = "The CIDR to use when creating the airgap subnet."
-}
-
 variable "admin_username" {
   type        = string
   default     = "admin"
@@ -223,12 +217,6 @@ variable "mke_install_flags" {
   description = "The MKE installer flags to use."
 }
 
-variable "kube_orchestration" {
-  type        = bool
-  default     = true
-  description = "The option to enable/disable Kubernetes as the default orchestrator."
-}
-
 variable "msr_version" {
   type        = string
   default     = "2.9.19"
@@ -252,12 +240,6 @@ variable "msr_replica_config" {
   type        = string
   default     = "sequential"
   description = "Set to 'sequential' to generate sequential replica id's for cluster members, for example 000000000001, 000000000002, etc. ('random' otherwise)"
-}
-
-variable "msr_enable_nfs" {
-  type        = bool
-  default     = true
-  description = "Option to configure EFS/NFS for use with MSR 2.x"
 }
 
 variable "role_platform" {
@@ -320,6 +302,7 @@ variable "ingress_controller_replicas" {
 }
 
 variable "msr_target_port" {
+  type        = string
   default     = "443"
   description = "The target port for MSR LoadBalancer should lead to this port on the MSR replicas."
 }
@@ -342,40 +325,10 @@ variable "ingress_http_port" {
   description = "NodePort for Ingress Controller HTTP traffic. MUST be within the node_port_range"
 }
 
-variable "dex_http_port" {
-  type        = string
-  default     = "33336"
-  description = "NodePort for Dex HTTP traffic. MUST be within the node_port_range"
-}
-
-variable "dex_https_port" {
-  type        = string
-  default     = "33334"
-  description = "NodePort for Dex HTTPS traffic. MUST be within the node_port_range"
-}
-
-variable "dex_grpc_port" {
-  type        = string
-  default     = "33337"
-  description = "NodePort for Dex gRPC traffic. MUST be within the node_port_range"
-}
-
 variable "airgap" {
   type        = bool
   default     = false
   description = "Whether to create an env without Internet access."
-}
-
-variable "bastion_type" {
-  type        = string
-  default     = "m5.xlarge"
-  description = "The AWS instance type to use for bastion node in an airgapped env."
-}
-
-variable "bastion_volume_size" {
-  type        = number
-  default     = 100
-  description = "The volume size (in GB) to use for bastion node in an airgapped env."
 }
 
 variable "dev_registries" {

@@ -5,6 +5,10 @@
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4.6 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.0, !=5.39 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | >=2.5.3 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | >=3.2.4 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | >=3.7.2 |
+| <a name="requirement_time"></a> [time](#requirement\_time) | >=0.13.1 |
 
 ## Providers
 
@@ -59,16 +63,10 @@
 | <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | The MKE admin password to use. | `string` | `"orcaorcaorca"` | no |
 | <a name="input_admin_username"></a> [admin\_username](#input\_admin\_username) | The MKE admin username to use. | `string` | `"admin"` | no |
 | <a name="input_airgap"></a> [airgap](#input\_airgap) | Whether to create an env without Internet access. | `bool` | `false` | no |
-| <a name="input_airgap_subnet_cidr"></a> [airgap\_subnet\_cidr](#input\_airgap\_subnet\_cidr) | The CIDR to use when creating the airgap subnet. | `string` | `"172.31.1.0/24"` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The AWS region to deploy to. | `string` | `"us-west-2"` | no |
-| <a name="input_bastion_type"></a> [bastion\_type](#input\_bastion\_type) | The AWS instance type to use for bastion node in an airgapped env. | `string` | `"m5.xlarge"` | no |
-| <a name="input_bastion_volume_size"></a> [bastion\_volume\_size](#input\_bastion\_volume\_size) | The volume size (in GB) to use for bastion node in an airgapped env. | `number` | `100` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Global cluster name. Use this to override a dynamically created name. | `string` | `""` | no |
 | <a name="input_common_subnet_cidr"></a> [common\_subnet\_cidr](#input\_common\_subnet\_cidr) | The CIDR to use when creating the common subnet. | `string` | `"172.31.0.0/24"` | no |
 | <a name="input_dev_registries"></a> [dev\_registries](#input\_dev\_registries) | If true, the generated mke4.yaml will use ghcr registries instead of production registry.mirantis.com | `bool` | `false` | no |
-| <a name="input_dex_grpc_port"></a> [dex\_grpc\_port](#input\_dex\_grpc\_port) | NodePort for Dex gRPC traffic. MUST be within the node\_port\_range | `string` | `"33337"` | no |
-| <a name="input_dex_http_port"></a> [dex\_http\_port](#input\_dex\_http\_port) | NodePort for Dex HTTP traffic. MUST be within the node\_port\_range | `string` | `"33336"` | no |
-| <a name="input_dex_https_port"></a> [dex\_https\_port](#input\_dex\_https\_port) | NodePort for Dex HTTPS traffic. MUST be within the node\_port\_range | `string` | `"33334"` | no |
 | <a name="input_enable_fips"></a> [enable\_fips](#input\_enable\_fips) | Enable FIPS mode on the cluster. Be mindful of 'ssh\_algorithm' compatibility. | `bool` | `false` | no |
 | <a name="input_expire_duration"></a> [expire\_duration](#input\_expire\_duration) | The max time to allow this cluster to avoid early termination. Can use 'h', 'm', 's' in sane combinations, eg, '15h37m18s'. | `string` | `"120h"` | no |
 | <a name="input_extra_tags"></a> [extra\_tags](#input\_extra\_tags) | A map of arbitrary, customizable string key/value pairs to be included alongside a preset map of tags to be used across myriad AWS resources. | `map(string)` | `{}` | no |
@@ -77,7 +75,6 @@
 | <a name="input_ingress_controller_replicas"></a> [ingress\_controller\_replicas](#input\_ingress\_controller\_replicas) | Number of replicas for the ingress controller ('ingressController.replicaCount' in the MKE installer YAML file). | `number` | `2` | no |
 | <a name="input_ingress_http_port"></a> [ingress\_http\_port](#input\_ingress\_http\_port) | NodePort for Ingress Controller HTTP traffic. MUST be within the node\_port\_range | `string` | `"33000"` | no |
 | <a name="input_ingress_https_port"></a> [ingress\_https\_port](#input\_ingress\_https\_port) | NodePort for Ingress Controller HTTPS traffic. MUST be within the node\_port\_range | `string` | `"33001"` | no |
-| <a name="input_kube_orchestration"></a> [kube\_orchestration](#input\_kube\_orchestration) | The option to enable/disable Kubernetes as the default orchestrator. | `bool` | `true` | no |
 | <a name="input_manager_count"></a> [manager\_count](#input\_manager\_count) | The number of MKE managers to create. | `number` | `1` | no |
 | <a name="input_manager_type"></a> [manager\_type](#input\_manager\_type) | The AWS instance type to use for manager nodes. | `string` | `"m5.xlarge"` | no |
 | <a name="input_manager_volume_size"></a> [manager\_volume\_size](#input\_manager\_volume\_size) | The volume size (in GB) to use for manager nodes. | `number` | `100` | no |
@@ -90,7 +87,6 @@
 | <a name="input_mke_install_flags"></a> [mke\_install\_flags](#input\_mke\_install\_flags) | The MKE installer flags to use. | `list(string)` | `[]` | no |
 | <a name="input_mke_version"></a> [mke\_version](#input\_mke\_version) | The MKE version to deploy. | `string` | `"3.8.7"` | no |
 | <a name="input_msr_count"></a> [msr\_count](#input\_msr\_count) | The number of MSR replicas to create. | `number` | `0` | no |
-| <a name="input_msr_enable_nfs"></a> [msr\_enable\_nfs](#input\_msr\_enable\_nfs) | Option to configure EFS/NFS for use with MSR 2.x | `bool` | `true` | no |
 | <a name="input_msr_image_repo"></a> [msr\_image\_repo](#input\_msr\_image\_repo) | The repository to pull the MSR images from. | `string` | `"docker.io/mirantis"` | no |
 | <a name="input_msr_install_flags"></a> [msr\_install\_flags](#input\_msr\_install\_flags) | The MSR installer flags to use. | `list(string)` | <pre>[<br/>  "--ucp-insecure-tls"<br/>]</pre> | no |
 | <a name="input_msr_replica_config"></a> [msr\_replica\_config](#input\_msr\_replica\_config) | Set to 'sequential' to generate sequential replica id's for cluster members, for example 000000000001, 000000000002, etc. ('random' otherwise) | `string` | `"sequential"` | no |

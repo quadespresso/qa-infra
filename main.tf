@@ -112,8 +112,17 @@ module "elb_msr" {
   }
   # For MSR 3 and 4, we only have one set of workers instead of msr dedicated nodes,
   # so direct traffic to the workers.  More on TESTING-2305
-  node_ids   = startswith(var.msr_version, "2") ? local.msrs.node_ids : local.workers.node_ids
-  node_count = startswith(var.msr_version, "2") ? local.msr_count : local.worker_count
+  # node_ids   = startswith(var.msr_version, "2") ? local.msrs.node_ids : local.workers.node_ids
+  node_ids = (
+    startswith(var.msr_version, "2") ?
+    (var.msr_count == 0 ? [] : module.msrs.node_ids) :
+    (var.worker_count == 0 ? [] : module.workers.node_ids)
+  )
+  node_count = (
+    startswith(var.msr_version, "2") ?
+    local.msr_count :
+    local.worker_count
+  )
 
   globals = local.globals
 }
@@ -191,10 +200,14 @@ locals {
   worker_count = local.msr_version_major == 2 ? var.worker_count : var.worker_count + var.msr_count
   msr_count    = local.msr_version_major == 2 ? var.msr_count : 0
 
-  managers        = var.manager_count == [] ? null : module.managers
-  workers         = var.worker_count == [] ? null : module.workers
-  msrs            = var.msr_count == [] ? null : module.msrs
-  windows_workers = var.windows_worker_count == [] ? null : module.windows_workers
+  # managers        = var.manager_count == 0 ? [] : module.managers
+  # workers         = var.worker_count == 0 ? [] : module.workers
+  # msrs            = var.msr_count == 0 ? [] : module.msrs
+  # windows_workers = var.windows_worker_count == 0 ? [] : module.windows_workers
+  managers        = var.manager_count == 0 ? null : module.managers
+  workers         = var.worker_count == 0 ? null : module.workers
+  msrs            = var.msr_count == 0 ? null : module.msrs
+  windows_workers = var.windows_worker_count == 0 ? null : module.windows_workers
   elb_msr         = var.msr_count == 0 ? null : module.elb_msr
   efs = (
     local.msr_count > 0

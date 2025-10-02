@@ -87,18 +87,23 @@ locals {
   ansible_inventory = templatefile("${path.module}/templates/ansible_inventory.tpl",
     {
       # user      = local.ami_obj.user,
-      key_file      = local.key_path,
-      win_passwd    = var.win_admin_password,
-      mgr_hosts     = local.managers.instances,
-      mgr_user      = local.managers.user,
-      mgr_idxs      = range(var.manager_count),
-      wkr_hosts     = local.workers.instances,
-      wkr_user      = local.workers.user,
-      wkr_idxs      = range(local.worker_count),
-      msr_hosts     = local.msrs.instances,
-      msr_user      = local.msrs.user,
-      msr_idxs      = range(local.msr_count),
-      win_wkr_hosts = local.windows_workers.instances,
+      key_file   = local.key_path,
+      win_passwd = var.win_admin_password,
+      mgr_hosts  = local.managers.instances,
+      mgr_user   = local.managers.user,
+      mgr_idxs   = range(var.manager_count),
+      # wkr_hosts  = local.workers.instances,
+      # wkr_user   = local.workers.user,
+      wkr_hosts = local.workers != null ? local.workers.instances : []
+      wkr_user  = local.workers != null ? local.workers.user : ""
+      wkr_idxs  = range(local.worker_count),
+      # msr_hosts     = local.msrs.instances,
+      # msr_user      = local.msrs.user,
+      msr_hosts = local.msrs != null ? local.msrs.instances : []
+      msr_user  = local.msrs != null ? local.msrs.user : ""
+      msr_idxs  = range(local.msr_count),
+      # win_wkr_hosts = local.windows_workers.instances,
+      win_wkr_hosts = local.windows_workers != null ? local.windows_workers.instances : []
       win_wkr_idxs  = range(var.windows_worker_count),
       linux_user    = local.managers.user
     }
