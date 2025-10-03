@@ -12,10 +12,10 @@ locals {
     var.globals.tags,
     local.role_tag
   )
-  tags_nokube = merge(
-    var.globals.tags_nokube,
-    local.role_tag
-  )
+  # tags_nokube = merge(
+  #   var.globals.tags_nokube,
+  #   local.role_tag
+  # )
   role_platform    = var.globals.role_platform
   default_platform = var.globals.default_platform
   platform = coalesce(
@@ -26,17 +26,17 @@ locals {
   scripts_dir     = "${path.module}/../scripts"
   hostname_script = "${local.scripts_dir}/user_data_hostname.sh"
 
-  platform_script = fileexists(
-    "${local.scripts_dir}/user_data_${local.platform}.sh"
-    ) ? (
-    "${local.scripts_dir}/user_data_${local.platform}.sh"
-    ) : (
-    "${local.scripts_dir}/user_data_default.sh"
-  )
+  # platform_script = fileexists(
+  #   "${local.scripts_dir}/user_data_${local.platform}.sh"
+  #   ) ? (
+  #   "${local.scripts_dir}/user_data_${local.platform}.sh"
+  #   ) : (
+  #   "${local.scripts_dir}/user_data_default.sh"
+  # )
 
-  distro_script = "${local.scripts_dir}/user_data_${local.distro}.sh"
+  # distro_script = "${local.scripts_dir}/user_data_${local.distro}.sh"
 
-  final_linux_script = "${local.scripts_dir}/user_data_linux_final.sh"
+  # final_linux_script = "${local.scripts_dir}/user_data_linux_final.sh"
 
   templates  = "${path.module}/../templates"
   cloud_init = "${local.templates}/cloud_init"

@@ -1,6 +1,4 @@
 variable "ports" {
-  # type        = list(string)
-  # default     = ["443"]
   type = map(string)
   default = {
     443 : "443"
@@ -10,18 +8,23 @@ variable "ports" {
 
 variable "node_count" {
   type        = number
+  default     = 0
   description = "Number of nodes in the cluster."
 }
 
 variable "node_ids" {
+  type        = list(any)
+  default     = []
   description = "List of node instance IDs."
 }
 
 variable "component" {
   type        = string
+  default     = ""
   description = "Brief name of product component, ie, 'mke', 'msr'."
 }
 
 variable "globals" {
+  type        = any
   description = "Map of global variables."
 }

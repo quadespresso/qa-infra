@@ -13,10 +13,10 @@ locals {
     var.globals.tags,
     local.tag_role
   )
-  tags_nokube = merge(
-    var.globals.tags_nokube,
-    local.tag_role
-  )
+  # tags_nokube = merge(
+  #   var.globals.tags_nokube,
+  #   local.tag_role
+  # )
   platform = var.globals.default_platform[local.os]
   user_data_windows = templatefile(
     "${path.module}/../templates/user_data_windows.tpl",

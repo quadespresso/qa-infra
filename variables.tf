@@ -293,11 +293,11 @@ variable "enable_fips" {
   description = "Enable FIPS mode on the cluster. Be mindful of 'ssh_algorithm' compatibility."
 }
 
-variable "open_sg_for_myip" {
-  type        = bool
-  default     = false
-  description = "If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly."
-}
+# variable "open_sg_for_myip" {
+#   type        = bool
+#   default     = false
+#   description = "If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly."
+# }
 
 variable "ingress_controller_replicas" {
   type        = number

@@ -21,11 +21,11 @@ variable "role" {
   description = "The node's role in the cluster, ie, manager/worker/msr/windows."
 }
 
-variable "life_cycle" {
-  type        = string
-  default     = "ondemand"
-  description = "Deploy instances as either 'spot' or 'ondemand'"
-}
+# variable "life_cycle" {
+#   type        = string
+#   default     = "ondemand"
+#   description = "Deploy instances as either 'spot' or 'ondemand'"
+# }
 
 variable "enable_fips" {
   type    = bool
@@ -38,5 +38,6 @@ variable "enable_fips" {
 }
 
 variable "globals" {
+  type        = any
   description = "Map of global variables."
 }

@@ -95,7 +95,6 @@
 | <a name="input_msr_version"></a> [msr\_version](#input\_msr\_version) | The MSR version to deploy. | `string` | `"2.9.19"` | no |
 | <a name="input_msr_volume_size"></a> [msr\_volume\_size](#input\_msr\_volume\_size) | The volume size (in GB) to use for MSR replica nodes. | `number` | `100` | no |
 | <a name="input_node_port_range"></a> [node\_port\_range](#input\_node\_port\_range) | MKE 4 node port range specified in .spec.network.nodePortRange | `string` | `"32768-35535"` | no |
-| <a name="input_open_sg_for_myip"></a> [open\_sg\_for\_myip](#input\_open\_sg\_for\_myip) | If true, allow ALL traffic, ANY protocol, originating from the terraform execution source IP. Use sparingly. | `bool` | `false` | no |
 | <a name="input_platform"></a> [platform](#input\_platform) | The Linux platform to use for manager/worker/MSR replica nodes | `string` | `"ubuntu_22.04"` | no |
 | <a name="input_project"></a> [project](#input\_project) | One of the official cost-tracking project names. Without this, your cluster may get terminated without warning. | `string` | `"UNDEFINED"` | no |
 | <a name="input_role_platform"></a> [role\_platform](#input\_role\_platform) | Platform names based on role. Linux-only, Windows uses win\_platform only. | `map(any)` | <pre>{<br/>  "manager": null,<br/>  "msr": null,<br/>  "worker": null<br/>}</pre> | no |
@@ -120,6 +119,7 @@
 | <a name="output_aws_region"></a> [aws\_region](#output\_aws\_region) | n/a |
 | <a name="output_blueprint"></a> [blueprint](#output\_blueprint) | n/a |
 | <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | n/a |
+| <a name="output_debug_hosts"></a> [debug\_hosts](#output\_debug\_hosts) | n/a |
 | <a name="output_hosts"></a> [hosts](#output\_hosts) | n/a |
 | <a name="output_k0sctl"></a> [k0sctl](#output\_k0sctl) | n/a |
 | <a name="output_launchpad"></a> [launchpad](#output\_launchpad) | n/a |

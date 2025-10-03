@@ -61,16 +61,16 @@ module "efs" {
 }
 
 module "common" {
-  source           = "./modules/common"
-  cluster_name     = local.cluster_name
-  vpc_id           = module.vpc.id
-  ami_obj          = local.ami_obj
-  ami_obj_win      = local.ami_obj_win
-  key_path         = local.key_path
-  ssh_algorithm    = local.ssh_algorithm
-  open_sg_for_myip = var.open_sg_for_myip
-  controller_port  = local.controller_port
-  global_tags      = local.global_tags
+  source       = "./modules/common"
+  cluster_name = local.cluster_name
+  vpc_id       = module.vpc.id
+  # ami_obj          = local.ami_obj
+  # ami_obj_win      = local.ami_obj_win
+  key_path      = local.key_path
+  ssh_algorithm = local.ssh_algorithm
+  # open_sg_for_myip = var.open_sg_for_myip
+  controller_port = local.controller_port
+  global_tags     = local.global_tags
 }
 
 module "elb_mke" {
@@ -132,10 +132,10 @@ module "managers" {
   role          = "manager"
   node_count    = var.manager_count
   instance_type = var.manager_type
-  life_cycle    = "ondemand"
-  volume_size   = var.manager_volume_size
-  enable_fips   = var.enable_fips
-  globals       = local.globals
+  # life_cycle    = "ondemand"
+  volume_size = var.manager_volume_size
+  enable_fips = var.enable_fips
+  globals     = local.globals
 }
 
 module "workers" {
@@ -143,10 +143,10 @@ module "workers" {
   role          = "worker"
   node_count    = local.worker_count
   instance_type = var.worker_type
-  life_cycle    = "ondemand"
-  volume_size   = var.worker_volume_size
-  enable_fips   = var.enable_fips
-  globals       = local.globals
+  # life_cycle    = "ondemand"
+  volume_size = var.worker_volume_size
+  enable_fips = var.enable_fips
+  globals     = local.globals
 }
 
 module "msrs" {
@@ -154,18 +154,18 @@ module "msrs" {
   role          = "msr"
   node_count    = local.msr_count
   instance_type = var.msr_type
-  life_cycle    = "ondemand"
-  volume_size   = var.msr_volume_size
-  enable_fips   = var.enable_fips
-  globals       = local.globals
+  # life_cycle    = "ondemand"
+  volume_size = var.msr_volume_size
+  enable_fips = var.enable_fips
+  globals     = local.globals
 }
 
 module "windows_workers" {
-  source             = "./modules/windows"
-  role               = "worker"
-  node_count         = var.windows_worker_count
-  instance_type      = var.worker_type
-  life_cycle         = "ondemand"
+  source        = "./modules/windows"
+  role          = "worker"
+  node_count    = var.windows_worker_count
+  instance_type = var.worker_type
+  # life_cycle         = "ondemand"
   volume_size        = var.win_worker_volume_size
   enable_fips        = var.enable_fips
   win_admin_password = var.win_admin_password
@@ -179,8 +179,8 @@ locals {
   cluster_name  = var.cluster_name == "" ? random_string.random.result : var.cluster_name
   expire        = timeadd(time_static.now.rfc3339, var.expire_duration)
   platforms_map = jsondecode(file("${path.root}/etc/platforms.json"))
-  ami_obj       = local.platforms_map[var.platform]
-  ami_obj_win   = local.platforms_map[var.win_platform]
+  # ami_obj       = local.platforms_map[var.platform]
+  ami_obj_win = local.platforms_map[var.win_platform]
   default_platform = {
     "linux"   = var.platform
     "windows" = var.win_platform

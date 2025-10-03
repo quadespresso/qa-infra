@@ -1,5 +1,17 @@
+terraform {
+  required_version = ">= 1.4.6"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">=5.0, !=5.39"
+    }
+  }
+}
+
 variable "platform" {
-  description = "Simple platform name, eg, 'ubuntu_20.04' - see .../etc/platforms.json for full reference."
+  type        = string
+  default     = "ubuntu_24.04"
+  description = "Simple platform name, eg, 'ubuntu_24.04' - see .../etc/platforms.json for full reference."
 }
 
 ### main

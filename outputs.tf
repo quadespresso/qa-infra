@@ -1,3 +1,6 @@
+output "debug_hosts" {
+  value = local.hosts
+}
 
 locals {
 

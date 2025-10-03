@@ -1,4 +1,5 @@
 variable "globals" {
+  type        = any
   description = "Map of global variables."
 }
 
@@ -18,10 +19,12 @@ variable "node_count" {
 }
 
 variable "tags" {
+  type        = map(any)
   description = "Map of local tags."
 }
 
 variable "user_data" {
+  type        = string
   description = "User data script to be passed to cloud-init."
 }
 

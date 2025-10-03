@@ -1,4 +1,5 @@
 variable "globals" {
+  type        = any
   description = "Map of global variables."
 }
 
@@ -13,11 +14,11 @@ variable "role" {
   description = "The node's role in the cluster, ie, manager/worker/msr."
 }
 
-variable "life_cycle" {
-  type        = string
-  default     = "ondemand"
-  description = "Deploy instances as either 'spot' or 'ondemand'"
-}
+# variable "life_cycle" {
+#   type        = string
+#   default     = "ondemand"
+#   description = "Deploy instances as either 'spot' or 'ondemand'"
+# }
 
 variable "instance_type" {
   type        = string
@@ -26,6 +27,7 @@ variable "instance_type" {
 }
 
 variable "volume_size" {
+  type    = number
   default = 100
 }
 

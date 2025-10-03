@@ -39,138 +39,106 @@ resource "aws_security_group" "common" {
   description = "mke cluster common rules"
   vpc_id      = var.vpc_id
   tags        = var.global_tags
+}
 
-  ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    self      = true
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_self" {
+  description                  = "Allow all traffic originating from within the security group"
+  security_group_id            = aws_security_group.common.id
+  referenced_security_group_id = aws_security_group.common.id
+  ip_protocol                  = "-1"
+}
 
-  ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-    # cidr_blocks = ["0.0.0.0/0"]
-    cidr_blocks = ["${chomp(data.http.ip_service.response_body)}/32"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
+  description       = "Allow traffic to ssh"
+  security_group_id = aws_security_group.common.id
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "${chomp(data.http.ip_service.response_body)}/32"
+}
 
-  ingress {
-    from_port = 2379
-    to_port   = 2380
-    protocol  = "tcp"
-    self      = true
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_mke_controller" {
+  description       = "Allow traffic to MKE controller port"
+  security_group_id = aws_security_group.common.id
+  from_port         = var.controller_port
+  to_port           = var.controller_port
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "${chomp(data.http.ip_service.response_body)}/32"
+}
 
-  ingress {
-    from_port   = var.controller_port
-    to_port     = var.controller_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_8443" {
+  description       = "Allow traffic to port 8443"
+  security_group_id = aws_security_group.common.id
+  from_port         = 8443
+  to_port           = 8443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "${chomp(data.http.ip_service.response_body)}/32"
+}
 
-  ingress {
-    from_port   = 8443
-    to_port     = 8443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_kube_api" {
+  description       = "Allow traffic to the kube API"
+  security_group_id = aws_security_group.common.id
+  from_port         = 6443
+  to_port           = 6443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "${chomp(data.http.ip_service.response_body)}/32"
+}
 
-  ingress {
-    from_port   = 6443
-    to_port     = 6443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_rdp" {
+  description       = "Allow traffic to MSFT RDP"
+  security_group_id = aws_security_group.common.id
+  from_port         = 3389
+  to_port           = 3389
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "${chomp(data.http.ip_service.response_body)}/32"
+}
 
-  ingress {
-    from_port   = 3389
-    to_port     = 3389
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_https" {
+  description       = "Allow traffic to HTTPS"
+  security_group_id = aws_security_group.common.id
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "${chomp(data.http.ip_service.response_body)}/32"
+}
 
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_winrm" {
+  description       = "Allow traffic to WinRM"
+  security_group_id = aws_security_group.common.id
+  from_port         = 5985
+  to_port           = 5986
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "${chomp(data.http.ip_service.response_body)}/32"
+}
 
-  ingress {
-    from_port   = 5985
-    to_port     = 5986
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_mke4k_ui" {
+  description       = "Allow traffic to MKE4k web UI"
+  security_group_id = aws_security_group.common.id
+  from_port         = 33000
+  to_port           = 33001
+  ip_protocol       = "tcp"
+  # cidr_ipv4 = "${chomp(data.http.ip_service.response_body)}/32"
+  cidr_ipv4 = "0.0.0.0/0"
+}
 
-  # new for MKE 4, post full integration (without helper container or kubectl proxy)
-  ingress {
-    from_port   = 33001
-    to_port     = 33001
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "allow_nodeport_range" {
+  description       = "Allow traffic to nodeport range"
+  security_group_id = aws_security_group.common.id
+  from_port         = 32768
+  to_port           = 35535
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "${chomp(data.http.ip_service.response_body)}/32"
+}
 
-  ingress {
-    from_port   = 8132
-    to_port     = 8132
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
-  ingress {
-    from_port   = 9443
-    to_port     = 9443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 12393
-    to_port     = 12393
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 33337
-    to_port     = 33337
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  # end of new ports required for MKE 4
-
-  # nodeport_range as described here:
-  # https://docs.mirantis.com/mke/3.6/ops/administer-cluster/configure-an-mke-cluster/configuration-options.html?highlight=nodeport_range
-  ingress {
-    from_port   = 32768
-    to_port     = 35535
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # opens everything to the outside world - handy for testing
-  # ingress {
-  #   from_port   = 0
-  #   to_port     = 0
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
+  description       = "Allow traffic everywhere"
+  security_group_id = aws_security_group.common.id
+  from_port         = 0
+  to_port           = 0
+  ip_protocol       = "tcp"
+  # cidr_ipv4 = "${chomp(data.http.ip_service.response_body)}/32"
+  cidr_ipv4 = "0.0.0.0/0" # trivy:ignore:AVD-AWS-0104
 }
 
 # Leaving this here for now, as TEST-1655 may find some use for it.
